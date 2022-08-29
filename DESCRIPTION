@@ -12,3 +12,5 @@ Remotes:
     USAID-OHA-SI/glamr,
     USAID-OHA-SI/glitr,
     USAID-OHA-SI/gagglr
+Imports: 
+    magrittr
