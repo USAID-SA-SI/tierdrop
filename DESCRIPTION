@@ -3,8 +3,12 @@ Title: TierDrop: Data Processing, Consolidation, and Verification for USAID/Sout
 Version: 0.0.0.9000
 Authors@R: 
     person("Karishma", "Srikanth", , "ksrikanth@usaid.gov", role = c("aut", "cre"))
-Description: Package to process, validate, and consolidate MER data from TIER/non-TIER sources for DATIM Import
+Description: This is a package to process, validate, and consolidate MER data from TIER/non-TIER sources for USAID South AFrica's DATIM Import.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
+Remotes: 
+    USAID-OHA-SI/glamr,
+    USAID-OHA-SI/glitr,
+    USAID-OHA-SI/gagglr
