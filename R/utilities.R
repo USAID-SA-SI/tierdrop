@@ -16,7 +16,7 @@ dir_setup <- function() {
 
   #if (!base::dir.exists(file.path(".", folders)))
     glamr::folder_setup(folders)
-   #glamr::setup_gitignore()
+   glamr::setup_gitignore()
 
     print(glue::glue_col("{yellow Please save the following files to the data-raw/NDOH folder:
                          } Latest NDOH File
