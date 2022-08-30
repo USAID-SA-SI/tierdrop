@@ -20,11 +20,11 @@ ndoh_all <- import_ndoh(qtr = "Q3", kp = FALSE)
 #check for facility alignment between MFL and NDOH - okay if they are all Correctional
 validate_ndoh(ndoh_all)
 
-tidy_ndoh(ndoh_all, kp = FALSE)
+ndoh_clean <- tidy_ndoh(ndoh_all, kp = FALSE)
 
 # kp ----------------------------
 
 ndoh_kp <- import_ndoh(qtr = "Q3", kp = TRUE)
 validate_ndoh(ndoh_kp)
-tidy_ndoh(ndoh_kp, kp = TRUE)
+ndoh_clean_kp <- tidy_ndoh(ndoh_kp, kp = TRUE)
 
