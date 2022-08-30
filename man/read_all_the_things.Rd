@@ -17,3 +17,9 @@ read_all_the_things(path, sheet)
 \description{
 Read tabs from NDOH for each indicator and adjust column names
 }
+\examples{
+\dontrun{
+
+  df <- read_all_the_things(filepath, "TX_CURR")
+}
+}

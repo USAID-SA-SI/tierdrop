@@ -36,6 +36,10 @@ dir_setup <- function() {
 #' @export
 #'
 #' @examples
+#' \dontrun{
+#'
+#'   df <- read_all_the_things(filepath, "TX_CURR")
+#' }
 read_all_the_things <- function(path, sheet){
 
   col_renamed <- switch(sheet,
@@ -72,9 +76,9 @@ read_all_the_things <- function(path, sheet){
   df <- readxl::read_excel(path, sheet, col_names = col_renamed,  col_types = "text", skip =1)
 
   df <-  df %>%
-    mutate(indicator = sheet,
+    dplyr::mutate(indicator = sheet,
            Total = as.numeric(Total),
-           Code = str_replace(Code, ".0$", ""))
+           Code = stringr::str_replace(Code, ".0$", ""))
 
   return(df)
 }
