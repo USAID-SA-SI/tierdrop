@@ -6,6 +6,9 @@
 \usage{
 validate_ndoh(df)
 }
+\arguments{
+\item{df}{NDOH dataframe to validate}
+}
 \value{
 
 }

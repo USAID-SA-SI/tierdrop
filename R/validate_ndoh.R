@@ -1,5 +1,8 @@
 #' Validate facilities reported in NDOH by MFL
 #'
+#' @param df NDOH dataframe to validate
+
+#'
 #' @return
 #' @export
 #'
