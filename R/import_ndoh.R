@@ -32,7 +32,7 @@ import_ndoh <- function(qtr, kp = FALSE) {
     dplyr::relocate(Result, .after = CoarseAgeGroup)
 
 
-  df <- df %>%
+  df_final <- df %>%
     dplyr::mutate(District = dplyr::recode(District,
                                            "fs Thabo Mofutsanyana District Municipality" = "fs Thabo Mofutsanyane District Municipality")) %>%
     dplyr::filter(District %in% usaid_dsp_district) %>%
@@ -49,7 +49,7 @@ import_ndoh <- function(qtr, kp = FALSE) {
 
   if (kp == TRUE) {
     #Aggregate across KP groups
-    df_final <- df %>%
+    df_final <- df_final %>%
       dplyr::group_by(Province, District, SubDistrict, Facility, Code, `Test Result/Outcome/Duration`,
                Sex, CoarseAgeGroup, Result, indicator) %>%
       dplyr::summarise(dplyr::across(starts_with("Total"), sum, na.rm = TRUE), .groups = "drop")
