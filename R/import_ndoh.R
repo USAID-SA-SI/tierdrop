@@ -26,13 +26,13 @@ import_ndoh <- function(qtr, kp = FALSE) {
   }
 
   #Read in TIER with new function
-  ndoh_all <- indic_list %>%
+  df <- indic_list %>%
     purrr::map_dfr(.f = ~ read_all_the_things(ndoh_filepath, sheet = .x)) %>%
     dplyr::relocate(`Test Result/Outcome/Duration`, .after = Code) %>%
     dplyr::relocate(Result, .after = CoarseAgeGroup)
 
 
-  ndoh_all <- ndoh_all %>%
+  df <- df %>%
     dplyr::mutate(District = dplyr::recode(District,
                                            "fs Thabo Mofutsanyana District Municipality" = "fs Thabo Mofutsanyane District Municipality")) %>%
     dplyr::filter(District %in% usaid_dsp_district) %>%
@@ -47,7 +47,17 @@ import_ndoh <- function(qtr, kp = FALSE) {
     #  dplyr::count(Facility, Code) %>%
     dplyr::select(-c(code_num, Old_OU5Code))
 
-return(ndoh_all)
+  if (kp == TRUE) {
+    #Aggregate across KP groups
+    df_final <- df %>%
+      dplyr::group_by(Province, District, SubDistrict, Facility, Code, `Test Result/Outcome/Duration`,
+               Sex, CoarseAgeGroup, Result, indicator) %>%
+      dplyr::summarise(dplyr::across(starts_with("Total"), sum, na.rm = TRUE), .groups = "drop")
+
+
+  }
+
+return(df_final)
 }
 
 
