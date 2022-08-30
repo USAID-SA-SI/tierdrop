@@ -6,5 +6,7 @@ utils::globalVariables(c("OU2name", "ou5name", "ou5uid", "datim_uid",
                          "names_tb_stat_n", "names_tx_tb_d", "names_tx_tb_n", "names_tb_prev",
                          "names_prep_new_kp", "names_prep_ct_kp", "names_hts_tst_kp",
                          "names_tx_new_kp", "names_tx_curr_kp", "names_tx_ml_kp", "names_tx_pvls_kp",
-                         "names_arvdisp", "Total", "Code", ""
+                         "names_arvdisp", "Total", "Code", "Test Result/Outcome/Duration", "Result",
+                         "CoarseAgeGroup", "Sex", "District", "Province","SubDistrict", "Facility",
+                         "code_num", "mfl_new_df", "OU5name", "Old_OU5Code"
                          ))

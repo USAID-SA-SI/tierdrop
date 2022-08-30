@@ -38,7 +38,7 @@ import_ndoh <- function(qtr, kp = FALSE) {
     dplyr::filter(District %in% usaid_dsp_district) %>%
     dplyr::mutate(code_num = stringr::str_length(Code)) %>%
     dplyr::group_by(Province, District, SubDistrict, Facility) %>%
-    dplyr::arrange(desc(code_num)) %>%
+    dplyr::arrange(dplyr::desc(code_num)) %>%
     dplyr::left_join(mfl_new_df %>% dplyr::select(OU5name, Old_OU5Code), by = c("Facility" = "OU5name")) %>%
     dplyr::mutate(Old_OU5Code = as.character(Old_OU5Code),
                   Code = ifelse(code_num < 6, Old_OU5Code, Code)) %>%
