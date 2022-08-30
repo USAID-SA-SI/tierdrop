@@ -11,6 +11,14 @@ RoxygenNote: 7.1.2
 Remotes: 
     USAID-OHA-SI/glamr,
     USAID-OHA-SI/glitr,
-    USAID-OHA-SI/gagglr
+    USAID-OHA-SI/gagglr,
+    USAID-OHA-SI/Wavelength
 Imports: 
-    magrittr
+    magrittr,
+    dplyr,
+    tidyr,
+    glue,
+    googlesheets4,
+    stringr,
+    janitor,
+    tidyselect
