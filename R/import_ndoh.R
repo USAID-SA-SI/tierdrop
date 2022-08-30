@@ -52,7 +52,7 @@ import_ndoh <- function(qtr, kp = FALSE) {
     df_final <- df_final %>%
       dplyr::group_by(Province, District, SubDistrict, Facility, Code, `Test Result/Outcome/Duration`,
                Sex, CoarseAgeGroup, Result, indicator) %>%
-      dplyr::summarise(dplyr::across(starts_with("Total"), sum, na.rm = TRUE), .groups = "drop")
+      dplyr::summarise(dplyr::across(tidyselect::starts_with("Total"), sum, na.rm = TRUE), .groups = "drop")
 
 
   }

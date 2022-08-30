@@ -23,7 +23,8 @@ Imports:
     janitor,
     tidyselect,
     readxl,
-    purrr
+    purrr,
+    crayon
 Depends: 
     R (>= 2.10)
 LazyData: true

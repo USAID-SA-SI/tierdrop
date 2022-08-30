@@ -52,7 +52,7 @@ tidy_ndoh <- function(df, kp = FALSE) {
     dplyr::group_by(usaid_facility, ou5uid, datim_uid, old_ou5code, period, DSD_TA,
              Province, District, SubDistrict, Facility, `Test Result/Outcome/Duration`,
              Sex, CoarseAgeGroup, Result, indicator, numeratordenom) %>%
-    dplyr::summarise(dplyr::across(starts_with("Total"), sum, na.rm = TRUE), .groups = "drop")
+    dplyr::summarise(dplyr::across(tidyselect::starts_with("Total"), sum, na.rm = TRUE), .groups = "drop")
 
   ndoh_clean <- ndoh_clean %>%
     dplyr::filter(CoarseAgeGroup != "50+") %>%
