@@ -84,3 +84,38 @@ read_all_the_things <- function(path, sheet){
 }
 
 
+#' Paint console text in yellow
+#'
+#' @param txt text to be printed
+#' @export
+#'
+paint_yellow <- function(txt) {
+  msg <- crayon::yellow(txt)
+  return(msg)
+}
+
+#' Paint if true
+#'
+#' @param value text to be painted and printed
+#' @param true_paint crayon function to execute
+#' @param false_paint crayon function to execute
+#' @export
+#'
+paint_iftrue <- function(value,
+                         true_paint = crayon::green,
+                         false_paint = crayon::red) {
+
+  ifelse(base::isTRUE(value), true_paint(value), false_paint(value))
+}
+
+#' Paint console text in green
+#'
+#' @param txt text to be printed
+#' @export
+#'
+paint_green <- function(txt) {
+  msg <- crayon::green(txt)
+  return(msg)
+}
+
+
