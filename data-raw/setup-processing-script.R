@@ -17,4 +17,10 @@ df_fac <- clean_mfl()
 #first for non-KP indics
 ndoh_all <- import_ndoh(qtr = "Q3", kp = FALSE)
 
+#check for facility alignment between MFL and NDOH - okay if they are all Correctional
+validate_ndoh(ndoh_all)
+
+# kp ----------------------------
+
 ndoh_kp <- import_ndoh(qtr = "Q3", kp = TRUE)
+validate_ndoh(ndoh_kp)
