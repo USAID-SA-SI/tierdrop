@@ -2,8 +2,9 @@
 dir_setup()
 
 #set folderpaths
-folderpath <- 'data-raw/NDOH'
-ndoh_filepath <- folderpath %>% glamr::return_latest()
+ndoh_folderpath <- 'data-raw/NDOH'
+reference_folder <- "data-raw/Reference Files"
+ndoh_filepath <- ndoh_folderpath %>% glamr::return_latest()
 
 #Load MFL as is
 mfl_new_df <- googlesheets4::read_sheet(mfl_new_id)
