@@ -24,7 +24,9 @@ Imports:
     tidyselect,
     readxl,
     purrr,
-    crayon
+    crayon,
+    curl,
+    readr
 Depends: 
     R (>= 2.10)
 LazyData: true

@@ -9,6 +9,7 @@ utils::globalVariables(c("OU2name", "ou5name", "ou5uid", "datim_uid",
                          "names_arvdisp", "Total", "Code", "Test Result/Outcome/Duration", "Result",
                          "CoarseAgeGroup", "Sex", "District", "Province","SubDistrict", "Facility",
                          "code_num", "mfl_new_df", "OU5name", "Old_OU5Code", "df_fac", "indicator",
-                         "usaid_facility", "numeratordenom"
+                         "usaid_facility", "numeratordenom", "agency", "code", "mech_name",
+                         "mechanism", "ou", "partner", "uid"
 
                          ))
