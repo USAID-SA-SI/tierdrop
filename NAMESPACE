@@ -3,6 +3,7 @@
 export("%>%")
 export(clean_mfl)
 export(dir_setup)
+export(grab_mech_data)
 export(import_ndoh)
 export(mfl_new_id)
 export(non_tier_qtr)
