@@ -11,7 +11,7 @@
 
 dir_setup <- function() {
 
-  folders <- list("data-raw", "data-raw/NDOH", "data-raw/Reference Files")
+  folders <- list("data-raw", "data-raw/NDOH", "data-raw/Reference Files", "data-raw/MSD-Genie")
   data_files <- c("NDOH File", "Disaggregate Mapping File")
 
   #if (!base::dir.exists(file.path(".", folders)))
@@ -21,7 +21,9 @@ dir_setup <- function() {
     print(glue::glue_col("{yellow Please save the following files to the data-raw/NDOH folder:
                          } Latest NDOH File
                          {yellow Please save the following files to the data-raw/Reference Files folder:
-                         } Completed Disaggregate Mapping Reference File"))
+                         } Completed Disaggregate Mapping Reference File
+                         {yellow Please save the following files to the data-raw/MSD-Genie folder:
+                         } Most recent site-level MSD or data-pull from Genie"))
 
 
 
