@@ -120,4 +120,9 @@ paint_green <- function(txt) {
   return(msg)
 }
 
+#' @title Negate in
+#' @description negate `%in%`
+#' @export
+`%ni%` <- Negate(`%in%`)
+
 
