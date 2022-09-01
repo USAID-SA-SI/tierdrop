@@ -1,5 +1,6 @@
 #' Import NDOH tabs
 #'
+#' @param filepath provide the full file path for the NDOH import file
 #' @param qtr return the quarter of the NDOH reporting file
 #' @param kp processes KP tabs if TRUE and non-KP tabs if FALSE (default kp = FALSE)
 #'
@@ -13,7 +14,7 @@
 #' }
 #'
 
-import_ndoh <- function(qtr, kp = FALSE) {
+import_ndoh <- function(filepath, qtr, kp = FALSE) {
 
   if (qtr %in% c("Q1", "Q3") & kp == FALSE) {
     indic_list <- tier_qtr
@@ -27,7 +28,7 @@ import_ndoh <- function(qtr, kp = FALSE) {
 
   #Read in TIER with new function
   df <- indic_list %>%
-    purrr::map_dfr(.f = ~ read_all_the_things(ndoh_filepath, sheet = .x)) %>%
+    purrr::map_dfr(.f = ~ read_all_the_things(filepath, sheet = .x)) %>%
     dplyr::relocate(`Test Result/Outcome/Duration`, .after = Code) %>%
     dplyr::relocate(Result, .after = CoarseAgeGroup)
 

@@ -4,9 +4,11 @@
 \alias{import_ndoh}
 \title{Import NDOH tabs}
 \usage{
-import_ndoh(qtr, kp = FALSE)
+import_ndoh(filepath, qtr, kp = FALSE)
 }
 \arguments{
+\item{filepath}{provide the full file path for the NDOH import file}
+
 \item{qtr}{return the quarter of the NDOH reporting file}
 
 \item{kp}{processes KP tabs if TRUE and non-KP tabs if FALSE (default kp = FALSE)}
