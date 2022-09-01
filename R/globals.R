@@ -10,6 +10,8 @@ utils::globalVariables(c("OU2name", "ou5name", "ou5uid", "datim_uid",
                          "CoarseAgeGroup", "Sex", "District", "Province","SubDistrict", "Facility",
                          "code_num", "mfl_new_df", "OU5name", "Old_OU5Code", "df_fac", "indicator",
                          "usaid_facility", "numeratordenom", "agency", "code", "mech_name",
-                         "mechanism", "ou", "partner", "uid"
+                         "mechanism", "ou", "partner", "uid", "facilityuid", "fiscal_year",
+                         "funding_agency", "mech_code","mech_uid", "msd_folder", "n", "operatingunit",
+                         "prime_partner_name", "reference_folder", "sitename"
 
                          ))

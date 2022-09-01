@@ -10,6 +10,7 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
 Remotes: 
     USAID-OHA-SI/glamr,
+    USAID-OHA-SI/gophr,
     USAID-OHA-SI/glitr,
     USAID-OHA-SI/gagglr,
     USAID-OHA-SI/Wavelength
