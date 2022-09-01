@@ -4,10 +4,12 @@
 \alias{grab_mech_data}
 \title{Grab site-level mechanism mechdata from DATIM/recent MSD}
 \usage{
-grab_mech_data(df, extra_mechs = FALSE)
+grab_mech_data(mech_df, msd_df, extra_mechs = FALSE)
 }
 \arguments{
-\item{df}{Calls on mechanism meta-data that is pulled by \code{pull_mech_uid()}}
+\item{mech_df}{Calls on mechanism meta-data that is pulled by \code{pull_mech_uid()}}
+
+\item{msd_df}{Calls on latest MSD data pulled by \code{gophr::read_msd()}}
 
 \item{extra_mechs}{If TRUE, function will read in extra mechanism data saved in reference file folder
 (default = FALSE)}

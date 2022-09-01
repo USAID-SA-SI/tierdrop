@@ -25,6 +25,7 @@ dir_setup <- function() {
                          {yellow Please save the following files to the data-raw/MSD-Genie folder:
                          } Most recent site-level MSD or data-pull from Genie"))
 
+    cont <- readline(prompt = "When done, enter 1: ")
 
 
 }

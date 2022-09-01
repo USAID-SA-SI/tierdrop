@@ -14,6 +14,9 @@ qtr <- "Q3"
 #check to ensure that the most recent ndoh_file is the you want to use
 print(ndoh_filepath)
 
+#load secrets
+glamr::load_secrets()
+
 # MFL --------------------------------------------------------
 
 #Load MFL as is
@@ -23,6 +26,12 @@ mfl_new_df <- googlesheets4::read_sheet(mfl_new_id)
 df_fac <- clean_mfl()
 
 # LOAD MECHS --------------------------------------------------
+
+#read the most recent MSD from the Genie folder
+df_genie <- msd_folder %>%
+  glamr::return_latest() %>%
+  gophr::read_msd()
+
 
 #first, let's pull down all the mech code / mech uid information from DATIM
 # Note - this may take a few minutes to pull in
@@ -35,7 +44,7 @@ mechs <- pull_mech_uid(ou_sel = "South Africa")
 # two MATCH facilities that were not in DATIM yet, so we had to add these manually. If so, select
 # `grab_mech_data(df, extra_mechs = TRUE)` and follow the prompt to ensure the data is saved correctly.
 # Note - errors will likely be due to file path issues
-mech_df <- grab_mech_data(df = mechs, extra_mechs = TRUE)
+mech_df <- grab_mech_data(mech_df = mechs, msd_df = df_genie, extra_mechs = TRUE)
 
 
 

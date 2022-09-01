@@ -1,6 +1,7 @@
 #' Grab site-level mechanism mechdata from DATIM/recent MSD
 #'
-#' @param df Calls on mechanism meta-data that is pulled by `pull_mech_uid()`
+#' @param mech_df Calls on mechanism meta-data that is pulled by `pull_mech_uid()`
+#' @param msd_df Calls on latest MSD data pulled by `gophr::read_msd()`
 #' @param extra_mechs If TRUE, function will read in extra mechanism data saved in reference file folder
 #' (default = FALSE)
 #' @return
@@ -11,7 +12,7 @@
 #'    grab_mech_data(df = mechs, extra_mechs = TRUE)
 #' }
 #'
-grab_mech_data <- function(df, extra_mechs = FALSE) {
+grab_mech_data <- function(mech_df, msd_df, extra_mechs = FALSE) {
 
   if (extra_mechs == TRUE) {
 
@@ -30,7 +31,7 @@ grab_mech_data <- function(df, extra_mechs = FALSE) {
 
 
   #grab mech codes and mech UIDs for SOuth AFrica - filter to relevant DSPs
-  mech_xwalk <- df %>%
+  mech_xwalk <- mech_df %>%
     dplyr::filter(operatingunit == "South Africa",
                   mech_code %in% c(70310, 70287, 81902, 70290, 70301)) %>%
     dplyr::select(mech_code, mech_uid)
@@ -42,14 +43,8 @@ grab_mech_data <- function(df, extra_mechs = FALSE) {
       readxl::read_xlsx()
   }
 
-
-  #read the most recent MSD from the Genie folder
-  df_genie <- msd_folder %>%
-    glamr::return_latest() %>%
-    gophr::read_msd()
-
   #grab mech info by sites reported in most recent MSD
-  msd_mechs2 <- df_genie %>%
+  msd_mechs2 <- msd_df %>%
     dplyr::filter(funding_agency == "USAID",
                   fiscal_year == 2022,
                   mech_code %in% c(70310, 70287, 81902, 70290, 70301)) %>%
@@ -63,7 +58,6 @@ grab_mech_data <- function(df, extra_mechs = FALSE) {
 
   msd_mechs_final <- msd_mechs2 %>%
     dplyr::left_join(mech_xwalk, by = c('mech_code')) %>%
-    # dplyr::filter(facilityuid != "~") %>%
     dplyr::select(-c(n))
 
   return(msd_mechs_final)
