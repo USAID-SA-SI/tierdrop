@@ -37,6 +37,15 @@ df_genie <- msd_folder %>%
 # Note - this may take a few minutes to pull in
 mechs <- pull_mech_uid(ou_sel = "South Africa")
 
+# just for now because of wifi issues
+
+mechs <- glamr::si_path() %>%
+  glamr::return_latest("mechs") %>%
+  readr::read_csv()
+
+mechs <- mechs %>%
+  dplyr::mutate(mech_code = as.character(mech_code))
+
 #Now, we are going to use the mech data from DATIM, join with facility-level mech-data from the MSD
 # to get a list of all the facilities reported most recents and the corresponding mech data
 
@@ -58,9 +67,35 @@ validate_ndoh(ndoh_all)
 
 ndoh_clean <- tidy_ndoh(ndoh_all, kp = FALSE)
 
+
+#map additonal disaggs
+
+map_disaggs(df = ndoh_clean, all_indic = TRUE)
+map_disaggs(ndoh_clean, "PrEP_CT", "TestResult", FALSE)
+map_disaggs(ndoh_clean, "PrEP_CT", "Age/Sex", FALSE)
+map_disaggs(ndoh_clean, "TX_RTT", "Age/Sex/HIVStatus", FALSE)
+map_disaggs(ndoh_clean, "TX_RTT", "ARTNoContactReasonIIT", FALSE)
+
+ndoh_post_processing(kp = FALSE, export_type = "Import")
+
+ndoh_post_processing(kp = FALSE, export_type = "Validation")
+
+
 # kp ----------------------------
 
 ndoh_kp <- import_ndoh(filepath = ndoh_filepath,qtr = "Q3", kp = TRUE)
 validate_ndoh(ndoh_kp)
 ndoh_clean_kp <- tidy_ndoh(ndoh_kp, kp = TRUE)
+
+#check this for KP when on wifi
+
+map_disaggs(df = ndoh_clean_kp, all_indic = TRUE)
+map_disaggs(ndoh_clean_kp, "PrEP_CT", "TestResult", FALSE)
+map_disaggs(ndoh_clean_kp, "PrEP_CT", "Age/Sex", FALSE)
+
+# NO TX_RTT FOR key pops
+
+
+ndoh_post_processing(kp = TRUE, export_type = "Import")
+ndoh_post_processing(kp = TRUE, export_type = "Validation")
 
