@@ -61,7 +61,7 @@ map_disaggs <- function(df, ind_sel = "All", disaggregate = "All", all_indic = T
     ndoh_disagg <- df %>%
       dplyr::filter(indicator %in% ind_sel) %>%
       dplyr::group_by(.[,select_vars]) %>%
-      dplyr::summarise(dplyr::across(starts_with("Total"), sum, na.rm = TRUE), .groups = "drop") %>%
+      dplyr::summarise(dplyr::across(tidyselect::starts_with("Total"), sum, na.rm = TRUE), .groups = "drop") %>%
       dplyr::left_join(df_map_distinct %>%
                          dplyr::select(-c(unselect_vars)) %>%
                          dplyr::filter(stringr::str_detect(dataElement, disaggregate)), by = c(group_vars)) %>%
