@@ -12,7 +12,7 @@
 clean_mfl <- function() {
 
   #Read in MFL from google drive
-  mfl_new_df <- googlesheets4::read_sheet(mfl_new_id)
+  mfl_new_df <- googlesheets4::read_sheet(mfl_new_id, sheet = "MFL")
 
   #Reshape facility list - for Fy22Q3 list, change to account for DSD/Roving TA
   df_fac <- mfl_new_df %>%
