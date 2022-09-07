@@ -110,3 +110,18 @@ map_disaggs(ndoh_clean_kp, "PrEP_CT", "Age/Sex", FALSE)
 ndoh_post_processing(kp = TRUE, export_type = "Import")
 ndoh_post_processing(kp = TRUE, export_type = "Validation")
 
+
+df_validation <- ndoh_processing(ndoh_filepath, qtr = "Q3", export_type = "Validation")
+df_import <- ndoh_processing(ndoh_filepath, qtr = "Q3", export_type = "Import")
+
+
+#Partner files
+Broadreach_import <- partner_import(df = df_import, 70287)
+RTC_import <- partner_import(df = df_import, 70290)
+ANOVA_import <- partner_import(df = df_import, 70310)
+MATCH_import <- partner_import(df = df_import, 81902)
+WRHI_import <- partner_import(df = df_import, 70301)
+
+
+
+
