@@ -13,6 +13,6 @@ utils::globalVariables(c("OU2name", "ou5name", "ou5uid", "datim_uid",
                          "mechanism", "ou", "partner", "uid", "facilityuid", "fiscal_year",
                          "funding_agency", "mech_code","mech_uid", "msd_folder", "n", "operatingunit",
                          "prime_partner_name", "reference_folder", "sitename", "dataElement",
-                         "mech_df", "ndoh_clean", "ndoh_clean_kp", "."
+                         "mech_df", "ndoh_clean", "ndoh_clean_kp", ".", "curr_qtr", "ndoh_filepath"
 
                          ))
