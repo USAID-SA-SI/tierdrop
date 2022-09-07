@@ -1,4 +1,6 @@
-# tierdrop
+
+# tierdrop <img src="man/figures/logo.png" align="right" height="120" />
+
 
 TierDrop is a package to process, validate, and consolidate MER data from 2 primary data sources (TIER data from the National Department of Health (NDoH) and non-TIER data reported from implementing partners) for import to DATIM for USAID South Africa.
 
