@@ -1,18 +1,23 @@
 # SETUP script -----------------------------------------
+
+#Step 1: Step up directories and standard folders
 dir_setup()
+
 
 #set folderpaths
 ndoh_folderpath <- 'data-raw/NDOH'
 reference_folder <- "data-raw/Reference Files"
 msd_folder <- "data-raw/MSD-Genie"
 ndoh_filepath <- ndoh_folderpath %>% glamr::return_latest()
+msd_filepath <- msd_folder %>% glamr::return_latest()
 
 #store some locals
 fiscal_quarter <- "FY22Q3"
-qtr <- "Q3"
+curr_qtr <- "Q3"
 
 #check to ensure that the most recent ndoh_file is the you want to use
 print(ndoh_filepath)
+print(msd_filepath)
 
 #load secrets
 glamr::load_secrets()
@@ -20,7 +25,7 @@ glamr::load_secrets()
 # MFL --------------------------------------------------------
 
 #Load MFL as is
-mfl_new_df <- googlesheets4::read_sheet(mfl_new_id)
+mfl_new_df <- googlesheets4::read_sheet(mfl_new_id, sheet = "MFL")
 
 #then grab the clean MFL
 df_fac <- clean_mfl()
@@ -58,6 +63,12 @@ mech_df <- grab_mech_data(mech_df = mechs, msd_df = df_genie, extra_mechs = TRUE
 
 
 # IMPORT NDOH
+
+#Parameters:
+  #filepath
+  #qtr
+  #KP
+  #
 
 #first for non-KP indics
 ndoh_all <- import_ndoh(filepath = ndoh_filepath, qtr = "Q3", kp = FALSE)
