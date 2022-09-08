@@ -89,8 +89,6 @@ ndoh_wrapper <- function(filepath = ndoh_filepath, qtr = curr_qtr, kp = FALSE, e
 #'   df_partner <- partner_import(df = df_import, 70287)
 #' }
 
-
-
 partner_import <- function(df, mech_code) {
   df_partner <- df %>%
     dplyr::filter(!is.na(dataElement)) %>%
