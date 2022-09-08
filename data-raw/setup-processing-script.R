@@ -70,45 +70,45 @@ mech_df <- grab_mech_data(mech_df = mechs, msd_df = df_genie, extra_mechs = TRUE
   #KP
   #
 
-#first for non-KP indics
-ndoh_all <- import_ndoh(filepath = ndoh_filepath, qtr = "Q3", kp = FALSE)
-
-#check for facility alignment between MFL and NDOH - okay if they are all Correctional
-validate_ndoh(ndoh_all)
-
-ndoh_clean <- tidy_ndoh(ndoh_all, kp = FALSE)
-
-
-#map additonal disaggs
-
-map_disaggs(df = ndoh_clean, all_indic = TRUE)
-map_disaggs(ndoh_clean, "PrEP_CT", "TestResult", FALSE)
-map_disaggs(ndoh_clean, "PrEP_CT", "Age/Sex", FALSE)
-map_disaggs(ndoh_clean, "TX_RTT", "Age/Sex/HIVStatus", FALSE)
-map_disaggs(ndoh_clean, "TX_RTT", "ARTNoContactReasonIIT", FALSE)
-
-ndoh_post_processing(kp = FALSE, export_type = "Import")
-
-ndoh_post_processing(kp = FALSE, export_type = "Validation")
-
-
-# kp ----------------------------
-
-ndoh_kp <- import_ndoh(filepath = ndoh_filepath,qtr = "Q3", kp = TRUE)
-validate_ndoh(ndoh_kp)
-ndoh_clean_kp <- tidy_ndoh(ndoh_kp, kp = TRUE)
-
-#check this for KP when on wifi
-
-map_disaggs(df = ndoh_clean_kp, all_indic = TRUE)
-map_disaggs(ndoh_clean_kp, "PrEP_CT", "TestResult", FALSE)
-map_disaggs(ndoh_clean_kp, "PrEP_CT", "Age/Sex", FALSE)
+# #first for non-KP indics
+# ndoh_all <- import_ndoh(filepath = ndoh_filepath, qtr = "Q3", kp = FALSE)
+#
+# #check for facility alignment between MFL and NDOH - okay if they are all Correctional
+# validate_ndoh(ndoh_all)
+#
+# ndoh_clean <- tidy_ndoh(ndoh_all, kp = FALSE)
+#
+#
+# #map additonal disaggs
+#
+# map_disaggs(df = ndoh_clean, all_indic = TRUE)
+# map_disaggs(ndoh_clean, "PrEP_CT", "TestResult", FALSE)
+# map_disaggs(ndoh_clean, "PrEP_CT", "Age/Sex", FALSE)
+# map_disaggs(ndoh_clean, "TX_RTT", "Age/Sex/HIVStatus", FALSE)
+# map_disaggs(ndoh_clean, "TX_RTT", "ARTNoContactReasonIIT", FALSE)
+#
+# ndoh_post_processing(kp = FALSE, export_type = "Import")
+#
+# ndoh_post_processing(kp = FALSE, export_type = "Validation")
+#
+#
+# # kp ----------------------------
+#
+# ndoh_kp <- import_ndoh(filepath = ndoh_filepath,qtr = "Q3", kp = TRUE)
+# validate_ndoh(ndoh_kp)
+# ndoh_clean_kp <- tidy_ndoh(ndoh_kp, kp = TRUE)
+#
+# #check this for KP when on wifi
+#
+# map_disaggs(df = ndoh_clean_kp, all_indic = TRUE)
+# map_disaggs(ndoh_clean_kp, "PrEP_CT", "TestResult", FALSE)
+# map_disaggs(ndoh_clean_kp, "PrEP_CT", "Age/Sex", FALSE)
 
 # NO TX_RTT FOR key pops
 
-
-ndoh_post_processing(kp = TRUE, export_type = "Import")
-ndoh_post_processing(kp = TRUE, export_type = "Validation")
+#
+# ndoh_post_processing(kp = TRUE, export_type = "Import")
+# ndoh_post_processing(kp = TRUE, export_type = "Validation")
 
 
 df_validation <- ndoh_processing(ndoh_filepath, qtr = "Q3", export_type = "Validation")

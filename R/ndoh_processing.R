@@ -27,6 +27,12 @@ ndoh_processing <- function(filepath = ndoh_filepath, qtr = curr_qtr, export_typ
   df_final <- dplyr::bind_rows(ndoh_processed_kp,
                                ndoh_processed_all)
 
+  if (export_type == "Import") {
+    readr::write_csv(df_final, glue::glue("{import_folder}/{fiscal_quarter}_TIER_Import_File.csv"))
+  } else if (export_type == "Validation") {
+    readr::write_csv(df_final, glue::glue("{validation_folder}/{fiscal_quarter}_TIER_Import_File.csv"))
+  }
+
   return(df_final)
 
 }
@@ -65,7 +71,7 @@ ndoh_wrapper <- function(filepath = ndoh_filepath, qtr = curr_qtr, kp = FALSE, e
   ndoh_clean <- tidy_ndoh(ndoh_all, kp = kp)
 
   #Map in dataElements
-  ndoh_mapped <- ndoh_post_processing(kp = kp, export_type = export_type)
+  ndoh_mapped <- ndoh_post_processing(ndoh_clean, kp = kp, export_type = export_type)
 
   return(ndoh_mapped)
 }
@@ -89,6 +95,9 @@ partner_import <- function(df, mech_code) {
   df_partner <- df %>%
     dplyr::filter(!is.na(dataElement)) %>%
     dplyr::filter(mech_code == mech_code)
+
+  readr::write_csv(df_partner, glue::glue("{import_folder}/{mech_code}_{fiscal_quarter}_TIER_Import_File.csv"))
+
 
   return(df_partner)
 }

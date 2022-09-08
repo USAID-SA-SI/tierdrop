@@ -98,13 +98,13 @@ map_disaggs <- function(df, ind_sel = "All", disaggregate = "All", all_indic = T
 #'  \dontrun{
 #'    ndoh_post_processing(kp = FALSE, export_type = "Import")
 #' }
-ndoh_post_processing <- function(kp = FALSE, export_type) {
-
-if (kp == FALSE) {
-  df <- ndoh_clean
-} else {
-  df <- ndoh_clean_kp
-}
+ndoh_post_processing <- function(df, kp = FALSE, export_type) {
+#
+# if (kp == FALSE) {
+#   df <- ndoh_clean
+# } else {
+#   df <- ndoh_clean_kp
+# }
 
 df_all <- map_disaggs(df, all_indic = TRUE)
 df_prep_test <- map_disaggs(df, "PrEP_CT", "TestResult", FALSE)
