@@ -76,27 +76,5 @@ ndoh_wrapper <- function(filepath = ndoh_filepath, qtr = curr_qtr, kp = FALSE, e
   return(ndoh_mapped)
 }
 
-#' Split import file into partner import files for DQRT
-#'
-#' @param df TIER import file from `ndoh_processing()`
-#' @param mech_code partner mech code (numeric)
-#'
-#' @return
-#' @export
-#'
-#' \dontrun{
-#'
-#'   df_partner <- partner_import(df = df_import, 70287)
-#' }
 
-partner_import <- function(df, mech_code) {
-  df_partner <- df %>%
-    dplyr::filter(!is.na(dataElement)) %>%
-    dplyr::filter(mech_code == mech_code)
-
-  readr::write_csv(df_partner, glue::glue("{import_folder}/{mech_code}_{fiscal_quarter}_TIER_Import_File.csv"))
-
-
-  return(df_partner)
-}
 

@@ -130,5 +130,29 @@ paint_green <- function(txt) {
 
 
 
+#' Split into partner-level import files
+#'
+#' @param df final import file dataframe
+#' @param mech_code partner mech code
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'
+partner_import <- function(df, mech_code) {
+
+  df_partner <- df %>%
+    dplyr::filter(!is.na(dataElement)) %>%
+    dplyr::filter(mech_code == mech_code)
+
+  readr::write_csv(df_partner, glue::glue("{import_folder}/{mech_code}_{fiscal_quarter}_TIER_Import_File.csv"))
+
+
+  return(df_partner)
+}
+
+
+
 
 
