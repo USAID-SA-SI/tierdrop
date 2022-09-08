@@ -120,9 +120,9 @@ df_final <- dplyr::bind_rows(df_all,
 
 
 if (export_type == "Import") {
-  keep_vars <- c("mech_code", "mech_uid", "Facility", "datim_uid", "dataElement",
-                 "dataElement_uid","categoryOptionComboName", "categoryOptionCombo_uid",
-                 "Total", "SubDistrict", "District")
+  keep_vars <- c("mech_uid","datim_uid",
+                 "dataElement_uid","categoryOptionCombo_uid",
+                 "Total")
 } else if (export_type == "Validation") {
   keep_vars <- c("period","Province", "District","SubDistrict", "Facility",
                  "datim_uid", "mech_code", "mech_uid", 'prime_partner_name',
@@ -134,8 +134,9 @@ if (export_type == "Import") {
 df_final <- df_final %>%
   dplyr::select(keep_vars) %>%
   dplyr::rename(value = Total,
-                  orgUnit_uid = datim_uid,
-                  orgUnitName = Facility)
+                  orgUnit_uid = datim_uid)
+# %>%
+#   dplyr::mutate(period = glue::glue(stringr::str_sub(fiscal_quarter, 1, 4), quarters[qtr_num-1]))
 
 
 return(df_final)
