@@ -16,7 +16,7 @@
 #'   df <- ndoh_processing(ndoh_filepath, qtr = "Q3", export_type = "Import")
 #' }
 
-ndoh_processing <- function(filepath = ndoh_filepath, qtr = curr_qtr, export_type = "Import") {
+ndoh_processing <- function(filepath = ndoh_filepath, qtr = curr_qtr, export_type = "Import", save = TRUE) {
 
   #kp <- TRUE
   ndoh_processed_kp <- ndoh_wrapper(ndoh_filepath, qtr = curr_qtr, kp = TRUE, export_type = export_type)
@@ -27,11 +27,14 @@ ndoh_processing <- function(filepath = ndoh_filepath, qtr = curr_qtr, export_typ
   df_final <- dplyr::bind_rows(ndoh_processed_kp,
                                ndoh_processed_all)
 
-  if (export_type == "Import") {
-    readr::write_csv(df_final, glue::glue("{import_folder}/{fiscal_quarter}_TIER_Import_File.csv"))
-  } else if (export_type == "Validation") {
-    readr::write_csv(df_final, glue::glue("{validation_folder}/{fiscal_quarter}_TIER_Import_File.csv"))
+  if (save ==  TRUE) {
+    if (export_type == "Import") {
+      readr::write_csv(df_final, glue::glue("{import_folder}/{fiscal_quarter}_TIER_Import_File.csv"))
+    } else if (export_type == "Validation") {
+      readr::write_csv(df_final, glue::glue("{validation_folder}/{fiscal_quarter}_TIER_Import_File.csv"))
+    }
   }
+
 
   return(df_final)
 
