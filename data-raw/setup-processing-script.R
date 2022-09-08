@@ -70,13 +70,13 @@ mech_df <- grab_mech_data(mech_df = mechs, msd_df = df_genie, extra_mechs = TRUE
   #KP
   #
 
-# #first for non-KP indics
-# ndoh_all <- import_ndoh(filepath = ndoh_filepath, qtr = "Q3", kp = FALSE)
-#
-# #check for facility alignment between MFL and NDOH - okay if they are all Correctional
-# validate_ndoh(ndoh_all)
-#
-# ndoh_clean <- tidy_ndoh(ndoh_all, kp = FALSE)
+#first for non-KP indics
+ndoh_all <- import_ndoh(filepath = ndoh_filepath, qtr = "Q3", kp = FALSE)
+
+#check for facility alignment between MFL and NDOH - okay if they are all Correctional
+validate_ndoh(ndoh_all)
+
+ndoh_clean <- tidy_ndoh(ndoh_all, kp = FALSE)
 #
 #
 # #map additonal disaggs
@@ -87,7 +87,7 @@ mech_df <- grab_mech_data(mech_df = mechs, msd_df = df_genie, extra_mechs = TRUE
 # map_disaggs(ndoh_clean, "TX_RTT", "Age/Sex/HIVStatus", FALSE)
 # map_disaggs(ndoh_clean, "TX_RTT", "ARTNoContactReasonIIT", FALSE)
 #
-# ndoh_post_processing(kp = FALSE, export_type = "Import")
+ ndoh_post_processing(ndoh_clean, kp = FALSE, export_type = "Import")
 #
 # ndoh_post_processing(kp = FALSE, export_type = "Validation")
 #
@@ -112,7 +112,7 @@ mech_df <- grab_mech_data(mech_df = mechs, msd_df = df_genie, extra_mechs = TRUE
 
 
 df_validation <- ndoh_processing(ndoh_filepath, qtr = "Q3", export_type = "Validation")
-df_import <- ndoh_processing(ndoh_filepath, qtr = "Q3", export_type = "Import")
+df_import <- ndoh_processing(ndoh_filepath, qtr = "Q3", export_type = "Import", save = FALSE)
 
 
 #Partner files

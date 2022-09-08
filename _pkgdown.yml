@@ -1,0 +1,71 @@
+url: https://usaid-sa-si.github.io/tierdrop/
+template:
+  bootstrap: 5
+navbar:
+  structure:
+    left:
+    - intro
+    - reference
+    - articles
+    - tutorials
+    - news
+    right: github
+  components:
+    reference:
+      text: Reference
+      href: reference/index.html
+
+reference:
+- title: All functions
+  contents:
+  - '`clean_mfl`'
+  - '`dir_setup`'
+  - '`grab_mech_data`'
+  - '`%ni%`'
+  - '`import_ndoh`'
+  - '`kp_names`'
+  - '`map_disaggs`'
+  - '`names_arvdisp`'
+  - '`names_hts_tst`'
+  - '`names_hts_tst_kp`'
+  - '`names_pmtct_art`'
+  - '`names_pmtct_eid`'
+  - '`names_pmtct_hei_pos`'
+  - '`names_prep_ct`'
+  - '`names_prep_ct_kp`'
+  - '`names_prep_new`'
+  - '`names_prep_new_kp`'
+  - '`names_tb_art`'
+  - '`names_tb_prev`'
+  - '`names_tb_stat_d`'
+  - '`names_tb_stat_n`'
+  - '`names_tx_curr`'
+  - '`names_tx_curr_kp`'
+  - '`names_tx_ml`'
+  - '`names_tx_ml_kp`'
+  - '`names_tx_new`'
+  - '`names_tx_new_kp`'
+  - '`names_tx_pvls`'
+  - '`names_tx_pvls_kp`'
+  - '`names_tx_rtt`'
+  - '`names_tx_tb_d`'
+  - '`names_tx_tb_n`'
+  - '`ndoh_post_processing`'
+  - '`ndoh_processing`'
+  - '`ndoh_wrapper`'
+  - '`non_tier_qtr`'
+  - '`paint_green`'
+  - '`paint_iftrue`'
+  - '`paint_yellow`'
+  - '`partner_import`'
+  - '`pull_mech_uid`'
+  - '`read_all_the_things`'
+  - '`standard_names`'
+  - '`tidy_ndoh`'
+  - '`tier_ann`'
+  - '`tier_kp_indic`'
+  - '`tier_qtr`'
+  - '`tier_semi`'
+  - '`usaid_dsp_district`'
+  - '`validate_ndoh`'
+

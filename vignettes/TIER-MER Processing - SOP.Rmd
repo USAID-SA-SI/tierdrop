@@ -1,0 +1,216 @@
+---
+title: "TIER MER Processing - R Script SOP"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{TIER MER Processing - R Script SOP}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+# Purpose:
+This script was developed to run the `tierdrop` package to process the TIER Data from NDOH for submission to DATIM. This article will serve as a SOP for how to utilize the `tierdrop` package for USAID South Africa's MER Processing.
+
+---
+
+## Part A: Step up
+
+### Step 1: Installing R Package `tierdrop`
+
+Once you install packages on your machine, you will not need to re-install them unless there is a necessary update to the package. In this case, let's install the `tierdrop` TIER processing package from Github. This package uses many functions from other R packages in the `tidyverse` and OHA packages.
+
+```{r install packages}
+
+devtools::install_github("USAID-SA-SI/tierdrop", build_vignettes = TRUE)
+
+```
+
+### Step 2: Running Libraries (EVERY TIME STEP)
+Even though you have the packages install, your R session will not recognize the packages until you load them into the session. We use the `library()` function to load necessary packages. 
+
+Let's load the `tierdrop` package developed for NDOH TIER processing, as well as the tidyverse. If you have not installed the `tidyverse` package yet, call `install.packages("tidyverse")` first.
+
+```{r load packages, message = FALSE}
+
+library(tierdrop)
+library(tidyverse)
+```
+
+### Step 3: Authenticate Google Drive (ONE-TIME STEP)
+
+Since many of our files live on Google drive, like the Master Facility list and the mapping files, we will need to authenticate our Google drive accounts with R so we can pull directly from these files. We will also need to do the same for setting out DATIM credentials to pull directly from DATIM.
+
+We can use the `glamr::set_email()` function to store our email credentials in R and the `glamr::set_datim()` function to store DATIM credentials. After doing so, we can load these credentials into the workspace by calling `glamr::load_secrets()`.
+
+```{r store credentials, message = FALSE}
+#glamr::set_email("ksrikanth@usaid.gov") #CHANGE TO YOUR EMAIL ADDRESS
+#glamr::set_datim("ksrikanth") #CHANGE TO YOUR USERNAME
+glamr::load_secrets()
+
+
+```
+
+### Step 4: Set up your folder directories and store some locals
+
+The biggest benefit of an R package is that now, anyone in USAID SA SI or the DMR team can use it to process the TIER data. To maximize collaboration and reproducibility, we want to ensure that we all have the folders appropriately set up on our devices.
+
+- When we set up our directories, it will create folders for you to save files in and prompt you to save your files in specific locations:
+    - Save the **latest NDOH file** in the `data-raw/NDOH` folder
+    - Save the **most recent site-level MSD or Genie pull from DATIM** in the `data-raw/MSD-Genie`. If you do not have this, please pull it down from Panorama or DATIM genie before hand.
+    
+When you are done saving your files in the correct folders, enter `1` in the console to continue the action.
+    
+We also want to save some local objects to call on later for the current quarter and period. Please amend these manually for now, as we are still in development of automating this step.
+
+```{r folder setup}
+
+#Set up folder directories
+dir_setup()
+
+#set folderpaths
+ndoh_folderpath <- 'data-raw/NDOH'
+reference_folder <- "data-raw/Reference Files"
+msd_folder <- "data-raw/MSD-Genie"
+import_folder <- "data-raw/Import Files"
+validation_folder <- "data-raw/Validation Files"
+ndoh_filepath <- ndoh_folderpath %>% glamr::return_latest()
+msd_filepath <- msd_folder %>% glamr::return_latest()
+
+#store some locals - change depending on the quarter
+fiscal_quarter <- "FY22Q3"
+curr_qtr <- "Q3"
+
+```
+Finally, we want to check to make sure we are using the correct files by printing the file path. If it is not correct, please revisit your folder setup and ensure the correct files and saved in the correct places.
+
+```{r check filepaths}
+#do a quick check to make sure you have the file paths for NDOH and the MSD that you want: If not, 
+print(ndoh_filepath)
+print(msd_filepath)
+```
+
+---
+
+## Part B: Import helper data files (MFL, Genie Pull)
+
+### Step 5: Read in Master Facility List (MFL)
+
+We are going to read the Master Facility List (MFL) directly from Google Drive using the `googlesheets4::read_sheets()` function in the `googlesheets4` package. We are also going to import a tidy version of the MFL using `clean_mfl()`, a function in the `tierdrop` package, to have a tidy version of the MFL that we can use to join site-level data to the NDOH file.
+
+The MFL will later be used in TIER processing to bring in the DSD/TA designation for each site in this reporting quarter. Here, we also using the `head()` function to view the first 10 rows of the clean MFL list. This is a great way to inspect your data in R.
+
+```{r load MFL, message = FALSE}
+
+#Load MFL as is
+mfl_new_df <- googlesheets4::read_sheet(mfl_new_id, sheet = "MFL")
+
+#then grab the clean MFL
+df_fac <- clean_mfl()
+head(df_fac, 10)
+```
+### Step 6: Read in the latest MSD or Genie pull
+
+During the set-up, you pulled the latest MSD from Panorama or Genie and saved it to the `data-raw/MSD-Genie` folder. Now, we are going to read this in, as the NDOH processing script calls on the previous quarters MSD for some of the tidying, as well as the verification checks.
+
+We are going to read in the MSD using some helper packages developed by OHA called `glamr` and `gophr`, which may it easier to work with the MER Structured Datasets in R.
+
+*Note* - Since we are loading in a site-level MSD, this section may take a few minutes to load. 
+
+```{r load MSD}
+#read the most recent MSD from the Genie folder
+df_genie <- msd_folder %>%
+  glamr::return_latest() %>%
+  gophr::read_msd()
+
+```
+
+### Step 7: Pull down mechanism meta-data from DATIM
+
+Lastly, we need to pull down mechanism data in order to map the `mech_code` and `mechanism_uid` to each facility from NDOH. To do this, we connect to DATIM API and pull down mechanism level data for South Africa using `tierdrop::pull_mech_uid()`. This allows us to bring in the `mechanism_uid` information.
+
+*Note* - This section may take a few minutes to load as well, by virtue of having to connect to DATIM.
+
+```{r pull mech from DATIM}
+# Note - this may take a few minutes to pull in
+mechs <- pull_mech_uid(ou_sel = "South Africa")
+```
+
+Now, we are going to use the mechanism data from DATIM and join it with facility-level mech-data from the MSD, to get a list of all the facilities reported to DATIM this fiscal year and map in the corresponding mechanism data.
+
+To do so, we are going to use the `grab_mech_data()` function from the `tierdrop` package.
+
+- This function has 3 arguments:
+  - `mech_df` - the mechanism dataframe you got from `pull_mech_uid()` i.e. `mechs`
+  - `msd_df` - latest MSD dataframe loaded i.e. `df_genie`
+  - `extra_mechs` - Sometimes, you'll have some extra mechs to encode manually - for example, in FY22Q3, there were two MATCH facilities that were not in DATIM yet, so we had to add these manually. If so, select `grab_mech_data(df, extra_mechs = TRUE)` and follow the prompt to ensure the data is saved correctly.
+
+When you call `grab_mech_data()`, you will be prompted to ensure that your additional files are saved in the correct place. If you have additional mechanism data that you are adding manually, please ensure that it is saved in the `data-raw/Reference Files` folder. If you have a file saved in that folder already, the filenpath will appear in blue.
+
+-It is critical to ensure that the additional mechanism file (if used) has 4 columns named exactly as so:
+  - `sitename`
+  - `facilityuid`
+  - `mech_code`
+  - `prime_partner_name`
+  
+When you are done saving your files in the correct folders, enter `1` in the console to continue the action.
+
+*Note - errors will likely be due to file path or naming issues*
+
+```{r consolidate mech data}
+mech_df <- grab_mech_data(mech_df = mechs, msd_df = df_genie, extra_mechs = TRUE)
+```
+---
+
+## Part C: NDOH File Processing
+
+### Step 8: Process NDOH File and convert into import file for DATIM
+
+Now that we have all of our dependencies and helper files set up, we can start to process the NDOH data!
+
+In the `tierdrop` package, there is a function called `ndoh_processing` that runs through all the code to process, tidy, and prepare the NDOH file into a DATIM import file. We've set this up to be a one-line function that you can run, but this training will also give you a peek behind the curtain of the other helper functions.
+
+- `ndoh_processing` exports a data frame based on 3 main parameters:
+  - `filepath` = the most recent NDOH filepath
+  - `qtr` = current quarter (in format `Q_` ex: "Q3")
+  - `export_type` = type of format you want the export in: (1) Import file format (2) Validation check format
+  - `save` = if TRUE, the data frame will be saved to the corresponding folder (default is TRUE)
+  
+Before we peek under the hood, let's run the whole processing function as is. This is all you will need to process the NDOH file into a full import file. When you run `ndoh_processing()`, the function will automatically save the import file or the validation file into the `data-raw/Import Files` or `data-raw/Validation Files` folders respectively.
+
+```{r process NDOH import import file}
+df_import <- ndoh_processing(filepath = ndoh_filepath, qtr = "Q3", export_type = "Import", save= TRUE)
+```
+
+```{r process NDOH for validation, message = FALSE}
+df_validation <- ndoh_processing(filepath = ndoh_filepath, qtr = "Q3", export_type = "Validation", save= TRUE)
+
+```
+
+You may also want to break the import file up by partner for each partner DQRT. For this, you can use the function  `partner_import()` from the `tierdrop` package. When this function is run, the partner import files get automatically saved into the `data-raw/Import Files` folder.
+
+```{r}
+Broadreach_import <- tierdrop::partner_import(df = df_import, 70287)
+RTC_import <- tierdrop::partner_import(df = df_import, 70290)
+ANOVA_import <- tierdrop::partner_import(df = df_import, 70310)
+MATCH_import <- tierdrop::partner_import(df = df_import, 81902)
+WRHI_import <- tierdrop::partner_import(df = df_import, 70301)
+```
+
+Et voila! You have a TIER import file in the format for DATIM. This file can then be used to engage in the following steps of MER processing:
+
+1. Send TIER Import files to partners
+
+2. Run TIER DQRT for each partner level file
+
+3. Consolidate with non-TIER partner files
+
+4. Submit whole import file to DATIM
+
+
