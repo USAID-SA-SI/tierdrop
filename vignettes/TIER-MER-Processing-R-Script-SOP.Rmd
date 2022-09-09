@@ -10,7 +10,8 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  eval = FALSE
 )
 
 #knitr::opts_knit$set(root.dir = "~/Documents/Github/tierdrop")
@@ -33,6 +34,8 @@ Once you install packages on your machine, you will not need to re-install them 
 
 #devtools::install_github("USAID-SA-SI/tierdrop", build_vignettes = TRUE)
 
+install.packages("tidyverse")
+
 ```
 
 ### Step 2: Running Libraries (EVERY TIME STEP)
@@ -43,7 +46,8 @@ Let's load the `tierdrop` package developed for NDOH TIER processing, as well as
 ```{r load packages, message = FALSE}
 
 library(tierdrop)
-library(tidyverse)
+library(glamr)
+#library(tidyverse)
 ```
 
 ### Step 3: Authenticate Google Drive (ONE-TIME STEP)
@@ -52,7 +56,7 @@ Since many of our files live on Google drive, like the Master Facility list and 
 
 We can use the `glamr::set_email()` function to store our email credentials in R and the `glamr::set_datim()` function to store DATIM credentials. After doing so, we can load these credentials into the workspace by calling `glamr::load_secrets()`.
 
-```{r store credentials, message = FALSE}
+```{r store credentials, eval = FALSE}
 #glamr::set_email("ksrikanth@usaid.gov") #CHANGE TO YOUR EMAIL ADDRESS
 #glamr::set_datim("ksrikanth") #CHANGE TO YOUR USERNAME
 glamr::load_secrets()

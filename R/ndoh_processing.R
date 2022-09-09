@@ -6,6 +6,8 @@
 #' @param filepath NDOH filepath
 #' @param qtr current quarter
 #' @param export_type parameter to extract data in specific format (1) DATIM import file (2) Validation file for internal checks
+#' @param save if TRUE, the function will save dataframe to appropriate export folder (default = TRUE)
+
 #'
 #' @return
 #' @export

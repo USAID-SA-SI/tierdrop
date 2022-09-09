@@ -88,6 +88,7 @@ map_disaggs <- function(df, ind_sel = "All", disaggregate = "All", all_indic = T
 #'
 #' @description This function maps in DATIM elements using `map_disaggs()`, binds all the indicator levels together &
 #'  exports processed data in import file or validation file format
+#' @param df dataframe of interest
 #' @param kp parameter to map and process KP tabs if KP = TRUE (default KP = FALSE)
 #' @param export_type parameter to extract data in specific format (1) DATIM import file (2) Validation file for internal checks
 #'

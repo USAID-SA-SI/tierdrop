@@ -134,6 +134,8 @@ paint_green <- function(txt) {
 #'
 #' @param df final import file dataframe
 #' @param mech_code partner mech code
+#' @param save if TRUE, the function will save dataframe to appropriate export folder (default = TRUE)
+
 #'
 #' @return
 #' @export

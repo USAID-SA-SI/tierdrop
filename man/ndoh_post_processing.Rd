@@ -7,6 +7,8 @@
 ndoh_post_processing(df, kp = FALSE, export_type)
 }
 \arguments{
+\item{df}{dataframe of interest}
+
 \item{kp}{parameter to map and process KP tabs if KP = TRUE (default KP = FALSE)}
 
 \item{export_type}{parameter to extract data in specific format (1) DATIM import file (2) Validation file for internal checks}

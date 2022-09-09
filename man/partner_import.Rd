@@ -10,6 +10,8 @@ partner_import(df, mech_code, save = TRUE)
 \item{df}{final import file dataframe}
 
 \item{mech_code}{partner mech code}
+
+\item{save}{if TRUE, the function will save dataframe to appropriate export folder (default = TRUE)}
 }
 \value{
 
