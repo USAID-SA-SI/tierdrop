@@ -1,186 +1,186 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/404.html</loc>
+    <loc>/404.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/articles/index.html</loc>
+    <loc>/articles/index.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/articles/TIER-MER-Processing-R-Script-SOP.html</loc>
+    <loc>/articles/TIER-MER-Processing-R-Script-SOP.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/authors.html</loc>
+    <loc>/authors.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/index.html</loc>
+    <loc>/index.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/LICENSE-text.html</loc>
+    <loc>/LICENSE-text.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/LICENSE.html</loc>
+    <loc>/LICENSE.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/clean_mfl.html</loc>
+    <loc>/reference/clean_mfl.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/dir_setup.html</loc>
+    <loc>/reference/dir_setup.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/disagg_map_id.html</loc>
+    <loc>/reference/disagg_map_id.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/grab_mech_data.html</loc>
+    <loc>/reference/grab_mech_data.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/grapes-ni-grapes.html</loc>
+    <loc>/reference/grapes-ni-grapes.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/import_ndoh.html</loc>
+    <loc>/reference/import_ndoh.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/index.html</loc>
+    <loc>/reference/index.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/kp_names.html</loc>
+    <loc>/reference/kp_names.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/map_disaggs.html</loc>
+    <loc>/reference/map_disaggs.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/mfl_new_id.html</loc>
+    <loc>/reference/mfl_new_id.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/names_arvdisp.html</loc>
+    <loc>/reference/names_arvdisp.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/names_hts_tst.html</loc>
+    <loc>/reference/names_hts_tst.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/names_hts_tst_kp.html</loc>
+    <loc>/reference/names_hts_tst_kp.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/names_pmtct_art.html</loc>
+    <loc>/reference/names_pmtct_art.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/names_pmtct_eid.html</loc>
+    <loc>/reference/names_pmtct_eid.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/names_pmtct_hei_pos.html</loc>
+    <loc>/reference/names_pmtct_hei_pos.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/names_prep_ct.html</loc>
+    <loc>/reference/names_prep_ct.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/names_prep_ct_kp.html</loc>
+    <loc>/reference/names_prep_ct_kp.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/names_prep_new.html</loc>
+    <loc>/reference/names_prep_new.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/names_prep_new_kp.html</loc>
+    <loc>/reference/names_prep_new_kp.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/names_tb_art.html</loc>
+    <loc>/reference/names_tb_art.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/names_tb_prev.html</loc>
+    <loc>/reference/names_tb_prev.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/names_tb_stat_d.html</loc>
+    <loc>/reference/names_tb_stat_d.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/names_tb_stat_n.html</loc>
+    <loc>/reference/names_tb_stat_n.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/names_tx_curr.html</loc>
+    <loc>/reference/names_tx_curr.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/names_tx_curr_kp.html</loc>
+    <loc>/reference/names_tx_curr_kp.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/names_tx_ml.html</loc>
+    <loc>/reference/names_tx_ml.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/names_tx_ml_kp.html</loc>
+    <loc>/reference/names_tx_ml_kp.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/names_tx_new.html</loc>
+    <loc>/reference/names_tx_new.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/names_tx_new_kp.html</loc>
+    <loc>/reference/names_tx_new_kp.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/names_tx_pvls.html</loc>
+    <loc>/reference/names_tx_pvls.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/names_tx_pvls_kp.html</loc>
+    <loc>/reference/names_tx_pvls_kp.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/names_tx_rtt.html</loc>
+    <loc>/reference/names_tx_rtt.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/names_tx_tb_d.html</loc>
+    <loc>/reference/names_tx_tb_d.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/names_tx_tb_n.html</loc>
+    <loc>/reference/names_tx_tb_n.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/ndoh_post_processing.html</loc>
+    <loc>/reference/ndoh_post_processing.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/ndoh_processing.html</loc>
+    <loc>/reference/ndoh_processing.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/ndoh_wrapper.html</loc>
+    <loc>/reference/ndoh_wrapper.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/non_tier_qtr.html</loc>
+    <loc>/reference/non_tier_qtr.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/paint_green.html</loc>
+    <loc>/reference/paint_green.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/paint_iftrue.html</loc>
+    <loc>/reference/paint_iftrue.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/paint_yellow.html</loc>
+    <loc>/reference/paint_yellow.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/partner_import.html</loc>
+    <loc>/reference/partner_import.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/pipe.html</loc>
+    <loc>/reference/pipe.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/pull_mech_uid.html</loc>
+    <loc>/reference/pull_mech_uid.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/read_all_the_things.html</loc>
+    <loc>/reference/read_all_the_things.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/standard_names.html</loc>
+    <loc>/reference/standard_names.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/tidy_ndoh.html</loc>
+    <loc>/reference/tidy_ndoh.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/tier_ann.html</loc>
+    <loc>/reference/tier_ann.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/tier_kp_indic.html</loc>
+    <loc>/reference/tier_kp_indic.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/tier_qtr.html</loc>
+    <loc>/reference/tier_qtr.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/tier_semi.html</loc>
+    <loc>/reference/tier_semi.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/usaid_dsp_district.html</loc>
+    <loc>/reference/usaid_dsp_district.html</loc>
   </url>
   <url>
-    <loc>https://usaid-sa-si.github.io/tierdrop/reference/validate_ndoh.html</loc>
+    <loc>/reference/validate_ndoh.html</loc>
   </url>
 </urlset>

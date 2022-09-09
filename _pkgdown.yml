@@ -1,4 +1,3 @@
-url: https://usaid-sa-si.github.io/tierdrop/
 template:
   bootstrap: 5
 navbar:
@@ -14,17 +13,42 @@ navbar:
     reference:
       text: Reference
       href: reference/index.html
+authors:
+  Karishma Srikanth:
 
 reference:
-- title: All functions
+- title: MER Processing Function
+  contents:
+  - '`ndoh_processing`'
+- title: MER Helper Functions
   contents:
   - '`clean_mfl`'
   - '`dir_setup`'
   - '`grab_mech_data`'
-  - '`%ni%`'
   - '`import_ndoh`'
-  - '`kp_names`'
   - '`map_disaggs`'
+  - '`ndoh_post_processing`'
+  - '`ndoh_wrapper`'
+  - '`partner_import`'
+  - '`pull_mech_uid`'
+  - '`read_all_the_things`'
+  - '`tidy_ndoh`'
+  - '`validate_ndoh`'
+  - '`paint_green`'
+  - '`paint_iftrue`'
+  - '`paint_yellow`'
+- title: Global Variables
+  contents:
+  - '`usaid_dsp_district`'
+  - '`non_tier_qtr`'
+  - '`tier_ann`'
+  - '`tier_kp_indic`'
+  - '`tier_qtr`'
+  - '`tier_semi`'
+  - '`%ni%`'
+- title: Indicator Column Names
+  contents:
+  - '`kp_names`'
   - '`names_arvdisp`'
   - '`names_hts_tst`'
   - '`names_hts_tst_kp`'
@@ -50,22 +74,8 @@ reference:
   - '`names_tx_rtt`'
   - '`names_tx_tb_d`'
   - '`names_tx_tb_n`'
-  - '`ndoh_post_processing`'
-  - '`ndoh_processing`'
-  - '`ndoh_wrapper`'
-  - '`non_tier_qtr`'
-  - '`paint_green`'
-  - '`paint_iftrue`'
-  - '`paint_yellow`'
-  - '`partner_import`'
-  - '`pull_mech_uid`'
-  - '`read_all_the_things`'
   - '`standard_names`'
-  - '`tidy_ndoh`'
-  - '`tier_ann`'
-  - '`tier_kp_indic`'
-  - '`tier_qtr`'
-  - '`tier_semi`'
-  - '`usaid_dsp_district`'
-  - '`validate_ndoh`'
+
+
+
 
