@@ -19,7 +19,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="TIER MER Processing R Script SOP">
 <meta property="og:description" content="tierdrop">
-<meta property="og:image" content="/logo.png">
+<meta property="og:image" content="https://usaid-sa-si.github.io/tierdrop/logo.png">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -56,7 +56,14 @@
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off">
 </form>
 
-      <ul class="navbar-nav"></ul>
+      <ul class="navbar-nav">
+<li class="nav-item">
+  <a class="external-link nav-link" href="https://github.com/USAID-SA-SI/tierdrop/" aria-label="github">
+    <span class="fab fa fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
 
     
@@ -70,7 +77,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>TIER MER Processing R Script SOP</h1>
             
       
-      
+      <small class="dont-index">Source: <a href="https://github.com/USAID-SA-SI/tierdrop/blob/HEAD/vignettes/TIER-MER-Processing-R-Script-SOP.Rmd" class="external-link"><code>vignettes/TIER-MER-Processing-R-Script-SOP.Rmd</code></a></small>
       <div class="d-none name"><code>TIER-MER-Processing-R-Script-SOP.Rmd</code></div>
     </div>
 
@@ -90,7 +97,9 @@
 <p>Once you install packages on your machine, you will not need to re-install them unless there is a necessary update to the package. In this case, let’s install the <code>tierdrop</code> TIER processing package from Github. This package uses many functions from other R packages in the <code>tidyverse</code> and OHA packages.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="co">#devtools::install_github("USAID-SA-SI/tierdrop", build_vignettes = TRUE)</span></span></code></pre></div>
+<span><span class="co">#devtools::install_github("USAID-SA-SI/tierdrop", build_vignettes = TRUE)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"tidyverse"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="step-2-running-libraries-every-time-step">Step 2: Running Libraries (EVERY TIME STEP)<a class="anchor" aria-label="anchor" href="#step-2-running-libraries-every-time-step"></a>
@@ -100,11 +109,8 @@
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">tierdrop</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: package 'ggplot2' was built under R version 4.1.3</span></span>
-<span><span class="co">#&gt; Warning: package 'tibble' was built under R version 4.1.3</span></span>
-<span><span class="co">#&gt; Warning: package 'dplyr' was built under R version 4.1.3</span></span>
-<span><span class="co">#&gt; Warning: package 'stringr' was built under R version 4.1.3</span></span></code></pre></div>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/USAID-OHA-SI/glamr" class="external-link">glamr</a></span><span class="op">)</span></span>
+<span><span class="co">#library(tidyverse)</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="step-3-authenticate-google-drive-one-time-step">Step 3: Authenticate Google Drive (ONE-TIME STEP)<a class="anchor" aria-label="anchor" href="#step-3-authenticate-google-drive-one-time-step"></a>
@@ -134,17 +140,6 @@
 <code class="sourceCode R"><span></span>
 <span><span class="co">#Set up folder directories</span></span>
 <span><span class="fu"><a href="../reference/dir_setup.html">dir_setup</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "The following directories will be created:"</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">data-raw</span></span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">data-raw/NDOH</span></span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">data-raw/Reference Files</span></span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">data-raw/MSD-Genie</span></span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">data-raw/Import Files</span></span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">data-raw/Validation Files</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">Please save the following files to the data-raw/NDOH folder:</span> Latest NDOH File</span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">Please save the following files to the data-raw/Reference Files folder:</span> Additional mechanism data for specific sites (if needed)</span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">Please save the following files to the data-raw/MSD-Genie folder:</span> Most recent site-level MSD or data-pull from Genie</span></span>
-<span><span class="co">#&gt; When done, enter 1:</span></span>
 <span></span>
 <span><span class="co">#set folderpaths</span></span>
 <span><span class="va">ndoh_folderpath</span> <span class="op">&lt;-</span> <span class="st">'data-raw/NDOH'</span></span>
@@ -162,9 +157,7 @@
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#do a quick check to make sure you have the file paths for NDOH and the MSD that you want: If not, </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">ndoh_filepath</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "data-raw/NDOH/MER Reporting FY22Q3 v2_010822.xlsx"</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">msd_filepath</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "data-raw/MSD-Genie/MER_Structured_Datasets_Site_IM_FY20-23_20220617_v2_1_South Africa.zip"</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">msd_filepath</span><span class="op">)</span></span></code></pre></div>
 <hr>
 </div>
 </div>
@@ -183,21 +176,7 @@
 <span></span>
 <span><span class="co">#then grab the clean MFL</span></span>
 <span><span class="va">df_fac</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/clean_mfl.html">clean_mfl</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">df_fac</span>, <span class="fl">10</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 10 x 6</span></span></span>
-<span><span class="co">#&gt;    usaid_facility                     ou5uid      datim_~1 old_o~2 period DSD_TA</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> fs Kamohelo Clinic                 LAbNrhPgaQF eFfGa61~ 628551  FY22Q3 TA    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> fs Lusaka Clinic                   MzPsnexqVSY t7ziJm4~ 862615  FY22Q3 TA    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> fs Marantha Clinic                 bSqgtAJ0s3J DSHHKrA~ 577133  FY22Q3 TA    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> fs Masilo Clinic                   JsGytRwj7vN nKLpWqz~ 762651  FY22Q3 TA    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> fs Tshepong (Verkeerdevlei) Clinic ExeluDGbbUR BQGSONi~ 113042  FY22Q3 TA    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> fs Winburg Clinic                  megs14LrEpu EnDbIkU~ 928015  FY22Q3 TA    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> fs Winburg Hospital                kOj21dGIJA3 tmESQvQ~ 862315  FY22Q3 TA    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> fs Allanridge Clinic               KWtUdeDAdhG AAqsP8M~ 734833  FY22Q3 TA    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> fs AM Kruger Clinic                HA95VMbA6Zk tGJWb6s~ 853642  FY22Q3 TA    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> fs Boithusong Clinic               qmYVEDE9NKi NTB5jSz~ 423942  FY22Q3 TA    </span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ... with abbreviated variable names 1: datim_uid, 2: old_ou5code</span></span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">df_fac</span>, <span class="fl">10</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="step-6-read-in-the-latest-msd-or-genie-pull">Step 6: Read in the latest MSD or Genie pull<a class="anchor" aria-label="anchor" href="#step-6-read-in-the-latest-msd-or-genie-pull"></a>
@@ -240,16 +219,7 @@
 <p>When you are done saving your files in the correct folders, enter <code>1</code> in the console to continue the action.</p>
 <p><em>Note - errors will likely be due to file path or naming issues</em></p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">mech_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grab_mech_data.html">grab_mech_data</a></span><span class="op">(</span>mech_df <span class="op">=</span> <span class="va">mechs</span>, msd_df <span class="op">=</span> <span class="va">df_genie</span>, extra_mechs <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">Before continuing, please ensure that your additional mechanism data is saved</span></span></span>
-<span><span class="co"><span style="color: #BBBB00;">#&gt; in the `data-raw/Reference Files` folder with the following filepath:</span></span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">additional-mechdata-FY22Q3.xlsx</span> <span style="color: #BBBBBB;">(amend fiscal quarter as needed)</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">Please include the following 4 variables:</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBBBB;">sitename</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBBBB;">facilityuid</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBBBB;">mech_code</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBBBB;">prime_partner_name</span></span></span>
-<span><span class="co">#&gt; When done, enter 1:</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">mech_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grab_mech_data.html">grab_mech_data</a></span><span class="op">(</span>mech_df <span class="op">=</span> <span class="va">mechs</span>, msd_df <span class="op">=</span> <span class="va">df_genie</span>, extra_mechs <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <hr>
 </div>
 </div>
@@ -278,92 +248,9 @@
 </ul>
 <p>Before we peek under the hood, let’s run the whole processing function as is. This is all you will need to process the NDOH file into a full import file. When you run <code><a href="../reference/ndoh_processing.html">ndoh_processing()</a></code>, the function will automatically save the import file or the validation file into the <code>data-raw/Import Files</code> or <code>data-raw/Validation Files</code> folders respectively.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">df_import</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ndoh_processing.html">ndoh_processing</a></span><span class="op">(</span>filepath <span class="op">=</span> <span class="va">ndoh_filepath</span>, qtr <span class="op">=</span> <span class="st">"Q3"</span>, export_type <span class="op">=</span> <span class="st">"Import"</span>, save<span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ---- IMPORT VALIDATION ----</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Are there facilities reported in NDOH that are not in the USAID MFL?</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">v</span> Reading from "<span style="color: #00BBBB;">USAID Mapping File (as of 8/31/2022)</span>".</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">v</span> Range <span style="color: #BBBB00;">df_map_distinct</span>.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">v</span> Reading from "<span style="color: #00BBBB;">USAID Mapping File (as of 8/31/2022)</span>".</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">v</span> Range <span style="color: #BBBB00;">df_map_distinct</span>.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">v</span> Reading from "<span style="color: #00BBBB;">USAID Mapping File (as of 8/31/2022)</span>".</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">v</span> Range <span style="color: #BBBB00;">df_map_distinct</span>.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">v</span> Reading from "<span style="color: #00BBBB;">USAID Mapping File (as of 8/31/2022)</span>".</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">v</span> Range <span style="color: #BBBB00;">df_map_distinct</span>.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">v</span> Reading from "<span style="color: #00BBBB;">USAID Mapping File (as of 8/31/2022)</span>".</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">v</span> Range <span style="color: #BBBB00;">df_map_distinct</span>.</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ---- IMPORT VALIDATION ----</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Are there facilities reported in NDOH that are not in the USAID MFL?</span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">ec East London Maximum Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">ec East London Medium B Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">ec Mdantsane Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">gp Leeuwkop Medium A Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">gp Leeuwkop Medium C Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">gp Johannesburg Medium A Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">kz Ebongweni Maximum Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">kz Kokstad Medium Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">kz Qalakabusha Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">lp Polokwane Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">mp Nelspruit Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">mp Bethal Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">wc Goodwood Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">wc Pollsmoor Medium A Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">wc Pollsmoor Medium B Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">wc Pollsmoor Medium C Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">gp Johannesburg Medium C Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">kz Empangeni Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">gp Johannesburg Medium B Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">kz Eshowe Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">fs Odendaalsrus Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">gp Heidelberg Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">mp Ermelo Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">v</span> Reading from "<span style="color: #00BBBB;">USAID Mapping File (as of 8/31/2022)</span>".</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">v</span> Range <span style="color: #BBBB00;">df_map_distinct</span>.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">v</span> Reading from "<span style="color: #00BBBB;">USAID Mapping File (as of 8/31/2022)</span>".</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">v</span> Range <span style="color: #BBBB00;">df_map_distinct</span>.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">v</span> Reading from "<span style="color: #00BBBB;">USAID Mapping File (as of 8/31/2022)</span>".</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">v</span> Range <span style="color: #BBBB00;">df_map_distinct</span>.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">v</span> Reading from "<span style="color: #00BBBB;">USAID Mapping File (as of 8/31/2022)</span>".</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">v</span> Range <span style="color: #BBBB00;">df_map_distinct</span>.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">v</span> Reading from "<span style="color: #00BBBB;">USAID Mapping File (as of 8/31/2022)</span>".</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">v</span> Range <span style="color: #BBBB00;">df_map_distinct</span>.</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">df_import</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ndoh_processing.html">ndoh_processing</a></span><span class="op">(</span>filepath <span class="op">=</span> <span class="va">ndoh_filepath</span>, qtr <span class="op">=</span> <span class="st">"Q3"</span>, export_type <span class="op">=</span> <span class="st">"Import"</span>, save<span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">df_validation</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ndoh_processing.html">ndoh_processing</a></span><span class="op">(</span>filepath <span class="op">=</span> <span class="va">ndoh_filepath</span>, qtr <span class="op">=</span> <span class="st">"Q3"</span>, export_type <span class="op">=</span> <span class="st">"Validation"</span>, save<span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ---- IMPORT VALIDATION ----</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Are there facilities reported in NDOH that are not in the USAID MFL?</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ---- IMPORT VALIDATION ----</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Are there facilities reported in NDOH that are not in the USAID MFL?</span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">ec East London Maximum Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">ec East London Medium B Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">ec Mdantsane Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">gp Leeuwkop Medium A Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">gp Leeuwkop Medium C Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">gp Johannesburg Medium A Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">kz Ebongweni Maximum Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">kz Kokstad Medium Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">kz Qalakabusha Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">lp Polokwane Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">mp Nelspruit Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">mp Bethal Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">wc Goodwood Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">wc Pollsmoor Medium A Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">wc Pollsmoor Medium B Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">wc Pollsmoor Medium C Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">gp Johannesburg Medium C Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">kz Empangeni Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">gp Johannesburg Medium B Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">kz Eshowe Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">fs Odendaalsrus Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">gp Heidelberg Correctional Centre</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">mp Ermelo Correctional Centre</span></span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">df_validation</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ndoh_processing.html">ndoh_processing</a></span><span class="op">(</span>filepath <span class="op">=</span> <span class="va">ndoh_filepath</span>, qtr <span class="op">=</span> <span class="st">"Q3"</span>, export_type <span class="op">=</span> <span class="st">"Validation"</span>, save<span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>You may also want to break the import file up by partner for each partner DQRT. For this, you can use the function <code><a href="../reference/partner_import.html">partner_import()</a></code> from the <code>tierdrop</code> package. When this function is run, the partner import files get automatically saved into the <code>data-raw/Import Files</code> folder.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">Broadreach_import</span> <span class="op">&lt;-</span> <span class="fu">tierdrop</span><span class="fu">::</span><span class="fu"><a href="../reference/partner_import.html">partner_import</a></span><span class="op">(</span>df <span class="op">=</span> <span class="va">df_import</span>, <span class="fl">70287</span>, save <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
