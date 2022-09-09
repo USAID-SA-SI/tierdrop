@@ -1,8 +1,8 @@
 ---
-title: "TIER MER Processing - R Script SOP"
+title: "TIER MER Processing R Script SOP"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{TIER MER Processing - R Script SOP}
+  %\VignetteIndexEntry{TIER MER Processing R Script SOP}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -12,6 +12,9 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+
+#knitr::opts_knit$set(root.dir = "~/Documents/Github/tierdrop")
+
 ```
 
 
@@ -26,9 +29,9 @@ This script was developed to run the `tierdrop` package to process the TIER Data
 
 Once you install packages on your machine, you will not need to re-install them unless there is a necessary update to the package. In this case, let's install the `tierdrop` TIER processing package from Github. This package uses many functions from other R packages in the `tidyverse` and OHA packages.
 
-```{r install packages}
+```{r install packages, eval = FALSE}
 
-devtools::install_github("USAID-SA-SI/tierdrop", build_vignettes = TRUE)
+#devtools::install_github("USAID-SA-SI/tierdrop", build_vignettes = TRUE)
 
 ```
 
@@ -185,22 +188,22 @@ In the `tierdrop` package, there is a function called `ndoh_processing` that run
 Before we peek under the hood, let's run the whole processing function as is. This is all you will need to process the NDOH file into a full import file. When you run `ndoh_processing()`, the function will automatically save the import file or the validation file into the `data-raw/Import Files` or `data-raw/Validation Files` folders respectively.
 
 ```{r process NDOH import import file}
-df_import <- ndoh_processing(filepath = ndoh_filepath, qtr = "Q3", export_type = "Import", save= TRUE)
+df_import <- ndoh_processing(filepath = ndoh_filepath, qtr = "Q3", export_type = "Import", save= FALSE)
 ```
 
 ```{r process NDOH for validation, message = FALSE}
-df_validation <- ndoh_processing(filepath = ndoh_filepath, qtr = "Q3", export_type = "Validation", save= TRUE)
+df_validation <- ndoh_processing(filepath = ndoh_filepath, qtr = "Q3", export_type = "Validation", save= FALSE)
 
 ```
 
 You may also want to break the import file up by partner for each partner DQRT. For this, you can use the function  `partner_import()` from the `tierdrop` package. When this function is run, the partner import files get automatically saved into the `data-raw/Import Files` folder.
 
-```{r}
-Broadreach_import <- tierdrop::partner_import(df = df_import, 70287)
-RTC_import <- tierdrop::partner_import(df = df_import, 70290)
-ANOVA_import <- tierdrop::partner_import(df = df_import, 70310)
-MATCH_import <- tierdrop::partner_import(df = df_import, 81902)
-WRHI_import <- tierdrop::partner_import(df = df_import, 70301)
+```{r, eval = FALSE}
+Broadreach_import <- tierdrop::partner_import(df = df_import, 70287, save = FALSE)
+RTC_import <- tierdrop::partner_import(df = df_import, 70290, save = FALSE)
+ANOVA_import <- tierdrop::partner_import(df = df_import, 70310, save = FALSE)
+MATCH_import <- tierdrop::partner_import(df = df_import, 81902, save = FALSE)
+WRHI_import <- tierdrop::partner_import(df = df_import, 70301, save = FALSE)
 ```
 
 Et voila! You have a TIER import file in the format for DATIM. This file can then be used to engage in the following steps of MER processing:

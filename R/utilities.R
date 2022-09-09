@@ -140,13 +140,16 @@ paint_green <- function(txt) {
 #'
 #' @examples
 #'
-partner_import <- function(df, mech_code) {
+partner_import <- function(df, mech_code, save = TRUE) {
 
   df_partner <- df %>%
-    dplyr::filter(!is.na(dataElement)) %>%
+    dplyr::filter(!is.na(dataElement_uid)) %>%
     dplyr::filter(mech_code == mech_code)
 
-  readr::write_csv(df_partner, glue::glue("{import_folder}/{mech_code}_{fiscal_quarter}_TIER_Import_File.csv"))
+  if (save ==  TRUE) {
+    readr::write_csv(df_partner, glue::glue("{import_folder}/{mech_code}_{fiscal_quarter}_TIER_Import_File.csv"))
+  }
+
 
 
   return(df_partner)

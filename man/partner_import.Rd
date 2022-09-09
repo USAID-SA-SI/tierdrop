@@ -4,7 +4,7 @@
 \alias{partner_import}
 \title{Split into partner-level import files}
 \usage{
-partner_import(df, mech_code)
+partner_import(df, mech_code, save = TRUE)
 }
 \arguments{
 \item{df}{final import file dataframe}
