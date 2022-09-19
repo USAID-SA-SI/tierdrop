@@ -14,6 +14,12 @@ navbar:
     reference:
       text: Reference
       href: reference/index.html
+    articles:
+      text: Articles
+      menu:
+      - text: TIER MER Processing SOP
+        href: articles/TIER-MER-Processing-R-Script-SOP.html
+
 authors:
   Karishma Srikanth:
 
