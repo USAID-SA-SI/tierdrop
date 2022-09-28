@@ -1,9 +1,9 @@
-pandoc: 2.7.3
+pandoc: '2.18'
 pkgdown: 2.0.6
 pkgdown_sha: ~
 articles:
   TIER-MER-Processing-R-Script-SOP: TIER-MER-Processing-R-Script-SOP.html
-last_built: 2022-09-19T09:27Z
+last_built: 2022-09-28T19:35Z
 urls:
   reference: https://usaid-sa-si.github.io/tierdrop/reference
   article: https://usaid-sa-si.github.io/tierdrop/articles
