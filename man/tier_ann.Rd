@@ -5,7 +5,7 @@
 \alias{tier_ann}
 \title{Annual TIER indicators (use in Q4 only)}
 \format{
-An object of class \code{character} of length 15.
+An object of class \code{character} of length 17.
 }
 \usage{
 tier_ann

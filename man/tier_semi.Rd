@@ -5,7 +5,7 @@
 \alias{tier_semi}
 \title{Semi-Annual TIER indicators (use in Q2 only)}
 \format{
-An object of class \code{character} of length 14.
+An object of class \code{character} of length 16.
 }
 \usage{
 tier_semi
