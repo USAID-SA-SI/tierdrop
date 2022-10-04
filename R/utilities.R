@@ -64,6 +64,8 @@ read_all_the_things <- function(path, sheet){
                         "TB_STAT_Denom" = names_tb_stat_d,
                         "TB_STAT_Numer" = names_tb_stat_n,
                         "TX TB_D" = names_tx_tb_d,
+                        "TX TB_D_Pos" = names_tx_tb_pos,
+                        "TX TB_D_TestType" = names_tx_tb_d_testtype,
                         "TX TB_N" = names_tx_tb_n,
                         "TB PREV_D" = names_tb_prev,
                         "TB PREV_N" = names_tb_prev,
