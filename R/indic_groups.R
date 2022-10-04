@@ -40,7 +40,7 @@ tier_ann <- c("PrEP_New","PrEP_CT","TX_NEW",
                "TB_ART",
                "TX_PVLS_Denom", "TX_PVLS_Numer",
                "TB_STAT_Denom", "TB_STAT_Numer",
-              "TX TB_D", "TX_TB_D_Pos", "TX TB_D_TestType",
+              "TX TB_D", "TX TB_D_Pos", "TX TB_D_TestType",
               "TX TB_N", "TB PREV_N", "TB PREV_D")
 
 #' Quarterly TIER indicators for KP tabs (use in each quarter)
