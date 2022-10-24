@@ -40,13 +40,13 @@ import_ndoh <- function(filepath, qtr, kp = FALSE) {
     dplyr::mutate(code_num = stringr::str_length(Code)) %>%
     dplyr::group_by(Province, District, SubDistrict, Facility) %>%
     dplyr::arrange(dplyr::desc(code_num)) %>%
-    dplyr::left_join(mfl_new_df %>% dplyr::select(OU5name, Old_OU5Code), by = c("Facility" = "OU5name")) %>%
-    dplyr::mutate(Old_OU5Code = as.character(Old_OU5Code),
-                  Code = ifelse(code_num < 6, Old_OU5Code, Code)) %>%
+    dplyr::left_join(mfl_new_df %>% dplyr::select(OU5name, `New_OU5 Code`), by = c("Facility" = "OU5name")) %>%
+    dplyr::mutate(`New_OU5 Code` = as.character(`New_OU5 Code`),
+                  Code = ifelse(code_num < 7, `New_OU5 Code`, Code)) %>%
     tidyr::fill(Code) %>%
     dplyr::ungroup() %>%
     #  dplyr::count(Facility, Code) %>%
-    dplyr::select(-c(code_num, Old_OU5Code))
+    dplyr::select(-c(code_num, `New_OU5 Code`))
 
   if (kp == TRUE) {
     #Aggregate across KP groups
