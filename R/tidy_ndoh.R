@@ -15,7 +15,7 @@ tidy_ndoh <- function(df, kp = FALSE) {
 
   #join NDOH to MFL
   ndoh_join <- df_fac %>%
-    dplyr::left_join(df,  by = c("old_ou5code" = "Code"))
+    dplyr::left_join(df,  by = c("new_ou5_code" = "Code"))
 
   if (kp == TRUE) {
     ndoh_join <- ndoh_join %>%
@@ -49,7 +49,7 @@ tidy_ndoh <- function(df, kp = FALSE) {
   #address over50 disagg issue (need to reclassify age groups above 50 as "50+")
   ndoh_over50 <- ndoh_clean %>%
     dplyr::filter(CoarseAgeGroup == "50+") %>%
-    dplyr::group_by(usaid_facility, ou5uid, datim_uid, old_ou5code, period, DSD_TA,
+    dplyr::group_by(usaid_facility, ou5uid, datim_uid, new_ou5_code, period, DSD_TA,
              Province, District, SubDistrict, Facility, `Test Result/Outcome/Duration`,
              Sex, CoarseAgeGroup, Result, indicator, numeratordenom) %>%
     dplyr::summarise(dplyr::across(tidyselect::starts_with("Total"), sum, na.rm = TRUE), .groups = "drop")
