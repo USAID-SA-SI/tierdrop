@@ -35,7 +35,7 @@ map_disaggs <- function(df, ind_sel = "All", disaggregate = "All", all_indic = T
                                                  'SubDistrict', 'Facility', "Total")]
 
     ndoh_disagg <- df %>%
-      dplyr::filter(indicator %ni% c("PrEP_CT", "TX_RTT")) %>%
+      dplyr::filter(indicator %ni% c("PrEP_CT", "TX_RTT", "TX_TB")) %>%
       dplyr::left_join(df_map_distinct, by = c(group_vars)) %>%
       dplyr::distinct()
     # %>%
