@@ -130,7 +130,7 @@ if (export_type == "Import") {
                  "Total")
 } else if (export_type == "Validation") {
   keep_vars <- c("period","Province", "District","SubDistrict", "Facility",
-                 "datim_uid", "mech_code", "mech_uid", 'prime_partner_name',
+                 "datim_uid", "mech_code", "mech_uid", 'mech_name',
                  "indicator", "numeratordenom","Test Result/Outcome/Duration", "Sex",
                  "CoarseAgeGroup", "Result","dataElement", "dataElement_uid", "categoryOptionComboName",
                  "categoryOptionCombo_uid", "Total")
