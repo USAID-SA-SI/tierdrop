@@ -146,9 +146,21 @@ paint_green <- function(txt) {
 #'
 partner_import <- function(df, mech_code, save = TRUE) {
 
+  if (mech_code == 70287) {
+    mech_uid <- "koVrJ0HjBxy"
+  } else if (mech_code == 70310) {
+    mech_uid <- "LbZtY0khSQw"
+  } else if (mech_code == 81902) {
+    mech_uid <- "Sm6Y3REDZ42"
+  } else if (mech_code == 70290) {
+    mech_uid <- "R6zwVobwi58"
+  } else if (mech_code == 70301) {
+    mech_uid <- "Rv3LaFFxBCY"
+  }
+
   df_partner <- df %>%
     dplyr::filter(!is.na(dataElement_uid)) %>%
-    dplyr::filter(mech_code == mech_code)
+    dplyr::filter(mech_uid == mech_uid)
 
   if (save ==  TRUE) {
     readr::write_csv(df_partner, glue::glue("{import_folder}/{mech_code}_{fiscal_quarter}_TIER_Import_File.csv"))
