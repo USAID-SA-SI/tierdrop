@@ -35,11 +35,10 @@ map_disaggs <- function(df, ind_sel = "All", disaggregate = "All", all_indic = T
                                                  'SubDistrict', 'Facility', "Total")]
 
     ndoh_disagg <- df %>%
-      dplyr::filter(indicator %ni% c("PrEP_CT", "TX_RTT", "TX_TB")) %>%
+      dplyr::filter(indicator %ni% c("PrEP_CT", "TX_RTT")) %>%
       dplyr::left_join(df_map_distinct, by = c(group_vars)) %>%
-      dplyr::distinct()
-    # %>%
-    #   dplyr::left_join(mech_df, by = c("datim_uid" = "facilityuid"))
+      dplyr::distinct() %>%
+      dplyr::left_join(mech_df, by = c("datim_uid" = "facilityuid"))
 
   } else {
 
@@ -68,9 +67,8 @@ map_disaggs <- function(df, ind_sel = "All", disaggregate = "All", all_indic = T
       dplyr::left_join(df_map_distinct %>%
                          dplyr::select(-c(unselect_vars)) %>%
                          dplyr::filter(stringr::str_detect(dataElement, disaggregate)), by = c(group_vars)) %>%
-      dplyr::distinct()
-    # %>%
-    #   dplyr::left_join(mech_df, by = c("datim_uid" = "facilityuid"))
+      dplyr::distinct() %>%
+      dplyr::left_join(mech_df, by = c("datim_uid" = "facilityuid"))
 
 
   }
@@ -130,7 +128,7 @@ if (export_type == "Import") {
                  "Total")
 } else if (export_type == "Validation") {
   keep_vars <- c("period","Province", "District","SubDistrict", "Facility",
-                 "datim_uid", "mech_code", "mech_uid", 'mech_name',
+                 "datim_uid", "mech_code", "mech_uid", 'prime_partner_name',
                  "indicator", "numeratordenom","Test Result/Outcome/Duration", "Sex",
                  "CoarseAgeGroup", "Result","dataElement", "dataElement_uid", "categoryOptionComboName",
                  "categoryOptionCombo_uid", "Total")
