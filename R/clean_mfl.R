@@ -21,10 +21,10 @@ clean_mfl <- function(mfl_period = "FY23") {
   df_fac <- mfl_new_df %>%
     dplyr::filter(!is.na(OU2name)) %>%
     janitor::clean_names() %>%
-    dplyr::select(ou5name, ou5uid, datim_uid, old_ou5code, tidyselect::contains("dsd")) %>%
+    dplyr::select(ou5name, ou5uid, datim_uid, new_ou5_code, tidyselect::contains("dsd")) %>%
     # tidyr::pivot_longer(cols = tidyselect::contains("dsd"), names_to = "period", values_to = "DSD_TA") %>%
     dplyr::mutate(period = fiscal_quarter,
-                  old_ou5code = as.character(old_ou5code),
+                  new_ou5_code = as.character(new_ou5_code),
                   dsd_ta = ifelse(dsd_ta == "DSD+Roving TA", "DSD", dsd_ta)) %>%
     dplyr::rename(usaid_facility = ou5name)
 
