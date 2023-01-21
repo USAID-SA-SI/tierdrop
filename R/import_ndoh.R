@@ -40,13 +40,18 @@ import_ndoh <- function(filepath, qtr, kp = FALSE) {
     dplyr::mutate(code_num = stringr::str_length(Code)) %>%
     dplyr::group_by(Province, District, SubDistrict, Facility) %>%
     dplyr::arrange(dplyr::desc(code_num)) %>%
-    dplyr::left_join(mfl_new_df %>% dplyr::select(OU5name, Old_OU5Code), by = c("Facility" = "OU5name")) %>%
-    dplyr::mutate(Old_OU5Code = as.character(Old_OU5Code),
-                  Code = ifelse(code_num < 6, Old_OU5Code, Code)) %>%
+    dplyr::left_join(df_fac %>%
+                       dplyr::mutate(usaid_facility = dplyr::recode(usaid_facility, "lp Matsotsosela Clinic" = "lp Matsotsosela clinic")) %>%
+                       dplyr::select(usaid_facility, new_ou5_code), by = c("Facility" = "usaid_facility")) %>%
+    dplyr::mutate(new_ou5_code = as.character(new_ou5_code),
+                  # Code = ifelse(code_num < 7, new_ou5_code, Code)
+                  # ,
+                  # Code = ifelse(Facility %in% misaligned_sites, new_ou5_code, Code)
+                  ) %>%
     tidyr::fill(Code) %>%
     dplyr::ungroup() %>%
     #  dplyr::count(Facility, Code) %>%
-    dplyr::select(-c(code_num, Old_OU5Code))
+    dplyr::select(-c(code_num, new_ou5_code))
 
   if (kp == TRUE) {
     #Aggregate across KP groups

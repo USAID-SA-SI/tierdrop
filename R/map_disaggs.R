@@ -29,8 +29,9 @@ map_disaggs <- function(df, ind_sel = "All", disaggregate = "All", all_indic = T
   if (all_indic == TRUE) {
 
 
-    group_vars <- col_names[col_names %ni% c("usaid_facility", "ou5uid", "datim_uid",
-                                                 'old_ou5code', 'period', 'Province', 'District',
+    group_vars <- col_names[col_names %ni% c("mech_name", "mech_code", "mech_uid",
+                                             "usaid_facility", "ou5uid", "datim_uid",
+                                                 'new_ou5_code', 'period', 'Province', 'District',
                                                  'SubDistrict', 'Facility', "Total")]
 
     ndoh_disagg <- df %>%
@@ -54,8 +55,9 @@ map_disaggs <- function(df, ind_sel = "All", disaggregate = "All", all_indic = T
     }
 
     select_vars <- col_names[col_names %ni% c(unselect_vars)]
-    group_vars <- select_vars[select_vars %ni% c("usaid_facility", "ou5uid", "datim_uid",
-                                                 'old_ou5code', 'period', 'Province', 'District',
+    group_vars <- select_vars[select_vars %ni% c("mech_name", "mech_code", "mech_uid",
+                                                 "usaid_facility", "ou5uid", "datim_uid",
+                                                 'new_ou5_code', 'period', 'Province', 'District',
                                                  'SubDistrict', 'Facility')]
 
     ndoh_disagg <- df %>%
