@@ -83,8 +83,10 @@ read_all_the_things <- function(path, sheet){
 
   df <-  df %>%
     dplyr::mutate(indicator = sheet,
-           Total = as.numeric(Total),
-           Code = stringr::str_replace(Code, ".0$", ""))
+           Total = as.numeric(Total)
+           # ,
+           # Code = stringr::str_replace(Code, ".0$", "")
+           )
 
   return(df)
 }
