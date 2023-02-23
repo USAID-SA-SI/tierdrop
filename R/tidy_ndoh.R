@@ -35,7 +35,7 @@ tidy_ndoh <- function(df, kp = FALSE) {
                               "TX_PVLS_Denom" = "TX_PVLS_D",
                               "TX_PVLS_Numer" = "TX_PVLS_N"),
            numeratordenom = ifelse(stringr::str_detect(indicator, "_D"), "D", "N"),
-           CoarseAgeGroup = ifelse(indicator != "TX_CURR" & CoarseAgeGroup %in% c("50-54", "55-59", "60-64", "65+"),
+           CoarseAgeGroup = ifelse(indicator %ni% c("TX_CURR", "TX_PVLS_D", "TX_PVLS_N", "TX_NEW") & CoarseAgeGroup %in% c("50-54", "55-59", "60-64", "65+"),
                                    "50+", CoarseAgeGroup),
            indicator = dplyr::recode(indicator, "TB_PREV_D" = "TB_PREV",
                               "TB_PREV_N" = "TB_PREV",
