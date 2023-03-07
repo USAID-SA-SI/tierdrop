@@ -44,7 +44,7 @@ import_ndoh <- function(filepath, qtr, kp = FALSE) {
                        dplyr::mutate(usaid_facility = dplyr::recode(usaid_facility, "lp Matsotsosela Clinic" = "lp Matsotsosela clinic")) %>%
                        dplyr::select(usaid_facility, new_ou5_code), by = c("Facility" = "usaid_facility")) %>%
     dplyr::mutate(new_ou5_code = as.character(new_ou5_code),
-                  # Code = ifelse(code_num < 7, new_ou5_code, Code)
+                   Code = ifelse(code_num < 7, new_ou5_code, Code)
                   # ,
                   # Code = ifelse(Facility %in% misaligned_sites, new_ou5_code, Code)
                   ) %>%
