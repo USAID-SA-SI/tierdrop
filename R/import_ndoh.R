@@ -44,10 +44,10 @@ import_ndoh <- function(filepath, qtr, kp = FALSE) {
                        dplyr::mutate(usaid_facility = dplyr::recode(usaid_facility, "lp Matsotsosela Clinic" = "lp Matsotsosela clinic")) %>%
                        dplyr::select(usaid_facility, new_ou5_code), by = c("Facility" = "usaid_facility")) %>%
     dplyr::mutate(new_ou5_code = as.character(new_ou5_code),
-                   Code = ifelse(code_num < 7, new_ou5_code, Code)
+                  Code = ifelse(code_num < 7, new_ou5_code, Code)
                   # ,
                   # Code = ifelse(Facility %in% misaligned_sites, new_ou5_code, Code)
-                  ) %>%
+    ) %>%
     tidyr::fill(Code) %>%
     dplyr::ungroup() %>%
     #  dplyr::count(Facility, Code) %>%
@@ -57,13 +57,13 @@ import_ndoh <- function(filepath, qtr, kp = FALSE) {
     #Aggregate across KP groups
     df_final <- df_final %>%
       dplyr::group_by(Province, District, SubDistrict, Facility, Code, `Test Result/Outcome/Duration`,
-               Sex, CoarseAgeGroup, Result, indicator) %>%
+                      Sex, CoarseAgeGroup, Result, indicator) %>%
       dplyr::summarise(dplyr::across(tidyselect::starts_with("Total"), sum, na.rm = TRUE), .groups = "drop")
 
 
   }
 
-return(df_final)
+  return(df_final)
 }
 
 
