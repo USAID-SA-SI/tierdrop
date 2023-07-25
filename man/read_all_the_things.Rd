@@ -11,9 +11,6 @@ read_all_the_things(path, sheet)
 
 \item{sheet}{tab name}
 }
-\value{
-
-}
 \description{
 Read tabs from NDOH for each indicator and adjust column names
 }

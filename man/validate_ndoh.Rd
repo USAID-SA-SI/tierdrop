@@ -9,9 +9,6 @@ validate_ndoh(df)
 \arguments{
 \item{df}{NDOH dataframe to validate}
 }
-\value{
-
-}
 \description{
 Validate facilities reported in NDOH by MFL
 }

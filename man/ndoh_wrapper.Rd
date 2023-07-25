@@ -20,9 +20,6 @@ ndoh_wrapper(
 
 \item{export_type}{parameter to extract data in specific format (1) DATIM import file (2) Validation file for internal checks}
 }
-\value{
-
-}
 \description{
 This function wraps together functions to import the NDOH file and append all indicator tabs
 (\code{import_ndoh()}), checks for facility alignment between NDOH and the MFL (\code{validate_ndoh()}), tidies the

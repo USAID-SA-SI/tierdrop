@@ -9,9 +9,6 @@ clean_mfl(mfl_period = "FY23")
 \arguments{
 \item{mfl_period}{version of MFL}
 }
-\value{
-
-}
 \description{
 Reshape MFL
 }

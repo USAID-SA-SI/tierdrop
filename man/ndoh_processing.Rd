@@ -20,9 +20,6 @@ ndoh_processing(
 
 \item{save}{if TRUE, the function will save dataframe to appropriate export folder (default = TRUE)}
 }
-\value{
-
-}
 \description{
 This function calls on the wrapper processing function \code{ndoh_wrapper()} to process
 both the non-KP and KP tabs in the NDOH file, and bind them all together

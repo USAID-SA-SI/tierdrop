@@ -13,9 +13,6 @@ import_ndoh(filepath, qtr, kp = FALSE)
 
 \item{kp}{processes KP tabs if TRUE and non-KP tabs if FALSE (default kp = FALSE)}
 }
-\value{
-
-}
 \description{
 Import NDOH tabs
 }

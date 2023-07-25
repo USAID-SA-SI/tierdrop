@@ -11,9 +11,6 @@ tidy_ndoh(df, kp = FALSE)
 
 \item{kp}{parameter to tidy KP tabs if KP = TRUE (default KP = FALSE)}
 }
-\value{
-
-}
 \description{
 Tidy / munge NDOH import
 }

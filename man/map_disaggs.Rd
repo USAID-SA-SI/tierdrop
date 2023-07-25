@@ -17,9 +17,6 @@ i.e. PrEP_CT Disaggs: (1) "Age/Sex" (2) "TestResult", TX_RTT Disaggs: (1) "Age/S
 
 \item{all_indic}{TRUE if data for all indicators (minus PrEP_CT and TX_RTT) are being mapped, FALSE if not}
 }
-\value{
-
-}
 \description{
 Mapping DATIM UIDS to NDOH tab structure
 }
