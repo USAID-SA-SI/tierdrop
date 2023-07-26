@@ -12,7 +12,7 @@
 #'    grab_mech_data(df = mechs, extra_mechs = TRUE)
 #' }
 #'
-grab_mech_data <- function(mech_df, msd_df, extra_mechs = FALSE) {
+grab_mech_data <- function(mech_df, msd_df, curr_fy, extra_mechs = FALSE) {
 
   if (extra_mechs == TRUE) {
 
@@ -20,7 +20,7 @@ grab_mech_data <- function(mech_df, msd_df, extra_mechs = FALSE) {
 
     print(glue::glue_col("{yellow Before continuing, please ensure that your additional mechanism data is saved
                          in the `data-raw/Reference Files` folder with the following filepath:}"))
-  print(glue::glue_col("{blue additional-mechdata-{fiscal_quarter}.xlsx} {white (amend fiscal quarter as needed)}"))
+    print(glue::glue_col("{blue additional-mechdata-{fiscal_quarter}.xlsx} {white (amend fiscal quarter as needed)}"))
     print(glue::glue_col("{yellow
                          Please include the following 4 variables:}"))
     print(glue::glue_col("{white {vars}}"))
@@ -40,14 +40,15 @@ grab_mech_data <- function(mech_df, msd_df, extra_mechs = FALSE) {
   if (extra_mechs == TRUE) {
     match_mechs <- reference_folder %>%
       glamr::return_latest(glue::glue("additional-mechdata-{fiscal_quarter}.xlsx")) %>%
-      readxl::read_xlsx()
+      readxl::read_xlsx() %>%
+      dplyr::mutate(mech_code = as.character(mech_code))
   }
 
   #grab mech info by sites reported in most recent MSD
   msd_mechs2 <- msd_df %>%
     dplyr::filter(funding_agency == "USAID",
-                  fiscal_year == 2022,
-                  mech_code %in% c(70310, 70287, 81902, 70290, 70301)) %>%
+                  fiscal_year == curr_fy,
+                  mech_code %in% c("70310", "70287", "81902", "70290", "70301")) %>%
     dplyr::count(sitename, facilityuid, mech_code, prime_partner_name)
 
   #bind extra mechs if true

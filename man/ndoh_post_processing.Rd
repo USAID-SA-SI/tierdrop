@@ -13,9 +13,6 @@ ndoh_post_processing(df, kp = FALSE, export_type)
 
 \item{export_type}{parameter to extract data in specific format (1) DATIM import file (2) Validation file for internal checks}
 }
-\value{
-
-}
 \description{
 This function maps in DATIM elements using \code{map_disaggs()}, binds all the indicator levels together &
 exports processed data in import file or validation file format

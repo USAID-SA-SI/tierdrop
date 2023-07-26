@@ -16,17 +16,17 @@ dir_setup <- function() {
   #data_files <- c("NDOH File", "Disaggregate Mapping File")
 
   #if (!base::dir.exists(file.path(".", folders)))
-    glamr::folder_setup(folders)
+  glamr::folder_setup(folders)
   # glamr::setup_gitignore()
 
-    print(glue::glue_col("{yellow Please save the following files to the data-raw/NDOH folder:
+  print(glue::glue_col("{yellow Please save the following files to the data-raw/NDOH folder:
                          } Latest NDOH File
                          {yellow Please save the following files to the data-raw/Reference Files folder:
                          } Additional mechanism data for specific sites (if needed)
                          {yellow Please save the following files to the data-raw/MSD-Genie folder:
                          } Most recent site-level MSD or data-pull from Genie"))
 
-    cont <- readline(prompt = "When done, enter 1: ")
+  cont <- readline(prompt = "When done, enter 1: ")
 
 
 }
@@ -63,10 +63,10 @@ read_all_the_things <- function(path, sheet){
                         "TX_PVLS_Numer" = names_tx_pvls,
                         "TB_STAT_Denom" = names_tb_stat_d,
                         "TB_STAT_Numer" = names_tb_stat_n,
-                        "TX TB_D" = names_tx_tb_d,
-                        "TX TB_D_Pos" = names_tx_tb_d_pos,
-                        "TX TB_D_TestType" = names_tx_tb_d_testtype,
-                        "TX TB_N" = names_tx_tb_n,
+                        "TX TB_Denom" = names_tx_tb_d,
+                        "TX TB_Denom_Pos" = names_tx_tb_d_pos,
+                        "TX TB_Denom_TestType" = names_tx_tb_d_testtype,
+                        "TX TB_Numer" = names_tx_tb_n,
                         "TB PREV_D" = names_tb_prev,
                         "TB PREV_N" = names_tb_prev,
                         "PrEP_New_KP" = names_prep_new_kp,
@@ -83,10 +83,10 @@ read_all_the_things <- function(path, sheet){
 
   df <-  df %>%
     dplyr::mutate(indicator = sheet,
-           Total = as.numeric(Total)
-           # ,
-           # Code = stringr::str_replace(Code, ".0$", "")
-           )
+                  Total = as.numeric(Total)
+                  # ,
+                  # Code = stringr::str_replace(Code, ".0$", "")
+    )
 
   return(df)
 }
@@ -165,15 +165,10 @@ partner_import <- function(df, mech_code, save = TRUE) {
     dplyr::filter(mech_uid == mech_uid)
 
   if (save ==  TRUE) {
-    readr::write_csv(df_partner, glue::glue("{import_folder}/{mech_code}_{fiscal_quarter}_TIER_Import_File.csv"))
+    readr::write_csv(df_partner, glue::glue("{import_folder}/{mech_code}_{fiscal_quarter}_TIER_Import_File_{today}.csv"))
   }
 
 
 
   return(df_partner)
 }
-
-
-
-
-

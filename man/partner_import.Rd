@@ -13,12 +13,6 @@ partner_import(df, mech_code, save = TRUE)
 
 \item{save}{if TRUE, the function will save dataframe to appropriate export folder (default = TRUE)}
 }
-\value{
-
-}
 \description{
 Split into partner-level import files
-}
-\examples{
-
 }

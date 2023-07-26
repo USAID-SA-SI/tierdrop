@@ -14,19 +14,19 @@
 validate_ndoh <- function(df) {
 
   #CHECK******
-  #what facilities are in NDOH but not in MFL? All correctional facilities
+  #what facilities are in NDOH but not in MFL? ADdress MFL qc as needed
   ndoh_code <- unique(df$Code)
-  mfl_code <- unique(df_fac$old_ou5code)
+  mfl_code <- unique(df_fac$new_ou5_code)
   code_list <- setdiff(ndoh_code, mfl_code)
 
 
-  NDOH_MFL_triangulation <- df %>% dplyr::filter(Code %in% code_list) %>%
-    dplyr::distinct(Facility) %>%
-    dplyr::pull(Facility)
+  # all correctional sites after manual mutates
+  missing_sites <- df %>%
+    filter(Code %in% code_list) %>% distinct(Facility) %>% pull()
 
   cat("\n---- IMPORT VALIDATION ----",
       "\nAre there facilities reported in NDOH that are not in the USAID MFL?",
-      paint_yellow(NDOH_MFL_triangulation), sep='\n')
+      paint_yellow(missing_sites), sep='\n')
 
 }
 

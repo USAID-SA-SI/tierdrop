@@ -4,7 +4,7 @@
 \alias{grab_mech_data}
 \title{Grab site-level mechanism mechdata from DATIM/recent MSD}
 \usage{
-grab_mech_data(mech_df, msd_df, extra_mechs = FALSE)
+grab_mech_data(mech_df, msd_df, curr_fy, extra_mechs = FALSE)
 }
 \arguments{
 \item{mech_df}{Calls on mechanism meta-data that is pulled by \code{pull_mech_uid()}}
@@ -13,9 +13,6 @@ grab_mech_data(mech_df, msd_df, extra_mechs = FALSE)
 
 \item{extra_mechs}{If TRUE, function will read in extra mechanism data saved in reference file folder
 (default = FALSE)}
-}
-\value{
-
 }
 \description{
 Grab site-level mechanism mechdata from DATIM/recent MSD

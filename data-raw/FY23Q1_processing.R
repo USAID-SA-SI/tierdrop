@@ -194,7 +194,7 @@ df_final <- dplyr::bind_rows(df_mapped,
 df_final %>%
   janitor::get_dupes()
 
-#filter out Harry Gwala for PrEP
+#filter out Harry Gwala for PrEP (MATCH)
 #Remove PrEP_NEW & PrEP_CURR from Capricorn & Mopani.(ANOVA)
 
 df_final <- df_final %>%
@@ -203,8 +203,50 @@ df_final <- df_final %>%
                          "lp Mopani District Municipality")
          & indicator %in% c("PrEP_CT", "PrEP_NEW")))
 
+#match sites without prep
 
-import_final <- df_final %>%
+
+# match_no_prep_q4 <- reference_folder %>%
+#   return_latest("FY22Q4_no_PREP_MATCH_facilities") %>%
+#   read_excel()
+
+#issue with file - use this for delete file for cleaning window
+match_prep_q1 <- reference_folder %>%
+  return_latest("PrEP Facilities MatCH_FY23Q1") %>%
+  read_excel() %>%
+  rename(facilityuid = ...3,
+         sitename = FACILITY)
+
+match_no_prep_sites <- match_no_prep_q1 %>%
+  distinct(facilityuid) %>%
+  pull()
+
+
+match_FY23Q1_prep_cleaning <- reference_folder %>%
+  return_latest("PrEP Facilities_MatCH_CLEANING_20230307") %>%
+  read_excel() %>%
+  rename(prep_facility = `Prep facility (YES/NO)`)
+
+
+new_match_prep_cleaning <- match_FY23Q1_prep_cleaning %>%
+  filter(prep_facility == "YES") %>%
+  left_join(df_fac %>% select(usaid_facility, datim_uid),
+            by = c("OrgUnit" = "usaid_facility")) %>%
+  distinct(datim_uid) %>%
+  pull()
+
+
+#import file for MATCH facilities that report prep
+import_uid_prep <- df_final %>%
+  filter((orgUnit_uid %in% new_match_prep_cleaning
+          & indicator %in% c("PrEP_CT", "PrEP_NEW"))) %>%
+  distinct(orgUnit_uid) %>%
+  pull()
+
+setdiff(new_match_prep_cleaning, import_uid_prep)
+
+#ORIGINAL IMPORT FILE
+import_final <- df_final_all_no_prep %>%
   select(import_vars) %>%
   mutate(period = recode(period, "FY23Q1" = "2022Q4")) #functionalize this in next tier update
 
@@ -213,6 +255,17 @@ import_final <- df_final %>%
 #   filter(!is.na(dataElement))
 
 
+#DELETE FILE - use original match file for no prep sites:
+  # these are the sites that did make it in that we need a delete file for
+
+df_final_all_match_prep_filtereout <- df_final %>%
+  filter(!(orgUnit_uid %in% match_no_prep_sites
+          & indicator %in% c("PrEP_CT", "PrEP_NEW"))) %>%
+  select(import_vars) %>%
+  mutate(period = recode(period, "FY23Q1" = "2022Q4"))
+
+write_csv(df_final_all_match_prep_filtereout,
+          glue::glue("{import_folder}/{fiscal_quarter}_MATCH_PREP_DELETE_FILE_v1_{today}.csv"))
 
 #Check
 import_final %>%
@@ -224,12 +277,12 @@ import_final %>%
 # EXPORT ----------------------------------------------
 
 
-df_final %>%
-  readr::write_csv(glue::glue("{import_folder}/{fiscal_quarter}_TIER_Import_File_v3_{today}_ALL.csv"))
+df_final_all_no_prep %>%
+  readr::write_csv(glue::glue("{import_folder}/{fiscal_quarter}_TIER_Import_File_v4_{today}_ALL.csv"))
 
 
 import_final %>%
-  readr::write_csv(glue::glue("{import_folder}/{fiscal_quarter}_TIER_Import_File_v3_{today}.csv"))
+  readr::write_csv(glue::glue("{import_folder}/{fiscal_quarter}_TIER_Import_File_v4_{today}.csv"))
 
 
 

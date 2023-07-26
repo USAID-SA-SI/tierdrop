@@ -19,3 +19,7 @@ You can install the development version of tierdrop from [GitHub](https://github
 # install.packages("devtools")
 devtools::install_github("USAID-SA-SI/tierdrop")
 ```
+
+---
+
+*Disclaimer: The findings, interpretation, and conclusions expressed herein are those of the authors and do not necessarily reflect the views of United States Agency for International Development. All errors remain our own.*
