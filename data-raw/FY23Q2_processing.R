@@ -28,6 +28,7 @@ dir_setup()
 
 #store some locals (change this to a grab metadata later as well)
 fiscal_quarter <- "FY23Q2"
+import_period_style <- "2023Q1"
 curr_qtr <- "Q2"
 today <- lubridate::today()
 
@@ -113,7 +114,7 @@ mechs <- glamr::si_path() %>%
 mechs <- mechs %>%
   dplyr::mutate(mech_code = as.character(mech_code))
 
-mech_df <- grab_mech_data(mech_df = mechs, msd_df = df_genie, curr_fy= 2023, extra_mechs = TRUE)
+mech_df <- grab_mech_data(mech_df = mechs, msd_df = df_genie, curr_fy= 2023, extra_mechs = FALSE)
 
 
 # NDOH ---------------------------------------------------------------------
@@ -185,8 +186,7 @@ ndoh_tb_stat <- ndoh_clean %>%
          `Test Result/Outcome/Duration` %in% c("New Negative", 'New Positive')) %>%
   #filter(CoarseAgeGroup == "<1")
   mutate(CoarseAgeGroup = ifelse(CoarseAgeGroup =="<1", "1-4", CoarseAgeGroup)) %>%
-  group_by(usaid_facility, ou5uid, datim_uid, new_ou5_code, period, DSD_TA,
-           Province, SubDistrict, District, Facility, `Test Result/Outcome/Duration`,
+  group_by(usaid_facility, ou5uid, datim_uid, new_ou5_code, period, DSD_TA, Province, SubDistrict, District, Facility, `Test Result/Outcome/Duration`,
            Sex, CoarseAgeGroup, Result, indicator, numeratordenom) %>%
   dplyr::summarise(dplyr::across(tidyselect::starts_with("Total"), \(x) sum(x, na.rm = TRUE)), .groups = "drop")
 
@@ -198,7 +198,7 @@ ndoh_clean <-  ndoh_clean %>%
 ndoh_clean_kp <- tidy_ndoh(ndoh_all_kp, kp = TRUE)
 
 # MAP -------------------------------------------------------------------------------------------
-df_mapped <- ndoh_post_processing(ndoh_clean %>% filter(!(indicator == "TX_TB" & numeratordenom == "D")),
+df_mapped <- ndoh_post_processing(ndoh_clean %>% filter(!(indicator == "TX TB_Denom" & numeratordenom == "D")),
                                   kp = FALSE, export_type = "Validation")
 
 df_mapped_kp <- ndoh_post_processing(ndoh_clean_kp, kp = TRUE, export_type = "Validation")
@@ -219,7 +219,7 @@ df_final %>%
 #clean up the NDOH variable names and tidy df
 
 ndoh_tb <- ndoh_all  %>%
-  filter(indicator %in% c("TX TB_D", "TX TB_D_TestType", "TX TB_D_Pos", "TX TB_D_TestType"))
+  filter(indicator %in% c("TX TB_Denom", "TX TB_Denom_TestType", "TX TB_Denom_Pos", "TX TB_Denom_TestType"))
 
 ndoh_join_tb <- df_fac %>%
   tidylog::left_join(ndoh_tb,  by = c("new_ou5_code" = "Code"))
@@ -227,9 +227,9 @@ ndoh_join_tb <- df_fac %>%
 #Munge and clean up NDOH names
 ndoh_clean_tb <- ndoh_join_tb %>%
   dplyr::mutate(indicator = dplyr::recode(indicator,
-                                          "TX TB_D" = "TX_TB_D",
-                                          "TX TB_D_Pos" = "TX_TB_Pos_D",
-                                          "TX TB_D_TestType" = "TX_TB_TestType_D"),
+                                          "TX TB_Denom" = "TX_TB_D",
+                                          "TX TB_Denom_Pos" = "TX_TB_Pos_D",
+                                          "TX TB_Denom_TestType" = "TX_TB_TestType_D"),
                 numeratordenom = ifelse(stringr::str_detect(indicator, "_D"), "D", "N"),
                 CoarseAgeGroup = ifelse(indicator != "TX_CURR" & CoarseAgeGroup %in% c("50-54", "55-59", "60-64", "65+"),
                                         "50+", CoarseAgeGroup),
@@ -340,8 +340,10 @@ match_prep_q2 <- reference_folder %>%
     #for partner review
     tier_final_partner <- bind_rows(df_final_clean %>% select(partner_vars),
                                          tb_all_final%>% select(partner_vars),
-                                         import_MATCH_prep %>% select(partner_vars),
-                                         import_file_clean_arv_agg %>% select(partner_vars)) %>%
+                                         import_MATCH_prep %>% select(partner_vars)
+                                    # ,
+                                    #      import_file_clean_arv_agg %>% select(partner_vars)
+                                    ) %>%
       mutate(period = recode(period, "FY23Q2" = "2023Q1")) %>%
       filter(!is.na(orgUnit_uid), #beatty mobile 5 and senorita hospital
              !is.na(mech_uid))
@@ -349,9 +351,11 @@ match_prep_q2 <- reference_folder %>%
     #for import file
     tier_final_import <- bind_rows(df_final_clean %>% select(import_vars),
                                     tb_all_final%>% select(import_vars),
-                                    import_MATCH_prep %>% select(import_vars),
-                                    import_file_clean_arv_agg %>% select(import_vars)) %>%
-      mutate(period = recode(period, "FY23Q2" = "2023Q1")) %>%
+                                    import_MATCH_prep %>% select(import_vars)
+                                   # ,
+                                   #  import_file_clean_arv_agg %>% select(import_vars)
+                                   ) %>%
+      mutate(period = recode(period, import_period_style)) %>%
       filter(!is.na(orgUnit_uid), #beatty mobile 5 and senorita hospital
              !is.na(mech_uid))
 
