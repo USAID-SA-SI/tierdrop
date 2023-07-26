@@ -38,7 +38,7 @@ map_disaggs <- function(df, ind_sel = "All", disaggregate = "All", all_indic = T
       dplyr::filter(indicator %ni% c("PrEP_CT", "TX_RTT")) %>%
       dplyr::left_join(df_map_distinct, by = c(group_vars)) %>%
       dplyr::distinct() %>%
-      dplyr::left_join(mech_df, by = c("datim_uid" = "facilityuid"))
+      dplyr::left_join(mech_mfl, by = c("datim_uid" = "facilityuid"))
 
   } else {
 
@@ -68,7 +68,7 @@ map_disaggs <- function(df, ind_sel = "All", disaggregate = "All", all_indic = T
                          dplyr::select(-c(unselect_vars)) %>%
                          dplyr::filter(stringr::str_detect(dataElement, disaggregate)), by = c(group_vars)) %>%
       dplyr::distinct() %>%
-      dplyr::left_join(mech_df, by = c("datim_uid" = "facilityuid"))
+      dplyr::left_join(mech_mfl, by = c("datim_uid" = "facilityuid"))
 
 
   }
