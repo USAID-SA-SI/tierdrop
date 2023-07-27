@@ -108,7 +108,7 @@ df_fac <- clean_mfl() %>%
 
 # NDOH ---------------------------------------------------------------------
 
-#if this breaks, check on tab names
+#if this breaks, check on tab names (adjust PrEP_NEW in the file itself)
 ndoh_all <- import_ndoh(filepath = ndoh_filepath, qtr = curr_qtr, kp = FALSE)
 ndoh_all_kp <- import_ndoh(filepath = ndoh_filepath, qtr = curr_qtr, kp = TRUE)
 
