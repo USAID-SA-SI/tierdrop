@@ -1,5 +1,5 @@
 # AUTHOR:   K. Srikanth | USAID
-# PURPOSE:  FY23Q1 DATIM Processing
+# PURPOSE:  FY23Q2 DATIM Processing
 # REF ID:   94e4a2bc
 # LICENSE:  MIT
 # DATE:     2023-01-20
@@ -98,6 +98,17 @@ df_fac <- df_fac %>%
 df_genie <- msd_folder %>%
   glamr::return_latest() %>%
   gophr::read_psd()
+
+#get mech info from MFL
+mech_mfl <- mfl_new_df %>%
+  dplyr::filter(!is.na(OU2name)) %>%
+  janitor::clean_names() %>%
+  dplyr::select(ou5name, datim_uid,partner, mechanism_i_d, mechanism_uid) %>%
+  rename(sitename = ou5name,
+         facilityuid = datim_uid,
+         prime_partner_name = partner,
+         mech_code = mechanism_i_d,
+         mech_uid = mechanism_uid)
 
 
 #first, let's pull down all the mech code / mech uid information from DATIM
@@ -199,6 +210,9 @@ ndoh_clean_kp <- tidy_ndoh(ndoh_all_kp, kp = TRUE)
 
 # MAP -------------------------------------------------------------------------------------------
 df_mapped <- ndoh_post_processing(ndoh_clean %>% filter(!(indicator == "TX TB_Denom" & numeratordenom == "D")),
+                                  kp = FALSE, export_type = "Validation")
+
+df_mapped_mfl <- ndoh_post_processing(ndoh_clean %>% filter(!(indicator == "TX TB_Denom" & numeratordenom == "D")),
                                   kp = FALSE, export_type = "Validation")
 
 df_mapped_kp <- ndoh_post_processing(ndoh_clean_kp, kp = TRUE, export_type = "Validation")
