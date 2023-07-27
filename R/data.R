@@ -185,5 +185,20 @@
 #'
 #' A character vector of columns in ARVDISP tab of NDOH (TIER)
 #'
-#' @format A character vector with length 8
+#' @format
 "names_arvdisp"
+
+
+#' Standard names for TX_TB_D_POs tab in NDOH
+#'
+#' A character vector of columns in TX_TB_D_POs tab of NDOH (TIER)
+#'
+#' @format
+"names_tx_tb_d_pos"
+
+#' Standard names for TX_TB_D TestType tab in NDOH
+#'
+#' A character vector of columns in X_TB_D TestType tab tab of NDOH (TIER)
+#'
+#' @format A character vector with length 8
+"names_tx_tb_d_testtype"

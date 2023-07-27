@@ -15,5 +15,5 @@ utils::globalVariables(c("OU2name", "ou5name", "ou5uid", "datim_uid",
                          "prime_partner_name", "reference_folder", "sitename", "dataElement",
                          "mech_df", "ndoh_clean", "ndoh_clean_kp", ".", "curr_qtr", "ndoh_filepath",
                          "dataElement_uid", "dsd_ta", "fiscal_quarter", "misaligned_sites", "new_ou5_code",
-                         "names_tx_tb_d_pos", "names_tx_tb_d_testtype"
+                         "names_tx_tb_d_pos", "names_tx_tb_d_testtype", "mech_mfl"
                          ))
