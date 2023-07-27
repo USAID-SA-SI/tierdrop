@@ -11,6 +11,8 @@ grab_mech_data(mech_df, msd_df, curr_fy, extra_mechs = FALSE)
 
 \item{msd_df}{Calls on latest MSD data pulled by \code{gophr::read_msd()}}
 
+\item{curr_fy}{calls the current FY}
+
 \item{extra_mechs}{If TRUE, function will read in extra mechanism data saved in reference file folder
 (default = FALSE)}
 }
