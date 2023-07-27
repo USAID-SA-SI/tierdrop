@@ -2,6 +2,7 @@
 #'
 #' @param mech_df Calls on mechanism meta-data that is pulled by `pull_mech_uid()`
 #' @param msd_df Calls on latest MSD data pulled by `gophr::read_msd()`
+#' @param curr_fy calls the current FY
 #' @param extra_mechs If TRUE, function will read in extra mechanism data saved in reference file folder
 #' (default = FALSE)
 #' @return

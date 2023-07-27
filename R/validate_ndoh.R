@@ -22,7 +22,9 @@ validate_ndoh <- function(df) {
 
   # all correctional sites after manual mutates
   missing_sites <- df %>%
-    filter(Code %in% code_list) %>% distinct(Facility) %>% pull()
+    dplyr::filter(Code %in% code_list) %>%
+    dplyr::distinct(Facility) %>%
+    dplyr::pull()
 
   cat("\n---- IMPORT VALIDATION ----",
       "\nAre there facilities reported in NDOH that are not in the USAID MFL?",
