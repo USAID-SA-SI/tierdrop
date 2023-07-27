@@ -109,8 +109,8 @@ df_fac <- clean_mfl() %>%
 # NDOH ---------------------------------------------------------------------
 
 #if this breaks, check on tab names
-ndoh_all <- import_ndoh(filepath = ndoh_filepath, qtr = "Q2", kp = FALSE)
-ndoh_all_kp <- import_ndoh(filepath = ndoh_filepath, qtr = "Q2", kp = TRUE)
+ndoh_all <- import_ndoh(filepath = ndoh_filepath, qtr = curr_qtr, kp = FALSE)
+ndoh_all_kp <- import_ndoh(filepath = ndoh_filepath, qtr = curr_qtr, kp = TRUE)
 
 
 #what facilities are in NDOH but not in MFL? ADdress MFL qc as needed
@@ -162,95 +162,6 @@ df_final <- dplyr::bind_rows(df_mapped,
 df_final %>%
   janitor::get_dupes()
 
-
-#TX_TB --------------------------------------------------------------
-
-#clean up the NDOH variable names and tidy df
-
-ndoh_tb <- ndoh_all  %>%
-  filter(indicator %in% c("TX TB_Denom", "TX TB_Denom_TestType", "TX TB_Denom_Pos", "TX TB_Denom_TestType"))
-
-ndoh_join_tb <- df_fac %>%
-  tidylog::left_join(ndoh_tb,  by = c("new_ou5_code" = "Code"))
-
-#Munge and clean up NDOH names
-ndoh_clean_tb <- ndoh_join_tb %>%
-  dplyr::mutate(indicator = dplyr::recode(indicator,
-                                          "TX TB_Denom" = "TX_TB_D",
-                                          "TX TB_Denom_Pos" = "TX_TB_Pos_D",
-                                          "TX TB_Denom_TestType" = "TX_TB_TestType_D"),
-                numeratordenom = ifelse(stringr::str_detect(indicator, "_D"), "D", "N"),
-                CoarseAgeGroup = ifelse(indicator != "TX_CURR" & CoarseAgeGroup %in% c("50-54", "55-59", "60-64", "65+"),
-                                        "50+", CoarseAgeGroup),
-                tb_disagg = case_when(indicator == "TX_TB_D" ~ "Age/Sex/TBScreen",
-                                      indicator == "TX_TB_Pos_D" ~ "Specimen Return",
-                                      indicator == "TX_TB_TestType_D" ~ "Specimen Sent Total"),
-                indicator = dplyr::recode(indicator, "TB_PREV_D" = "TB_PREV",
-                                          "TB_PREV_N" = "TB_PREV",
-                                          "TB_STAT_N" = "TB_STAT",
-                                          "TB_STAT_D" = "TB_STAT",
-                                          "TX_PVLS_D" = "TX_PVLS",
-                                          "TX_PVLS_N" = "TX_PVLS",
-                                          "TX_TB_N" = "TX_TB",
-                                          "TX_TB_D" = "TX_TB",
-                                          "TX_TB_Pos_D" = "TX_TB",
-                                          "TX_TB_TestType_D" ="TX_TB"))
-
-#one missing - sex is missing for facility
-tb_age_sex <- ndoh_clean_tb %>%
-  filter(tb_disagg == "Age/Sex/TBScreen") %>%
-  select(-c(tb_disagg)) %>%
-  ndoh_post_processing(kp = FALSE, export_type = "Validation")
-
-tb_return <- ndoh_clean_tb %>%
-  filter(tb_disagg == "Specimen Return") %>%
-  select(-c(tb_disagg)) %>%
-  ndoh_post_processing(kp = FALSE, export_type = "Validation") %>%
-  filter(str_detect(dataElement, "Return"))
-
-tb_testtype <- ndoh_clean_tb %>%
-  filter(tb_disagg == "Specimen Sent Total") %>%
-  select(-c(tb_disagg)) %>%
-  ndoh_post_processing(kp = FALSE, export_type = "Validation")
-
-tb_sent <- ndoh_clean_tb %>%
-  filter(tb_disagg == "Specimen Sent Total") %>%
-  dplyr::group_by(usaid_facility, ou5uid, datim_uid, new_ou5_code, period, DSD_TA,
-                  Province, District, SubDistrict, Facility,
-                  Sex, CoarseAgeGroup, Result, indicator, numeratordenom) %>%
-  dplyr::summarise(dplyr::across(tidyselect::starts_with("Total"), sum, na.rm = TRUE), .groups = "drop")
-
-#grab column names for NDOH
-col_names <- tb_sent %>%
-  names()
-
-col_names <- col_names[col_names %ni% c("Total")]
-group_vars <- c("Sex", "CoarseAgeGroup", "Result", "DSD_TA")
-group_vars <- col_names[col_names %ni% c("usaid_facility", "ou5uid", "datim_uid",
-                                         'new_ou5_code', 'period', 'Province', 'District',
-                                         'SubDistrict', 'Facility')]
-
-tb_sent_map <- tb_sent %>%
-  dplyr::left_join(df_map_distinct %>%
-                     # rename(DSD_TA = `Support Type`) %>%
-                     dplyr::select(-c(`Test Result/Outcome/Duration`)) %>%
-                     dplyr::filter(stringr::str_detect(dataElement, "Specimen Sent/HIVStatus")), by = c(group_vars)) %>%
-  dplyr::distinct() %>%
-  dplyr::left_join(mech_df, by = c("datim_uid" = "facilityuid")) %>%
-  rename(mech_name = prime_partner_name,
-         value = Total,
-         orgUnit_uid = datim_uid) %>%
-  select(all_of(validation_vars))
-
-
-tb_all <- bind_rows(tb_age_sex, tb_return, tb_testtype) %>%
-  filter(!is.na(dataElement)) %>%
-  select(validation_vars) %>%
-  mutate(mech_code = as.character(mech_code))
-
-tb_all_final <- bind_rows(tb_all, tb_sent_map)
-
-
 # CLEAN UP ------------------------------------------------------------
 
 #Step 1: Filter out PrEP for Harry Gwala, Capricorn and Mopani; filter out all of MATCH PrEP for now
@@ -283,22 +194,21 @@ match_prep_uids <- match_prep_q2 %>%
 import_MATCH_prep <- df_final %>%
   filter((orgUnit_uid %in% match_prep_uids
           & indicator %in% c("PrEP_CT", "PrEP_NEW"))) %>%
-  #select(import_vars) %>%
-  mutate(period = recode(period, "FY23Q2" = "2023Q1"))
+  mutate(period = import_period_style)
 
 # BIND WITH REST ---------------------------------------------------------
 #for partner review
 tier_final_partner <- bind_rows(df_final_clean %>% select(all_of(partner_vars)),
-                                tb_all_final%>% select(all_of(partner_vars)),
+                                #tb_all_final%>% select(all_of(partner_vars)),
                                 import_MATCH_prep %>% select(all_of(partner_vars))
 ) %>%
-  mutate(period = recode(period, "FY23Q2" = "2023Q1")) %>%
+  mutate(period = import_period_style) %>%
   filter(!is.na(orgUnit_uid), #beatty mobile 5 and senorita hospital
          !is.na(mech_uid))
 
 #for import file
 tier_final_import <- bind_rows(df_final_clean %>% select(all_of(import_vars)),
-                               tb_all_final%>% select(all_of(import_vars)),
+                             #  tb_all_final%>% select(all_of(import_vars)),
                                import_MATCH_prep %>% select(all_of(import_vars))) %>%
   mutate(period = import_period_style) %>%
   filter(!is.na(orgUnit_uid), #beatty mobile 5 and senorita hospital
@@ -312,8 +222,8 @@ tier_final_import %>%
 #EXPORT
 today <- lubridate::today()
 
-tier_final_consolidated %>%
-  readr::write_csv(glue::glue("{import_folder}/{fiscal_quarter}_TIER_Import_File_v4_{today}.csv"))
+tier_final_import %>%
+  readr::write_csv(glue::glue("{import_folder}/{fiscal_quarter}_TIER_Import_File_{today}.csv"))
 
 
 #Partner files
@@ -322,3 +232,4 @@ RTC_import <- partner_import(df = tier_final_partner, 70290)
 ANOVA_import <- partner_import(df = tier_final_partner, 70310)
 MATCH_import <- partner_import(df = tier_final_partner, 81902)
 WRHI_import <- partner_import(df = tier_final_partner, 70301)
+
