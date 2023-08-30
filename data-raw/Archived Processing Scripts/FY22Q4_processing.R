@@ -27,7 +27,7 @@
 dir_setup()
 
 
-#set folderpaths
+#set folderpaths (@to-do turn this into a get_metadata() function later)
 ndoh_folderpath <- 'data-raw/NDOH'
 reference_folder <- "data-raw/Reference Files"
 msd_folder <- "data-raw/MSD-Genie"
@@ -72,6 +72,10 @@ rename_sites <- reference_folder %>%
   read_excel(sheet = "rename")
 
 
+match_no_prep <- reference_folder %>%
+  return_latest("FY22Q4_no_PREP_MATCH_facilities") %>%
+  read_excel()
+
 # MFL --------------------------------------------------------
 
 q4_id <- "1G2u0Rw0EgsExfPDjKIXzzB31OLzAVhkdPb5yz1lOauU"
@@ -94,6 +98,7 @@ df_fac <- mfl_new_df %>%
                 # mech_name = partner
                 ) %>%
   filter(!is.na(new_ou5_code),
+         datim_uid != "FJJA8Rdd2YC",
          !(usaid_facility == "kz Mvoti Clinic" & is.na(DSD_TA))) %>%
   mutate(usaid_facility = recode(usaid_facility, "lp Matsotsosela Clinic" = "lp Matsotsosela clinic"))
 
@@ -167,6 +172,24 @@ ndoh_all <- bind_rows(ndoh_rename_old, ndoh_rename_new) %>%
 
 #TIDY
 ndoh_clean <- tidy_ndoh(ndoh_all, kp = FALSE)
+
+#aggregate TB_STAT
+ndoh_tb_stat <- ndoh_clean %>%
+  filter(indicator == "TB_STAT",
+         numeratordenom == "N",
+         `Test Result/Outcome/Duration` %in% c("New Negative", 'New Positive')) %>%
+  #filter(CoarseAgeGroup == "<1")
+  mutate(CoarseAgeGroup = ifelse(CoarseAgeGroup =="<1", "1-4", CoarseAgeGroup)) %>%
+  group_by(usaid_facility, ou5uid, datim_uid, new_ou5_code, period, DSD_TA,
+           Province, SubDistrict, District, Facility, `Test Result/Outcome/Duration`,
+           Sex, CoarseAgeGroup, Result, indicator, numeratordenom) %>%
+  dplyr::summarise(dplyr::across(tidyselect::starts_with("Total"), sum, na.rm = TRUE), .groups = "drop")
+
+ndoh_clean <-  ndoh_clean %>%
+  filter(!(indicator == "TB_STAT" & numeratordenom == "N" &
+             `Test Result/Outcome/Duration` %in% c("New Negative", 'New Positive'))) %>%
+  rbind(ndoh_tb_stat)
+
 ndoh_clean_kp <- tidy_ndoh(ndoh_all_kp, kp = TRUE)
 
 # MAP
@@ -186,6 +209,10 @@ df_final <- dplyr::bind_rows(df_mapped,
                              df_mapped_kp) %>%
   filter(!is.na(dataElement)) %>%
   select(import_vars)
+
+df_final_all <- dplyr::bind_rows(df_mapped,
+                                 df_mapped_kp) %>%
+  filter(!is.na(dataElement))
 
 
   #TX_TB ---------------------------------------------------------
@@ -294,14 +321,37 @@ use_q3_txcurr <- c("kz Marburg Clinic",
                    "lp Shotong Clinic")
 
 #filter out Harry Gwala for PrEP and BRCH facilities for TX_CURR q4
-df_final <- df_final %>%
+df_final_all <- df_final_all %>%
   filter(!(District == "kz Harry Gwala District Municipality" & indicator %in% c("PrEP_CT", "PrEP_NEW"))) %>%
-  filter(!(Facility %in% use_q3_txcurr & indicator == "TX_CURR")) %>%
-  select(import_vars)
+  filter(!(Facility %in% use_q3_txcurr & indicator == "TX_CURR"))
 
 
-# BIND WITH REST
-tier_final_consolidated <- bind_rows(df_final, tb_all_final)
+# ADDRESS TIER FEEDBACK FROM PARTNERS --------------------------------------
+
+#match sites without prep
+match_no_prep_sites <- match_no_prep %>%
+  distinct(OrgUnit) %>%
+  pull()
+
+#Remove PrEP_NEW & PrEP_CURR from Capricorn & Mopani.(ANOVA)
+df_final_all_no_prep <- df_final_all %>%
+  filter(!(District %in% c("lp Capricorn District Municipality",
+                           "lp Mopani District Municipality")
+           & indicator %in% c("PrEP_CT", "PrEP_NEW")))
+
+df_final_all_no_prep <- df_final_all_no_prep %>%
+  filter(!(Facility %in% match_no_prep_sites
+           & indicator %in% c("PrEP_CT", "PrEP_NEW")))
+
+
+# df_final_all %>%
+#   filter(Facility %in% match_no_prep_sites) %>%
+#   distinct(Facility) %>%
+#   pull()
+
+
+# BIND WITH REST ---------------------------------------------------------
+tier_final_consolidated <- bind_rows(df_final_all_no_prep %>% select(import_vars), tb_all_final)
 
 tier_final_consolidated %>%
   select(import_vars) %>%
@@ -310,7 +360,7 @@ tier_final_consolidated %>%
 today <- lubridate::today()
 
 tier_final_consolidated %>%
-  readr::write_csv(glue::glue("{import_folder}/{fiscal_quarter}_TIER_Import_File_v2_{today}.csv"))
+  readr::write_csv(glue::glue("{import_folder}/{fiscal_quarter}_TIER_Import_File_v3_{today}.csv"))
 
 #broadreach facility - issues
 
@@ -337,6 +387,8 @@ df_arvdisp <- readxl::read_excel(ndoh_filepath, sheet = "ARVDISP")
 
 #now, filter to usaid districts and pull facilities with 4 digit codes
 df_arvdisp <- df_arvdisp %>%
+  dplyr::mutate(District = dplyr::recode(District,
+                                         "fs Thabo Mofutsanyana District Municipality" = "fs Thabo Mofutsanyane District Municipality")) %>%
   filter(District %in% usaid_dsp_district) %>%
   mutate(code_num = str_length(Code)) %>%
   group_by(Province, District, SubDistrict, Facility) %>%
@@ -440,6 +492,17 @@ write_csv(arv_not_mapped, "Dataout/arv-distinct-missing-disaggs.csv")
 
 df_arv_final <-  df_arv_mapped %>%
   left_join(mech_df, by = c("datim_uid" = "facilityuid"))
+
+#aggregate
+df_arv_agg_final <- df_arv_final %>%
+  group_by(usaid_facility, datim_uid, period, Province, District, SubDistrict,
+           Facility, indicator, dataElement, dataElement_uid, categoryOptionComboName,
+           categoryOptionCombo_uid, sitename, mech_code, prime_partner_name,
+           mech_uid) %>%
+  summarise(across(c(starts_with("Packs")), sum, na.rm = TRUE), .groups = "drop")
+
+#6243
+
 # %>%view()
 #   left_join(mech_xwalk, by = c('mech_code')) %>%
 #   select(-c(mech_name.y)) %>%
@@ -454,7 +517,7 @@ my_arv_validation <- df_arv_final %>%
          value = Packs,
          orgUnit_uid = datim_uid)
 
-import_file_clean_arv <- df_arv_final %>%
+import_file_clean_arv_agg <- df_arv_agg_final %>%
   select(mech_code, mech_uid, Facility, datim_uid, dataElement , dataElement_uid, categoryOptionCombo_uid,
          Packs, SubDistrict, District) %>%
   mutate(period = fiscal_quarter) %>%
@@ -470,10 +533,10 @@ import_file_clean_arv <- df_arv_final %>%
 
 tier_final <- tier_final_consolidated %>%
   select(import_vars) %>%
-  rbind(import_file_clean_arv)
+  rbind(import_file_clean_arv_agg)
 
 tier_final %>%
-  readr::write_csv(glue::glue("{import_folder}/{fiscal_quarter}_TIER_Import_File_v3_{today}.csv"))
+  readr::write_csv(glue::glue("{import_folder}/{fiscal_quarter}_TIER_Import_File_v4_{today}.csv"))
 
 
 
@@ -490,5 +553,17 @@ WRHI_import <- partner_import(df = tier_final, 70301)
 
 # remove TB_ART from everyone except BRCH and MATCH
 
-RTC_import %>%
-  filter((dataElement_uid %in% c("Qc1AaYpKsjs", "Szuf9YjHjTL")))
+RTC_noTBART <- RTC_import %>%
+  filter(!(dataElement_uid %in% c("Qc1AaYpKsjs", "Szuf9YjHjTL")))
+
+ANOVA_noTBART <- ANOVA_import %>%
+  filter(!(dataElement_uid %in% c("Qc1AaYpKsjs", "Szuf9YjHjTL")))
+
+WRHI_noTBART <- WRHI_import %>%
+  filter(!(dataElement_uid %in% c("Qc1AaYpKsjs", "Szuf9YjHjTL")))
+
+write_csv(RTC_noTBART, glue("data-raw/Import Files/70290_FY22Q4_TIER_Import_File_{today}.csv"))
+write_csv(ANOVA_noTBART, glue("data-raw/Import Files/70310_FY22Q4_TIER_Import_File_{today}.csv"))
+write_csv(WRHI_noTBART, glue("data-raw/Import Files/70301_FY22Q4_TIER_Import_File_{today}.csv"))
+
+
