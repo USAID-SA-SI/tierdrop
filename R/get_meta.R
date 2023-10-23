@@ -55,6 +55,13 @@ get_meta <- function(period) {
       glue::glue("{curr_fy}{prev_qtr}")
     }
 
+
+  #store folder paths
+  ndoh_folderpath <<- 'data-raw/NDOH'
+  reference_folder <<- "data-raw/Reference Files"
+  msd_folder <<- "data-raw/MSD-Genie"
+  import_folder <<- "data-raw/Import Files"
+
   #print
   cat("\n---- METADATA STORED LOCALLY ----",
     "\nReporting Period:", paint_yellow(period),
