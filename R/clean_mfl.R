@@ -22,6 +22,7 @@ clean_mfl <- function(mfl_period = "FY23") {
     dplyr::filter(!is.na(OU2name)) %>%
     janitor::clean_names() %>%
     dplyr::select(ou5name, ou5uid, datim_uid, new_ou5_code, tidyselect::contains("dsd")) %>%
+    rename("dsd_ta" = glue("{fiscal_quarter %>% tolower()}_dsd_ta")) %>%
     # tidyr::pivot_longer(cols = tidyselect::contains("dsd"), names_to = "period", values_to = "DSD_TA") %>%
     dplyr::mutate(period = fiscal_quarter,
                   new_ou5_code = as.character(new_ou5_code),

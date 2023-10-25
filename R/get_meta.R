@@ -23,6 +23,7 @@ get_meta <- function(period) {
     stop("Period not starting with FY (eg: FY23Q4)")
 
   #extract current FY and qtr
+  fiscal_quarter <<- period
   curr_fy <<- glue::glue("20{stringr::str_sub(period, start = 3, end = 4)}")
   curr_qtr <<- glue::glue("{stringr::str_sub(period,start = 5)}")
   today <- lubridate::today()
