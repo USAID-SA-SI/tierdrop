@@ -2,7 +2,7 @@
 
 
 #STANDARD NAMES
-standard_names <- c("Province", "District", "SubDistrict", "Facility",
+standard_names <- c("Province", "District", "SubDistrict", "Facility", "UID",
                     "Code")
 usethis::use_data(standard_names, overwrite = TRUE)
 
@@ -54,13 +54,13 @@ usethis::use_data(names_tb_prev, overwrite = TRUE)
 
 #KP INDIC specific names ----
 
-names_prep_new_kp <- c(names_prep_new, kp_names, "Total")[-8]
-names_prep_ct_kp <- c(names_prep_ct,kp_names, "Total")[-9]
-names_hts_tst_kp <- c(names_hts_tst,kp_names, "Total")[-10]
-names_tx_new_kp <- c(names_tx_new, kp_names, "Total")[-8]
-names_tx_curr_kp <- c(names_tx_curr, kp_names, "Total")[-8]
-names_tx_ml_kp <- c(names_tx_ml,kp_names, "Total")[-9]
-names_tx_pvls_kp <- c(names_tx_pvls, kp_names, "Total")[-8]
+names_prep_new_kp <- c(names_prep_new, kp_names, "Total")[-9]
+names_prep_ct_kp <- c(names_prep_ct,kp_names, "Total")[-10]
+names_hts_tst_kp <- c(names_hts_tst,kp_names, "Total")[-11]
+names_tx_new_kp <- c(names_tx_new, kp_names, "Total")[-9]
+names_tx_curr_kp <- c(names_tx_curr, kp_names, "Total")[-9]
+names_tx_ml_kp <- c(names_tx_ml,kp_names, "Total")[-10]
+names_tx_pvls_kp <- c(names_tx_pvls, kp_names, "Total")[-9]
 
 usethis::use_data(names_prep_new_kp, overwrite = TRUE)
 usethis::use_data(names_prep_ct_kp, overwrite = TRUE)
