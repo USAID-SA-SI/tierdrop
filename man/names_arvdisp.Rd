@@ -5,7 +5,7 @@
 \alias{names_arvdisp}
 \title{Standard names for ARVDISP tab in NDOH}
 \format{
-An object of class \code{character} of length 8.
+An object of class \code{character} of length 9.
 }
 \usage{
 names_arvdisp
