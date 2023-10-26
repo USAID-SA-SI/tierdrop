@@ -24,8 +24,8 @@ tier_semi <- c("PrEP_NEW","PrEP_CT","TX_NEW",
                "TX_CURR", "TX_RTT", "TX_ML",
                "TX_PVLS_Denom", "TX_PVLS_Numer",
                "TB_STAT_Denom", "TB_STAT_Numer",
-               "TX TB_Denom", "TX TB_Denom_Pos", "TX TB_Denom_TestType",
-               "TX TB_Numer", "TB PREV_N", "TB PREV_D")
+               "TX_TB_Denom", "TX_TB_Denom_Pos", "TX_TB_Denom_TestType",
+               "TX_TB_Numer", "TB_PREV_N", "TB_PREV_D")
 
 #' Annual TIER indicators (use in Q4 only)
 #' @description
@@ -40,8 +40,8 @@ tier_ann <- c("PrEP_NEW","PrEP_CT","TX_NEW",
               "TB_ART",
               "TX_PVLS_Denom", "TX_PVLS_Numer",
               "TB_STAT_Denom", "TB_STAT_Numer",
-              "TX TB_Denom", "TX TB_Denom_Pos", "TX TB_Denom_TestType",
-              "TX TB_Numer", "TB PREV_N", "TB PREV_D")
+              "TX_TB_Denom", "TX_TB_Denom_Pos", "TX_TB_Denom_TestType",
+              "TX_TB_Numer", "TB_PREV_N", "TB_PREV_D")
 
 #' Quarterly TIER indicators for KP tabs (use in each quarter)
 #' @description
