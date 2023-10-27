@@ -155,6 +155,10 @@ df_final <- dplyr::bind_rows(df_mapped,
 df_final %>%
   janitor::get_dupes()
 
+# TB INDICS ----------------------------------------------------------
+
+# ARVDISP ------------------------------------------------------------
+
 # CLEAN UP ------------------------------------------------------------
 
 #Step 1: Filter out PrEP for Harry Gwala, Capricorn and Mopani; filter out all of MATCH PrEP for now
