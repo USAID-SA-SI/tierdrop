@@ -15,7 +15,7 @@ tidy_ndoh <- function(df, kp = FALSE) {
 
   #join NDOH to MFL
   ndoh_join <- df_fac %>%
-    dplyr::left_join(df,  by = c("new_ou5_code" = "Code"))
+    dplyr::left_join(df,  by = c("ou5uid" = "UID"))
 
   if (kp == TRUE) {
     ndoh_join <- ndoh_join %>%
@@ -26,8 +26,8 @@ tidy_ndoh <- function(df, kp = FALSE) {
   #Munge and clean up NDOH names
   ndoh_clean <- ndoh_join %>%
     dplyr::mutate(indicator = dplyr::recode(indicator, "PrEP_New" = "PrEP_NEW",
-                                            "TB PREV_D" = "TB_PREV_D",
-                                            "TB PREV_N" = "TB_PREV_N",
+                                            "TB_PREV_Denom" = "TB_PREV_D",
+                                            "TB_PREV_Numer" = "TB_PREV_N",
                                             "TB_STAT_Denom" = "TB_STAT_D",
                                             "TB_STAT_Numer" = "TB_STAT_N",
                                             "TX TB_D" = "TX_TB_D",
