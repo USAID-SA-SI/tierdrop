@@ -67,3 +67,27 @@ import_ndoh <- function(filepath, qtr, kp = FALSE) {
 }
 
 
+#' Import ARVDISP tab of NDOH file
+#'
+#' @param filepath NDOH filepath
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'
+import_arvdisp <- function(filepath) {
+
+  df_arvdisp <- readxl::read_excel(filepath, sheet = "ARVDISP") %>%
+    dplyr::rename(SubDistrict = `Sub District`,
+           RegimenCode = `Regimen Code`)
+
+  #now, filter to usaid districts
+  df_arvdisp_clean <- df_arvdisp %>%
+    dplyr::mutate(District = dplyr::recode(District,
+                                           "fs Thabo Mofutsanyana District Municipality" = "fs Thabo Mofutsanyane District Municipality")) %>%
+    dplyr::filter(District %in% usaid_dsp_district)
+
+  return(df_arvdisp_clean)
+}
+
