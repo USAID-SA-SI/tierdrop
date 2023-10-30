@@ -40,7 +40,7 @@ get_meta <- function(period) {
     stop("FY for fiscal year not capitalized - please capitalize FY (i.e. FY23Q1)")
 
   #specific prev qtr
-  prev_qtr <<- case_when(curr_qtr == "Q1" ~ "Q4",
+  prev_qtr <<- dplyr::case_when(curr_qtr == "Q1" ~ "Q4",
                         curr_qtr == "Q2" ~ "Q1",
                         curr_qtr == "Q3" ~ "Q2",
                         curr_qtr == "Q4" ~ "Q3")
