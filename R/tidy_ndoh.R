@@ -61,3 +61,49 @@ tidy_ndoh <- function(df, kp = FALSE) {
   return(ndoh_clean)
 }
 
+#' Tidy and map disaggs for ARVDISP
+#'
+#' @param df dataframe from import_arvdisp()
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'  \dontrun{
+#'    import_arvdisp(ndoh_filepath) %>% tidy_map_arvdisp
+#' }
+#'
+
+tidy_map_arvdisp <- function(df) {
+
+  #join NDOH to MFL
+  df_arv_clean <- df_fac %>%
+    dplyr::left_join(df,  by = c("ou5uid" = "UID")) %>%
+    dplyr::mutate(indicator = "SC_ARVDISP",
+           RegimenCode = dplyr::recode(RegimenCode, "13.0" = "13"))
+
+  #map disaggs + mechs
+  df_arv_mapped <- df_arv_clean %>%
+    dplyr::filter(!is.na(Facility)) %>%
+    dplyr::left_join(arv_map, by = c("CoarseAgeGroup", "RegimenCode", "indicator")) %>%
+    dplyr::mutate(dataElement = ifelse(is.na(dataElement), "SC_ARVDISP (N, NoApp, DispensedARVBottles): Dispensed ARV bottles", dataElement),
+           dataElement_uid = ifelse(is.na(dataElement_uid), "jjXWGplLXqF", dataElement_uid)) %>%
+    dplyr::mutate(categoryOptionComboName = dplyr::case_when(CoarseAgeGroup %in% c(">=15") & is.na(categoryOptionComboName) ~ "ARV Bottles - Other (Adult)",
+                                               CoarseAgeGroup %in% c("<15") & is.na(categoryOptionComboName) ~ "ARV Bottles - Other (Pediatric)",
+                                               TRUE ~ categoryOptionComboName)) %>%
+    dplyr::left_join(arv_map %>% dplyr::select(categoryOptionComboName, categoryOptionCombo_uid) %>% dplyr::distinct(), by = c("categoryOptionComboName")) %>%
+    dplyr::select(-c(categoryOptionCombo_uid.x)) %>%
+    dplyr::rename(categoryOptionCombo_uid =categoryOptionCombo_uid.y) %>%
+    dplyr::left_join(mech_mfl, by = c("datim_uid" = "facilityuid"))
+
+  #collapse to just dataElement and catoptioncombo
+  df_arv_collapse <- df_arv_mapped %>%
+    dplyr::group_by(usaid_facility, datim_uid, period, Province, District, SubDistrict,
+             Facility, indicator, dataElement, dataElement_uid, categoryOptionComboName,
+             categoryOptionCombo_uid, sitename, mech_code, prime_partner_name,
+             mech_uid) %>%
+    dplyr::summarise(dplyr::across(c(tidyselect::starts_with("Packs")), sum, na.rm = TRUE), .groups = "drop")
+
+  return(df_arv_collapse)
+
+}
