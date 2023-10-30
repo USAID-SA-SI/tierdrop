@@ -24,14 +24,8 @@ get_meta("FY23Q4")
 
 
 #set folderpaths (@to-do turn this into a get_metadata() function later)
-ndoh_folderpath <- 'data-raw/NDOH'
-reference_folder <- "data-raw/Reference Files"
-msd_folder <- "data-raw/MSD-Genie"
-import_folder <- "data-raw/Import Files"
 ndoh_filepath <- ndoh_folderpath %>% glamr::return_latest(fiscal_quarter)
 msd_filepath <- msd_folder %>% glamr::return_latest()
-
-
 
 #check to ensure that the most recent ndoh_file is the you want to use
 print(ndoh_filepath)
@@ -40,23 +34,14 @@ print(msd_filepath)
 #load secrets
 glamr::load_secrets()
 
-import_vars <- c("mech_uid", "orgUnit_uid",	"dataElement_uid",
-                 "categoryOptionCombo_uid",	"value",	"period")
-
-partner_vars <- c("mech_uid", "orgUnit_uid", "Facility","dataElement",	"dataElement_uid", "categoryOptionComboName",
-                  "categoryOptionCombo_uid",	"value",	"period")
-
-
-validation_vars <- c("period","Province", "District","SubDistrict", "Facility",
-                     "orgUnit_uid", "mech_code", "mech_uid",
-                     "indicator", "numeratordenom", "Sex",
-                     "CoarseAgeGroup", "Result","dataElement", "dataElement_uid", "categoryOptionComboName",
-                     "categoryOptionCombo_uid", "value")
-
-
+#indicator mapping file
 df_map_distinct <- googlesheets4::read_sheet(disagg_map_id) %>%
   dplyr::rename("Test Result/Outcome/Duration" = "Test Resuts/Outcome/Duration",
                 "DSD_TA" = "Support Type")
+
+#ARVDISP mapping file
+arv_map <- googlesheets4::read_sheet(disagg_map_id, sheet = "ARVDISP_FY23") %>%
+  mutate(RegimenCode = as.character(RegimenCode))
 
 #read the most recent MSD from the Genie folder
 df_genie <- msd_folder %>%
@@ -159,6 +144,27 @@ df_final %>%
 
 # ARVDISP ------------------------------------------------------------
 
+#check for facilities in but not in MFL
+import_arvdisp(ndoh_filepath) %>% validate_ndoh()
+
+#import arvdisp tab + tidy / map disaggs (and condense / aggregate to dataElement / categoryoptionCombo)
+  #note: this function may take some time to run
+ndoh_arvdisp <- import_arvdisp(ndoh_filepath) %>% tidy_map_arvdisp()
+
+#partner review file format
+ndoh_arv_final <- ndoh_arvdisp %>%
+  rename(
+    value = Packs,
+    orgUnit_uid = datim_uid) %>%
+  filter(!is.na(dataElement_uid),
+         !is.na(mech_uid),
+         !is.na(orgUnit_uid)) %>%
+  select(partner_vars)
+
+#import file format
+ndoh_arv_final %>%
+  select(import_vars)
+
 # CLEAN UP ------------------------------------------------------------
 
 #Step 1: Filter out PrEP for Harry Gwala, Capricorn and Mopani; filter out all of MATCH PrEP for now
@@ -196,6 +202,7 @@ import_MATCH_prep <- df_final %>%
 # BIND WITH REST ---------------------------------------------------------
 #for partner review
 tier_final_partner <- bind_rows(df_final_clean %>% select(all_of(partner_vars)),
+                                ndoh_arv_final %>% select(all_of(partner_vars)),
                                 #tb_all_final%>% select(all_of(partner_vars)),
                                 import_MATCH_prep %>% select(all_of(partner_vars))
 ) %>%
@@ -205,6 +212,7 @@ tier_final_partner <- bind_rows(df_final_clean %>% select(all_of(partner_vars)),
 
 #for import file
 tier_final_import <- bind_rows(df_final_clean %>% select(all_of(import_vars)),
+                               ndoh_arv_final %>% select(all_of(import_vars)),
                                #  tb_all_final%>% select(all_of(import_vars)),
                                import_MATCH_prep %>% select(all_of(import_vars))) %>%
   mutate(period = import_period_style) %>%
