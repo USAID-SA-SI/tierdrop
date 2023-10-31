@@ -63,6 +63,20 @@ get_meta <- function(period) {
   msd_folder <<- "data-raw/MSD-Genie"
   import_folder <<- "data-raw/Import Files"
 
+  #vars
+  import_vars <<- c("mech_uid", "orgUnit_uid",	"dataElement_uid",
+                   "categoryOptionCombo_uid",	"value",	"period")
+
+  partner_vars <<- c("mech_uid", "orgUnit_uid", "Facility","dataElement",	"dataElement_uid", "categoryOptionComboName",
+                    "categoryOptionCombo_uid",	"value",	"period")
+
+
+  validation_vars <<- c("period","Province", "District","SubDistrict", "Facility",
+                       "orgUnit_uid", "mech_code", "mech_uid",
+                       "indicator", "numeratordenom", "Sex",
+                       "CoarseAgeGroup", "Result","dataElement", "dataElement_uid", "categoryOptionComboName",
+                       "categoryOptionCombo_uid", "value")
+
   #print
   cat("\n---- METADATA STORED LOCALLY ----",
     "\nReporting Period:", paint_yellow(period),
