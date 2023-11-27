@@ -5,7 +5,7 @@
 \alias{names_tx_tb_d_pos}
 \title{Standard names for TX_TB_D_POs tab in NDOH}
 \format{
-An object of class \code{character} of length 6.
+An object of class \code{character} of length 7.
 }
 \usage{
 names_tx_tb_d_pos

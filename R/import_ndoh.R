@@ -56,7 +56,7 @@ import_ndoh <- function(filepath, qtr, kp = FALSE) {
   if (kp == TRUE) {
     #Aggregate across KP groups
     df_final <- df_final %>%
-      dplyr::group_by(Province, District, SubDistrict, Facility, Code, `Test Result/Outcome/Duration`,
+      dplyr::group_by(Province, District, SubDistrict, Facility, UID, Code, `Test Result/Outcome/Duration`,
                       Sex, CoarseAgeGroup, Result, indicator) %>%
       dplyr::summarise(dplyr::across(tidyselect::starts_with("Total"), sum, na.rm = TRUE), .groups = "drop")
 
@@ -66,4 +66,28 @@ import_ndoh <- function(filepath, qtr, kp = FALSE) {
   return(df_final)
 }
 
+
+#' Import ARVDISP tab of NDOH file
+#'
+#' @param filepath NDOH filepath
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'
+import_arvdisp <- function(filepath) {
+
+  df_arvdisp <- readxl::read_excel(filepath, sheet = "ARVDISP") %>%
+    dplyr::rename(SubDistrict = `Sub District`,
+           RegimenCode = `Regimen Code`)
+
+  #now, filter to usaid districts
+  df_arvdisp_clean <- df_arvdisp %>%
+    dplyr::mutate(District = dplyr::recode(District,
+                                           "fs Thabo Mofutsanyana District Municipality" = "fs Thabo Mofutsanyane District Municipality")) %>%
+    dplyr::filter(District %in% usaid_dsp_district)
+
+  return(df_arvdisp_clean)
+}
 
