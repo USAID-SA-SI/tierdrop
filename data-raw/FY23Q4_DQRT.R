@@ -3,7 +3,7 @@
 # REF ID:   df2e3b9f
 # LICENSE:  MIT
 # DATE:     2023-08-29
-# UPDATED:
+# UPDATED: 2023-11-27 (FY23Q4)
 
 # DEPENDENCIES ------------------------------------------------------------
 
@@ -17,22 +17,27 @@ library(openxlsx)
 
 genie_folderpath <- "data-raw/MSD-Genie"
 
+#change filename as needed
+  #genie filtered for USAID + FY23
 file_path <- genie_folderpath %>%
-  return_latest("Genie-SiteByIMs-South-Africa-Daily-2023-08-28")
+  return_latest("Genie-SiteByIMs-South-Africa-Daily-2023-11-27")
 
 # IMPORT ------------------------------------------------------------------
 
 df_msd <- read_psd(file_path)
 
-curr_fy <- 2023
+tierdrop::get_meta("FY23Q4")
+
 curr_fy_lab <- "FY23"
+prev_pd <- glue("{curr_fy_lab}{prev_qtr}")
 
-curr_pd <- "FY23Q3" #change this
-prev_pd <- "FY23Q2"
-prev_fy <- 2022
 
-# get_metadata(file_path)
-# prev_fy <- metadata$curr_fy - 1
+
+#print to check
+fiscal_quarter
+curr_fy
+prev_pd
+prev_fy
 
 # MUNGE -------------------------------------------------------------------
 
@@ -79,13 +84,13 @@ df_validation_denom <- df_msd %>%
 check_1_1 <- df_validation %>%
   reshape_msd() %>%
   pivot_wider(names_from = "period") %>%
-  mutate(check = ifelse(`FY23Q2` > 0 & `FY23Q3` == 0, "Value reported in previous quarter but missing in this quarter", NA),
+  mutate(check = ifelse(`FY23Q3` > 0 & `FY23Q4` == 0, "Value reported in previous quarter but missing in this quarter", NA),
          level = "Level 1",
          today_date = lubridate::today(),
          type_check = "Result in previous quarter") %>%
   filter(!is.na(check)) %>%
-  mutate(period = curr_pd) %>%
-  select(mech_code, prime_partner_name, level, today_date, period, type_check, check, `FY23Q2`, `FY23Q3`, indicator, snu1, psnu, sitename)
+  mutate(period = fiscal_quarter) %>%
+  select(mech_code, prime_partner_name, level, today_date, period, type_check, check, `FY23Q3`, `FY23Q4`, indicator, snu1, psnu, sitename)
 
 check_1_1 <- check_1_1 %>%
   filter(indicator %ni% c("GEND_GBV", "GEND_GBV_PhysicalEmotionalViolence", "GEND_GBV_SexualViolence",
@@ -94,46 +99,46 @@ check_1_1 <- check_1_1 %>%
 
 check_1_1 %>%
   filter(mech_code == "70287") %>%
-  write_csv(glue("data-raw/DATIM Genie checks/GENIE-BROADREACH_Level1_ALLCHECKS_{curr_pd}.csv"))
+  write_csv(glue("data-raw/DATIM Genie checks/GENIE-BROADREACH_Level1_ALLCHECKS_{fiscal_quarter}.csv"))
 
 check_1_1 %>%
   filter(mech_code == "81902") %>%
-  write_csv(glue("data-raw/DATIM Genie checks/GENIE-MATCH_Level1_ALLCHECKS_{curr_pd}.csv"))
+  write_csv(glue("data-raw/DATIM Genie checks/GENIE-MATCH_Level1_ALLCHECKS_{fiscal_quarter}.csv"))
 
 check_1_1 %>%
   filter(mech_code == "70290") %>%
-  write_csv(glue("data-raw/DATIM Genie checks/GENIE-RTC_Level1_ALLCHECKS_{curr_pd}.csv"))
+  write_csv(glue("data-raw/DATIM Genie checks/GENIE-RTC_Level1_ALLCHECKS_{fiscal_quarter}.csv"))
 
 check_1_1 %>%
   filter(mech_code == "70310") %>%
-  write_csv(glue("data-raw/DATIM Genie checks/GENIE-ANOVA_Level1_ALLCHECKS_{curr_pd}.csv"))
+  write_csv(glue("data-raw/DATIM Genie checks/GENIE-ANOVA_Level1_ALLCHECKS_{fiscal_quarter}.csv"))
 
 check_1_1 %>%
   filter(mech_code == "80007") %>%
-  write_csv(glue("data-raw/DATIM Genie checks/GENIE-WRHI_80007_Level1_ALLCHECKS_{curr_pd}.csv"))
+  write_csv(glue("data-raw/DATIM Genie checks/GENIE-WRHI_80007_Level1_ALLCHECKS_{fiscal_quarter}.csv"))
 
 check_1_1 %>%
   filter(mech_code == "70301") %>%
-  write_csv(glue("data-raw/DATIM Genie checks/GENIE-WRHI_70301_Level1_ALLCHECKS_{curr_pd}.csv"))
+  write_csv(glue("data-raw/DATIM Genie checks/GENIE-WRHI_70301_Level1_ALLCHECKS_{fiscal_quarter}.csv"))
 
 
 # LEVEL 2 ---------------------------------------------------------------
 
-#2.1 - PrEP_CT  Q3 < PrEP_CT Q2+ PREP_NEW Q3 (facility)
+#2.1 - PrEP_CT  Q4 < PrEP_CT Q3+ PREP_NEW Q4 (facility)
 check_2_1 <- df_validation %>%
   filter(indicator %in% c("PrEP_NEW", "PrEP_CT")) %>%
   group_by(prime_partner_name,mech_code, snu1, psnu, sitename,facilityuid, indicator, standardizeddisaggregate, fiscal_year) %>%
   summarise(across(starts_with("qtr"), sum, na.rm = TRUE), .groups = "drop") %>%
   reshape_msd() %>%
-  filter(period %in% c(curr_pd ,prev_pd)) %>%
+  filter(period %in% c(fiscal_quarter ,prev_pd)) %>%
   mutate(indic_name = glue("{indicator}_{period}")) %>%
   #select(-c(indicator, period)) %>%
   # mutate(dataElement = str_extract(dataElement, "[^ (]+")) %>%
   #utate(dataElement_uid = indicator) %>%
   pivot_wider(names_from = "indic_name",values_from = "value") %>%
   # rename()
-  mutate(check = ifelse(`PrEP_CT_FY23Q3` < `PrEP_CT_FY23Q2` + `PrEP_NEW_FY23Q3`,
-                        "PrEP_CT  Q3 < PrEP_CT FY23Q2+ PREP_NEW Q3", NA),
+  mutate(check = ifelse(`PrEP_CT_FY23Q4` < `PrEP_CT_FY23Q3` + `PrEP_NEW_FY23Q4`,
+                        "PrEP_CT  Q4 < PrEP_CT FY23Q3 + PREP_NEW Q4", NA),
          level = "Level 2",
          today_date = lubridate::today(),
          type_check = "IntraIndicator") %>%
@@ -160,7 +165,7 @@ check_2_4 <- df_validation_denom %>%
   group_by(prime_partner_name,mech_code, snu1, psnu, sitename,facilityuid, indicator, numeratordenom, fiscal_year) %>%
   summarise(across(starts_with("qtr"), sum, na.rm = TRUE), .groups = "drop") %>%
   reshape_msd() %>%
-  filter(period == metadata$curr_pd) %>%
+  filter(period == fiscal_quarter) %>%
   # mutate(dataElement = str_extract(dataElement, "[^ (]+")) %>%
   #utate(dataElement_uid = indicator) %>%
   pivot_wider(names_from = "numeratordenom", values_from = "value") %>%
@@ -180,7 +185,7 @@ check_2_5 <- df_validation_denom %>%
   group_by(prime_partner_name,mech_code, snu1, psnu, sitename,facilityuid, indicator, numeratordenom, fiscal_year) %>%
   summarise(across(starts_with("qtr"), sum, na.rm = TRUE), .groups = "drop") %>%
   reshape_msd() %>%
-  filter(period == metadata$curr_pd) %>%
+  filter(period == fiscal_quarter) %>%
   pivot_wider(names_from = "numeratordenom", values_from = "value") %>%
   # rename()
   mutate(check = ifelse(`D` < `N`, "TB_STAT_N >  TB_STAT_D", NA),
@@ -197,7 +202,7 @@ check_2_6 <-  df_validation %>%
   group_by(prime_partner_name,mech_code, snu1, psnu, sitename,facilityuid, indicator, standardizeddisaggregate, fiscal_year) %>%
   summarise(across(starts_with("qtr"), sum, na.rm = TRUE), .groups = "drop") %>%
   reshape_msd() %>%
-  filter(period == curr_pd) %>%
+  filter(period == fiscal_quarter) %>%
   # mutate(dataElement = str_extract(dataElement, "[^ (]+")) %>%
   #utate(dataElement_uid = indicator) %>%
   pivot_wider(names_from = "indicator", values_from = "value") %>%
@@ -218,7 +223,7 @@ check_2_7 <- df_itt %>%
   group_by(prime_partner_name,mech_code, snu1, psnu, sitename,facilityuid, indicator, IIT, fiscal_year) %>%
   summarise(across(starts_with("qtr"), sum, na.rm = TRUE), .groups = "drop") %>%
   reshape_msd() %>%
-  filter(period == curr_pd,
+  filter(period == fiscal_quarter,
          !str_detect(IIT, "No Contact Outcome")) %>%
   #  count(otherdisaggregate, IIT)
   # mutate(dataElement = str_extract(dataElement, "[^ (]+")) %>%
@@ -239,7 +244,7 @@ check_2_8 <- df_validation %>%
   group_by(prime_partner_name,mech_code, snu1, psnu, sitename,facilityuid, indicator, standardizeddisaggregate, fiscal_year) %>%
   summarise(across(starts_with("qtr"), sum, na.rm = TRUE), .groups = "drop") %>%
   reshape_msd() %>%
-  filter(period == curr_pd) %>%
+  filter(period == fiscal_quarter) %>%
   # mutate(dataElement = str_extract(dataElement, "[^ (]+")) %>%
   #utate(dataElement_uid = indicator) %>%
   pivot_wider(names_from = "indicator", values_from = "value") %>%
@@ -258,7 +263,7 @@ check_2_9 <- df_validation_denom %>%
   group_by(prime_partner_name,mech_code, snu1, psnu, sitename,facilityuid, indicator, numeratordenom, fiscal_year) %>%
   summarise(across(starts_with("qtr"), sum, na.rm = TRUE), .groups = "drop") %>%
   reshape_msd() %>%
-  filter(period == curr_pd) %>%
+  filter(period == fiscal_quarter) %>%
   # mutate(dataElement = str_extract(dataElement, "[^ (]+")) %>%
   #utate(dataElement_uid = indicator) %>%
   pivot_wider(names_from = "numeratordenom", values_from = "value") %>%
@@ -279,7 +284,7 @@ check_2_10 <- df_msd %>%
   group_by(prime_partner_name,mech_code , snu1, psnu, sitename, facilityuid, indicator, standardizeddisaggregate, fiscal_year) %>%
   summarise(across(starts_with("qtr"), sum, na.rm = TRUE), .groups = "drop") %>%
   reshape_msd() %>%
-  filter(period == curr_pd) %>%
+  filter(period == fiscal_quarter) %>%
   pivot_wider(names_from = "standardizeddisaggregate", values_from = "value") %>%
   mutate(check = ifelse(`1:Age/Sex/IndexCasesOffered` < `2:Age/Sex/IndexCasesAccepted`, "Index_offered<Index_accepted", NA),
          level = "Level 2",
@@ -297,7 +302,7 @@ check_2_11 <- df_msd %>%
            standardizeddisaggregate, otherdisaggregate, statushiv, fiscal_year) %>%
   summarise(across(starts_with("qtr"), sum, na.rm = TRUE), .groups = "drop") %>%
   reshape_msd() %>%
-  filter(period == curr_pd) %>%
+  filter(period == fiscal_quarter) %>%
   mutate(disagg_name = glue("{otherdisaggregate}_{statushiv}")) %>%
   mutate(disagg_name = recode(disagg_name, "NA_NA" = "Total Contacts",
                               "NA_Negative" = "Negatives")) %>%
@@ -340,7 +345,7 @@ check_2_12 <- bind_rows(HTS_TST_POS_15plus, HTS_RECENT) %>%
   group_by(prime_partner_name,mech_code , snu1, psnu, sitename, facilityuid, indicator, fiscal_year) %>%
   summarise(across(starts_with("qtr"), sum, na.rm = TRUE), .groups = "drop") %>%
   reshape_msd() %>%
-  filter(period == curr_pd) %>%
+  filter(period == fiscal_quarter) %>%
   pivot_wider(names_from = "indicator", values_from = "value") %>%
   mutate(check = ifelse(`HTS_TST` >= `HTS_RECENT`, "HTS_TST_POS (>=15) >=HTS_RECENT", NA),
          level = "Level 2",
@@ -356,7 +361,7 @@ check_2_13 <-  df_msd %>%
   group_by(prime_partner_name, mech_code , snu1, psnu, sitename, facilityuid, indicator, fiscal_year) %>%
   summarise(across(starts_with("qtr"), sum, na.rm = TRUE), .groups = "drop") %>%
   reshape_msd() %>%
-  filter(period == curr_pd) %>%
+  filter(period == fiscal_quarter) %>%
   pivot_wider(names_from = "indicator", values_from = "value") %>%
   mutate(check = ifelse(`HTS_TST` < `HTS_TST_POS`, "HTS_TST < HTS_TST_POS", NA),
          level = "Level 2",
@@ -391,7 +396,7 @@ check_2_14 <- bind_rows(PMTCT_EID_0_2months, PMTCT_STAT_POS, HTS_TST_POS_PMTCT) 
   group_by(prime_partner_name, mech_code , snu1, psnu, sitename, facilityuid, indicator, fiscal_year) %>%
   summarise(across(starts_with("qtr"), sum, na.rm = TRUE), .groups = "drop") %>%
   reshape_msd() %>%
-  filter(period == curr_pd) %>%
+  filter(period == fiscal_quarter) %>%
   pivot_wider(names_from = "indicator", values_from = "value") %>%
   mutate(PMTCT_POS = PMTCT_STAT_POS + HTS_TST,
          check = ifelse(PMTCT_EID > PMTCT_POS, "PMTCT_EID 0-2months > PMTCT_STAT_POS+HTS_TST_POS_PMTCT", NA),
@@ -418,7 +423,7 @@ check_2_15 <-  bind_rows(PMTCT_EID,PMTCT_HEI_POS) %>%
   group_by(prime_partner_name, mech_code , snu1, psnu, sitename, facilityuid, indicator, fiscal_year) %>%
   summarise(across(starts_with("qtr"), sum, na.rm = TRUE), .groups = "drop") %>%
   reshape_msd() %>%
-  filter(period == curr_pd) %>%
+  filter(period == fiscal_quarter) %>%
   pivot_wider(names_from = "indicator", values_from = "value") %>%
   mutate(check = ifelse(`PMTCT_HEI_POS` > `PMTCT_EID`, "PMTCT_HEI_POS > PMTCT_EID", NA),
          level = "Level 2",
@@ -436,7 +441,7 @@ check_2_16 <-  df_msd %>%
   group_by(prime_partner_name, mech_code , snu1, psnu, sitename, facilityuid, indicator, standardizeddisaggregate, fiscal_year) %>%
   summarise(across(starts_with("qtr"), sum, na.rm = TRUE), .groups = "drop") %>%
   reshape_msd() %>%
-  filter(period == curr_pd) %>%
+  filter(period == fiscal_quarter) %>%
   pivot_wider(names_from = "standardizeddisaggregate", values_from = "value") %>%
   mutate(check = ifelse(`Total Numerator` > `Total Denominator`, "PMTCT_STAT_N >  PMTCT_STAT_D", NA),
          level = "Level 2",
@@ -457,7 +462,7 @@ check_2_17 <-  bind_rows(PMTCT_STAT_POS, PMTCT_ART) %>%
   group_by(prime_partner_name, mech_code , snu1, psnu, sitename, facilityuid, indicator, fiscal_year) %>%
   summarise(across(starts_with("qtr"), sum, na.rm = TRUE), .groups = "drop") %>%
   reshape_msd() %>%
-  filter(period == curr_pd) %>%
+  filter(period == fiscal_quarter) %>%
   pivot_wider(names_from = "indicator", values_from = "value") %>%
   mutate(check = ifelse(`PMTCT_STAT_POS` < `PMTCT_ART`, "PMTCT_STAT_POS < PMTCT_ART", NA),
          level = "Level 2",
@@ -471,6 +476,7 @@ check_2_17 <-  bind_rows(PMTCT_STAT_POS, PMTCT_ART) %>%
 #BIND
 
 #without HTS_RECENT
+  # comment out the empty ones
 level2_checks_nonTIER <- bind_rows(
 #  check_2_10,
   check_2_11,
@@ -489,7 +495,7 @@ level2_checks_nonTIER <- bind_rows(
 
 
 
-#ALL CHECK
+#ALL CHECK - comment out the empty ones
 level2_checks_all <- bind_rows(
   # check_2_1,
   check_2_4,
@@ -568,10 +574,10 @@ WRHI_level_2_all_80007 <- level2_checks_nonTIER%>%
          mech_code == "80007")
 
 
-write_csv(anova_level_2_all, glue("data-raw/DATIM Genie checks/GENIE-ANOVA_Level2_ALLCHECKS_{curr_pd}.csv"))
-write_csv(BR_level_2_all, glue("data-raw/DATIM Genie checks/GENIE-BroadReach_Level2_ALLCHECKS_{curr_pd}.csv"))
-write_csv(MATCH_level_2_all, glue("data-raw/DATIM Genie checks/GENIE-MATCH_Level2_ALLCHECKS_{curr_pd}.csv"))
-write_csv(RTC_level_2_all, glue("data-raw/DATIM Genie checks/GENIE-RTC_Level2_ALLCHECKS_{curr_pd}.csv"))
-write_csv(WRHI_level_2_all_70301, glue("data-raw/DATIM Genie checks/GENIE-WRHI_70301_Level2_ALLCHECKS_{curr_pd}.csv"))
-write_csv(WRHI_level_2_all_80007, glue("data-raw/DATIM Genie checks/GENIE-WRHI_80007_Level2_ALLCHECKS_{curr_pd}.csv"))
+write_csv(anova_level_2_all, glue("data-raw/DATIM Genie checks/GENIE-ANOVA_Level2_ALLCHECKS_{fiscal_quarter}.csv"))
+write_csv(BR_level_2_all, glue("data-raw/DATIM Genie checks/GENIE-BroadReach_Level2_ALLCHECKS_{fiscal_quarter}.csv"))
+write_csv(MATCH_level_2_all, glue("data-raw/DATIM Genie checks/GENIE-MATCH_Level2_ALLCHECKS_{fiscal_quarter}.csv"))
+write_csv(RTC_level_2_all, glue("data-raw/DATIM Genie checks/GENIE-RTC_Level2_ALLCHECKS_{fiscal_quarter}.csv"))
+write_csv(WRHI_level_2_all_70301, glue("data-raw/DATIM Genie checks/GENIE-WRHI_70301_Level2_ALLCHECKS_{fiscal_quarter}.csv"))
+write_csv(WRHI_level_2_all_80007, glue("data-raw/DATIM Genie checks/GENIE-WRHI_80007_Level2_ALLCHECKS_{fiscal_quarter}.csv"))
 
