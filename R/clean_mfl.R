@@ -10,12 +10,12 @@
 #'
 #'   mfl <- clean_mfl()
 #' }
-clean_mfl <- function(mfl_period = "FY23") {
+clean_mfl <- function(mfl_period = "FY24Q1") {
 
-  tab_name <- ifelse(mfl_period == "FY23", "MFL_FY23", "MFL_FY22Q4")
+  tab_name <- ifelse(mfl_period == "FY24Q1", "MFL_FY24_Q1", "MFL_FY24_Q2")
 
   #Read in MFL from google drive (need to parameterize this for the sheet name)
-  mfl_new_df <- googlesheets4::read_sheet(mfl_fy23_id, sheet = tab_name)
+  mfl_new_df <- googlesheets4::read_sheet(mfl_fy24_id, sheet = tab_name)
 
   #Reshape facility list - for Fy22Q3 list, change to account for DSD/Roving TA
   df_fac <- mfl_new_df %>%
