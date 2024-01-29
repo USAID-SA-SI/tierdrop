@@ -15,14 +15,15 @@ names_prep_new <- c(standard_names, "Sex", "CoarseAgeGroup", "Total")
 names_prep_ct <- c(standard_names, "Sex", "CoarseAgeGroup", "Result", "Total")
 names_hts_tst <- c(standard_names, "Test Result/Outcome/Duration" ,"Sex", "CoarseAgeGroup", "HIVTestOfferedIn", "Total")
 names_pmtct_eid <- c(standard_names, "CoarseAgeGroup", "Total")
-names_tx_new <- c(standard_names,  "Sex", "CoarseAgeGroup", "Total")
+names_tx_new <- c(standard_names,  "Sex", "CoarseAgeGroup", "CD4", "Total")
 names_pmtct_hei_pos <- c(standard_names, "CoarseAgeGroup", "Total")
 names_tx_curr <- c(standard_names, "Sex", "CoarseAgeGroup", "Total")
-names_tx_rtt <- c(standard_names, "Sex", "CoarseAgeGroup","Test Result/Outcome/Duration", "Total")
+names_tx_rtt <- c(standard_names, "Sex", "CoarseAgeGroup","Test Result/Outcome/Duration", "CD4","Total")
 names_tx_ml <- c(standard_names, "Test Result/Outcome/Duration", "CoarseAgeGroup", "Sex", "Total")
 names_pmtct_art <- c(standard_names, "CoarseAgeGroup", "Test Result/Outcome/Duration", "Total")
 names_tb_art <- c(standard_names, "CoarseAgeGroup", "Sex","Test Result/Outcome/Duration", "Total")
-names_tx_pvls <- c(standard_names, "Sex", "CoarseAgeGroup", "Total")
+names_tx_pvls_n <- c(standard_names, "Sex", "CoarseAgeGroup","VL_BIN","Total")
+names_tx_pvls_d <- c(standard_names, "Sex", "CoarseAgeGroup", "Total")
 names_tb_stat_d <- c(standard_names, "Sex", "CoarseAgeGroup", "Total")
 names_tb_stat_n <- c(standard_names, "Sex", "Test Result/Outcome/Duration", "CoarseAgeGroup", "Total")
 names_tx_tb_d <- c(standard_names, "Test Result/Outcome/Duration", "CoarseAgeGroup",  "Sex", "Result","Total")
@@ -42,7 +43,8 @@ usethis::use_data(names_tx_rtt, overwrite = TRUE)
 usethis::use_data(names_tx_ml, overwrite = TRUE)
 usethis::use_data(names_pmtct_art, overwrite = TRUE)
 usethis::use_data(names_tb_art, overwrite = TRUE)
-usethis::use_data(names_tx_pvls, overwrite = TRUE)
+usethis::use_data(names_tx_pvls_n, overwrite = TRUE)
+usethis::use_data(names_tx_pvls_d, overwrite = TRUE)
 usethis::use_data(names_tb_stat_d, overwrite = TRUE)
 usethis::use_data(names_tb_stat_n, overwrite = TRUE)
 usethis::use_data(names_tx_tb_d, overwrite = TRUE)
@@ -57,10 +59,12 @@ usethis::use_data(names_tb_prev, overwrite = TRUE)
 names_prep_new_kp <- c(names_prep_new, kp_names, "Total")[-9]
 names_prep_ct_kp <- c(names_prep_ct,kp_names, "Total")[-10]
 names_hts_tst_kp <- c(names_hts_tst,kp_names, "Total")[-11]
-names_tx_new_kp <- c(names_tx_new, kp_names, "Total")[-9]
+names_tx_new_kp <- c(names_tx_new, kp_names, "Total")[-10]
 names_tx_curr_kp <- c(names_tx_curr, kp_names, "Total")[-9]
 names_tx_ml_kp <- c(names_tx_ml,kp_names, "Total")[-10]
-names_tx_pvls_kp <- c(names_tx_pvls, kp_names, "Total")[-9]
+names_tx_pvls_d_kp <- c(names_tx_pvls_d, kp_names, "Total")[-9]
+names_tx_pvls_n_kp <- c(names_tx_pvls_n, kp_names, "Total")[-10]
+
 
 usethis::use_data(names_prep_new_kp, overwrite = TRUE)
 usethis::use_data(names_prep_ct_kp, overwrite = TRUE)
