@@ -59,8 +59,8 @@ read_all_the_things <- function(path, sheet){
                         "TX_ML" = names_tx_ml,
                         "PMTCT_ART" = names_pmtct_art,
                         "TB_ART" = names_tb_art,
-                        "TX_PVLS_Denom" = names_tx_pvls,
-                        "TX_PVLS_Numer" = names_tx_pvls,
+                        "TX_PVLS_Denom" = names_tx_pvls_d,
+                        "TX_PVLS_Numer" = names_tx_pvls_n,
                         "TB_STAT_Denom" = names_tb_stat_d,
                         "TB_STAT_Numer" = names_tb_stat_n,
                         "TX_TB_Denom" = names_tx_tb_d,
@@ -75,8 +75,8 @@ read_all_the_things <- function(path, sheet){
                         "TX_NEW_KP" = names_tx_new_kp,
                         "TX_CURR_KP" = names_tx_curr_kp,
                         "TX_ML_KP" = names_tx_ml_kp,
-                        "TX_PVLS_Denom_KP" = names_tx_pvls_kp,
-                        "TX_PVLS_Numer_KP" = names_tx_pvls_kp,
+                        "TX_PVLS_Denom_KP" = names_tx_pvls_d_kp,
+                        "TX_PVLS_Numer_KP" = names_tx_pvls_n_kp,
                         "ARVDISP" = names_arvdisp)
 
   df <- readxl::read_excel(path, sheet, col_names = col_renamed,  col_types = "text", skip =1)
