@@ -71,3 +71,42 @@ df_fac <- clean_mfl(mfl_period = "FY24Q1") %>%
 #names_tx_tb_d <- c(standard_names, "CoarseAgeGroup",  "Sex", "Result","Total")
 
 # NDOH ---------------------------------------------------------------------
+
+#if this breaks, check on tab names (adjust PrEP_NEW in the file itself)
+# update for ou5uid
+ndoh_all <- import_ndoh(filepath = ndoh_filepath, qtr = curr_qtr, kp = FALSE)
+ndoh_all_kp <- import_ndoh(filepath = ndoh_filepath, qtr = curr_qtr, kp = TRUE)
+
+#what facilities are in NDOH but not in MFL? ADdress MFL qc as needed
+# update for ou5uid
+validate_ndoh(ndoh_all)
+validate_ndoh(ndoh_all_kp)
+
+# TIDY NDOH -----------------------------------------------------------
+
+#TIDY
+ndoh_clean <- tidy_ndoh(ndoh_all, kp = FALSE) %>%
+  select(-c(Code))
+
+#aggregate TB_STAT
+ndoh_tb_stat <- ndoh_clean %>%
+  filter(indicator == "TB_STAT",
+         numeratordenom == "N",
+         `Test Result/Outcome/Duration` %in% c("New Negative", 'New Positive')) %>%
+  #filter(CoarseAgeGroup == "<1")
+  mutate(CoarseAgeGroup = ifelse(CoarseAgeGroup =="<1", "1-4", CoarseAgeGroup)) %>%
+  group_by(usaid_facility, ou5uid, datim_uid, new_ou5_code, period, DSD_TA, Province, SubDistrict, District, Facility, `Test Result/Outcome/Duration`,
+           Sex, CoarseAgeGroup, Result, indicator, CD4, VL_BIN, numeratordenom) %>%
+  dplyr::summarise(dplyr::across(tidyselect::starts_with("Total"), \(x) sum(x, na.rm = TRUE)), .groups = "drop")
+
+ndoh_clean <-  ndoh_clean %>%
+  filter(!(indicator == "TB_STAT" & numeratordenom == "N" &
+             `Test Result/Outcome/Duration` %in% c("New Negative", 'New Positive'))) %>%
+  rbind(ndoh_tb_stat)
+
+ndoh_clean_kp <- tidy_ndoh(ndoh_all_kp, kp = TRUE) %>%
+  select(-c(Code))
+
+# MAP -------------------------------------------------------------------------------------------
+
+
