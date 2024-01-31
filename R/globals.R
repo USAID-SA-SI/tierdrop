@@ -18,5 +18,6 @@ utils::globalVariables(c("OU2name", "ou5name", "ou5uid", "datim_uid",
                          "names_tx_tb_d_pos", "names_tx_tb_d_testtype", "mech_mfl", "Regimen Code", "RegimenCode",
                          "Sub District", "UID", "arv_map", "categoryOptionComboName", "categoryOptionCombo_uid",
                          "categoryOptionCombo_uid.x", "categoryOptionCombo_uid.y", "curr_fy", "fy_num",
-                         "import_period_style", "<<-", "import_folder", "ndoh_folderpath"
+                         "import_period_style", "<<-", "import_folder", "ndoh_folderpath", "CD4", "names_tx_pvls_d",
+                         "names_tx_pvls_n", "names_tx_pvls_d_kp", "names_tx_pvls_n_kp"
                          ))
