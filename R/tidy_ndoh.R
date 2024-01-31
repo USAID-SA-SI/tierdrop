@@ -44,7 +44,9 @@ tidy_ndoh <- function(df, kp = FALSE) {
                                             "TX_PVLS_D" = "TX_PVLS",
                                             "TX_PVLS_N" = "TX_PVLS",
                                             "TX_TB_N" = "TX_TB",
-                                            "TX_TB_D" = "TX_TB"))
+                                            "TX_TB_D" = "TX_TB")) %>%
+    dplyr::mutate(Sex = stringr::str_to_title(Sex))
+
 
   #address over50 disagg issue (need to reclassify age groups above 50 as "50+")
   ndoh_over50 <- ndoh_clean %>%
@@ -58,7 +60,31 @@ tidy_ndoh <- function(df, kp = FALSE) {
     dplyr::filter(CoarseAgeGroup != "50+") %>%
     dplyr::bind_rows(ndoh_over50)
 
-  return(ndoh_clean)
+  #move disaggs from Results to Test Results/Outcomes/Duration for mapping (FY24)
+  ndoh_clean <- ndoh_clean %>%
+    dplyr::mutate("Test Result/Outcome/Duration" = ifelse(indicator == "TX_NEW", CD4, `Test Result/Outcome/Duration`),
+           "Test Result/Outcome/Duration" = ifelse(indicator == "PrEP_CT", Result, `Test Result/Outcome/Duration`))
+
+  #address pivot for RTT - make a copy of the df with TX_RTT and bind back CD4 as Test Result column
+  rtt_no_cd4 <- ndoh_clean %>%
+    dplyr::filter(indicator == "TX_RTT") %>%
+    dplyr::select(-c(CD4))
+
+  ndoh_rtt <- ndoh_clean %>%
+    dplyr::filter(indicator == "TX_RTT") %>%
+    dplyr::select(-c(`Test Result/Outcome/Duration`)) %>%
+    dplyr::relocate(CD4, .after = "Facility") %>%
+    dplyr::rename(`Test Result/Outcome/Duration` = CD4) %>%
+    rbind(rtt_no_cd4)
+
+  #bind RTT back
+  ndoh_clean_final <- ndoh_clean %>%
+    dplyr::filter(indicator != "TX_RTT") %>%
+    dplyr::select(-CD4) %>%
+    rbind(ndoh_rtt)
+
+
+  return(ndoh_clean_final)
 }
 
 #' Tidy and map disaggs for ARVDISP

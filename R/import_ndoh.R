@@ -57,7 +57,7 @@ import_ndoh <- function(filepath, qtr, kp = FALSE) {
     #Aggregate across KP groups
     df_final <- df_final %>%
       dplyr::group_by(Province, District, SubDistrict, Facility, UID, Code, `Test Result/Outcome/Duration`,
-                      Sex, CoarseAgeGroup, Result, indicator) %>%
+                      Sex, CoarseAgeGroup, Result, indicator, CD4) %>%
       dplyr::summarise(dplyr::across(tidyselect::starts_with("Total"), sum, na.rm = TRUE), .groups = "drop")
 
 
