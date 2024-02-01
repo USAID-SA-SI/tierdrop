@@ -35,7 +35,7 @@ print(msd_filepath)
 glamr::load_secrets()
 
 #indicator mapping file
-df_map_distinct <- googlesheets4::read_sheet(disagg_map_id) %>%
+df_map_distinct <- googlesheets4::read_sheet(new_disagg_map_id) %>%
   dplyr::rename("Test Result/Outcome/Duration" = "Test Resuts/Outcome/Duration",
                 "DSD_TA" = "Support Type")
 
@@ -187,6 +187,9 @@ today <- lubridate::today()
 
 tier_final_import %>%
   readr::write_csv(glue::glue("{import_folder}/{fiscal_quarter}_TIER_Import_File_v1_{today}.csv"))
+
+tier_final_partner %>%
+  readr::write_csv(glue::glue("{import_folder}/{fiscal_quarter}_TIER_Import_File_v1_{today}_VERIFY.csv"))
 
 
 #Partner files

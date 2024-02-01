@@ -72,7 +72,9 @@ usethis::use_data(names_hts_tst_kp, overwrite = TRUE)
 usethis::use_data(names_tx_new_kp, overwrite = TRUE)
 usethis::use_data(names_tx_curr_kp, overwrite = TRUE)
 usethis::use_data(names_tx_ml_kp, overwrite = TRUE)
-usethis::use_data(names_tx_pvls_kp, overwrite = TRUE)
+usethis::use_data(names_tx_pvls_d_kp, overwrite = TRUE)
+usethis::use_data(names_tx_pvls_n_kp, overwrite = TRUE)
+
 
 #ARV DISP----
 
