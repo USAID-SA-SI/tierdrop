@@ -69,6 +69,8 @@ df_fac <- clean_mfl(mfl_period = "FY24Q1") %>%
 
 # NDOH ---------------------------------------------------------------------
 
+#FIX TB_STAT
+
 #if this breaks, check on tab names (adjust PrEP_NEW in the file itself)
 # update for ou5uid
 ndoh_all <- import_ndoh(filepath = ndoh_filepath, qtr = curr_qtr, kp = FALSE)
@@ -85,8 +87,34 @@ validate_ndoh(ndoh_all_kp)
 ndoh_clean <- tidy_ndoh(ndoh_all, kp = FALSE) %>%
   select(-c(Code, VL_BIN, Result))
 
+
+ndoh_pvls <- ndoh_clean %>%
+  filter(indicator == "TX_PVLS",
+         numeratordenom == "N") %>%
+  group_by(usaid_facility, ou5uid, datim_uid, new_ou5_code, period, DSD_TA, Province, SubDistrict, District, Facility, `Test Result/Outcome/Duration`,
+           Sex, CoarseAgeGroup, indicator, numeratordenom) %>%
+  dplyr::summarise(dplyr::across(tidyselect::starts_with("Total"), \(x) sum(x, na.rm = TRUE)), .groups = "drop")
+
+ndoh_clean <- ndoh_clean %>%
+  filter(!(indicator == "TX_PVLS" & numeratordenom == "N")) %>%
+  rbind(ndoh_pvls)
+
+
+#KP
 ndoh_clean_kp <- tidy_ndoh(ndoh_all_kp, kp = TRUE) %>%
   select(-c(Code, Result))
+
+ndoh_clean_kp_pvls <- ndoh_clean_kp %>%
+  filter(indicator == "TX_PVLS",
+         numeratordenom == "N") %>%
+  group_by(usaid_facility, ou5uid, datim_uid, new_ou5_code, period, DSD_TA, Province, SubDistrict, District, Facility, `Test Result/Outcome/Duration`,
+           Sex, CoarseAgeGroup, indicator, numeratordenom) %>%
+  dplyr::summarise(dplyr::across(tidyselect::starts_with("Total"), \(x) sum(x, na.rm = TRUE)), .groups = "drop")
+
+ndoh_clean_kp <- ndoh_clean_kp %>%
+  filter(!(indicator == "TX_PVLS" & numeratordenom == "N")) %>%
+  rbind(ndoh_clean_kp_pvls)
+
 
 # MAP -------------------------------------------------------------------------------------------
 
@@ -128,9 +156,9 @@ df_final %>%
 #Step 1: Filter out PrEP for Harry Gwala, Capricorn and Mopani; filter out all of MATCH PrEP for now
 df_final_clean <- df_final %>%
   filter(!(District == "kz Harry Gwala District Municipality" & indicator %in% c("PrEP_CT", "PrEP_NEW"))) %>%
-  filter(!(District %in% c("lp Capricorn District Municipality",
-                           "lp Mopani District Municipality")
-           & indicator %in% c("PrEP_CT", "PrEP_NEW"))) %>%
+  # filter(!(District %in% c("lp Capricorn District Municipality",
+  #                          "lp Mopani District Municipality")
+  #          & indicator %in% c("PrEP_CT", "PrEP_NEW"))) %>%
   filter(!(mech_code == "81902" & indicator %in% c("PrEP_CT", "PrEP_NEW")))
 
 
@@ -180,16 +208,17 @@ tier_final_import <- bind_rows(df_final_clean %>% select(all_of(import_vars)),
 #check for dupes
 tier_final_import %>%
   select(import_vars) %>%
+  select(-c(value)) %>%
   janitor::get_dupes()
 
 #EXPORT
 today <- lubridate::today()
 
 tier_final_import %>%
-  readr::write_csv(glue::glue("{import_folder}/{fiscal_quarter}_TIER_Import_File_v1_{today}.csv"))
+  readr::write_csv(glue::glue("{import_folder}/{fiscal_quarter}_TIER_Import_File_v4_{today}.csv"))
 
 tier_final_partner %>%
-  readr::write_csv(glue::glue("{import_folder}/{fiscal_quarter}_TIER_Import_File_v1_{today}_VERIFY.csv"))
+  readr::write_csv(glue::glue("{import_folder}/{fiscal_quarter}_TIER_Import_File_v4_{today}_VERIFY.csv"))
 
 
 #Partner files
