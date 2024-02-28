@@ -59,8 +59,8 @@ read_all_the_things <- function(path, sheet){
                         "TX_ML" = names_tx_ml,
                         "PMTCT_ART" = names_pmtct_art,
                         "TB_ART" = names_tb_art,
-                        "TX_PVLS_Denom" = names_tx_pvls,
-                        "TX_PVLS_Numer" = names_tx_pvls,
+                        "TX_PVLS_Denom" = names_tx_pvls_d,
+                        "TX_PVLS_Numer" = names_tx_pvls_n,
                         "TB_STAT_Denom" = names_tb_stat_d,
                         "TB_STAT_Numer" = names_tb_stat_n,
                         "TX_TB_Denom" = names_tx_tb_d,
@@ -75,8 +75,8 @@ read_all_the_things <- function(path, sheet){
                         "TX_NEW_KP" = names_tx_new_kp,
                         "TX_CURR_KP" = names_tx_curr_kp,
                         "TX_ML_KP" = names_tx_ml_kp,
-                        "TX_PVLS_Denom_KP" = names_tx_pvls_kp,
-                        "TX_PVLS_Numer_KP" = names_tx_pvls_kp,
+                        "TX_PVLS_Denom_KP" = names_tx_pvls_d_kp,
+                        "TX_PVLS_Numer_KP" = names_tx_pvls_n_kp,
                         "ARVDISP" = names_arvdisp)
 
   df <- readxl::read_excel(path, sheet, col_names = col_renamed,  col_types = "text", skip =1)
@@ -148,21 +148,21 @@ paint_green <- function(txt) {
 #'
 partner_import <- function(df, mech_code, save = TRUE) {
 
-  if (mech_code == 70287) {
-    mech_uid <- "koVrJ0HjBxy"
-  } else if (mech_code == 70310) {
-    mech_uid <- "LbZtY0khSQw"
-  } else if (mech_code == 81902) {
-    mech_uid <- "Sm6Y3REDZ42"
-  } else if (mech_code == 70290) {
-    mech_uid <- "R6zwVobwi58"
-  } else if (mech_code == 70301) {
-    mech_uid <- "Rv3LaFFxBCY"
+  if (mech_code == "70287") {
+    uid <- "koVrJ0HjBxy"
+  } else if (mech_code == "70310") {
+    uid <- "LbZtY0khSQw"
+  } else if (mech_code == "81902") {
+    uid <- "Sm6Y3REDZ42"
+  } else if (mech_code == "70290") {
+    uid <- "R6zwVobwi58"
+  } else if (mech_code == "70301") {
+    uid <- "Rv3LaFFxBCY"
   }
 
   df_partner <- df %>%
     dplyr::filter(!is.na(dataElement_uid)) %>%
-    dplyr::filter(mech_uid == mech_uid)
+    dplyr::filter(mech_uid == uid)
 
   if (save ==  TRUE) {
     readr::write_csv(df_partner, glue::glue("{import_folder}/{mech_code}_{fiscal_quarter}_TIER_Import_File_{today}.csv"))

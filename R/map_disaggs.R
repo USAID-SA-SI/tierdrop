@@ -18,7 +18,7 @@
 map_disaggs <- function(df, ind_sel = "All", disaggregate = "All", all_indic = TRUE) {
 
   #Read in mapping file from google drive
-  df_map_distinct <- googlesheets4::read_sheet(disagg_map_id) %>%
+  df_map_distinct <- googlesheets4::read_sheet(new_disagg_map_id,col_types = "c") %>%
     dplyr::rename("Test Result/Outcome/Duration" = "Test Resuts/Outcome/Duration",
                   "DSD_TA" = "Support Type")
 
@@ -45,13 +45,13 @@ map_disaggs <- function(df, ind_sel = "All", disaggregate = "All", all_indic = T
     col_names <- col_names[col_names %ni% c("Total")]
 
     if (ind_sel == "PrEP_CT" & disaggregate == "Age/Sex") {
-      unselect_vars <- c("Result")
+      unselect_vars <- c("Test Result/Outcome/Duration")
     } else if (ind_sel == "PrEP_CT" & disaggregate == "TestResult") {
       unselect_vars <- c("Sex", "CoarseAgeGroup")
-    } else if (ind_sel == "TX_RTT" & disaggregate == "Age/Sex/HIVStatus") {
-      unselect_vars <- c("Test Result/Outcome/Duration")
+    } else if (ind_sel == "TX_RTT" & disaggregate == "Age/Sex/CD4/HIVStatus") {
+      unselect_vars <- c()
     } else if (ind_sel == "TX_RTT" & disaggregate == "ARTNoContactReasonIIT") {
-      unselect_vars <- c("Sex", "CoarseAgeGroup", "Result")
+      unselect_vars <- c("Sex", "CoarseAgeGroup")
     }
 
     select_vars <- col_names[col_names %ni% c(unselect_vars)]
@@ -112,14 +112,40 @@ ndoh_post_processing <- function(df, kp = FALSE, export_type) {
 df_all <- map_disaggs(df, all_indic = TRUE)
 df_prep_test <- map_disaggs(df, "PrEP_CT", "TestResult", FALSE)
 df_prep_age <- map_disaggs(df, "PrEP_CT", "Age/Sex", FALSE)
-df_rtt_age <- map_disaggs(df, "TX_RTT", "Age/Sex/HIVStatus", FALSE)
-df_rtt_nocontact <- map_disaggs(df, "TX_RTT", "ARTNoContactReasonIIT", FALSE)
+
+df_rtt_nocontact <- df %>%
+  dplyr::filter(indicator == "TX_RTT",
+         stringr::str_detect(`Test Result/Outcome/Duration`, "IIT")) %>%
+  map_disaggs(., "TX_RTT", "ARTNoContactReasonIIT", FALSE) %>%
+  dplyr::mutate(Sex = NA,
+         CoarseAgeGroup = NA) %>%
+  dplyr::relocate(CoarseAgeGroup, .before = Total) %>%
+  dplyr::relocate(Sex, .before = CoarseAgeGroup) %>%
+  dplyr::mutate(Sex = as.character(Sex),
+         CoarseAgeGroup = as.character(CoarseAgeGroup))
+
+df_rtt_age <- df %>%
+  dplyr::filter(indicator == "TX_RTT",
+         !stringr::str_detect(`Test Result/Outcome/Duration`, "IIT")) %>%
+  #count(`Test Result/Outcome/Duration`)
+  map_disaggs(., "TX_RTT", "Age/Sex/CD4/HIVStatus", FALSE)
+
+# df_rtt_age <- map_disaggs(df, "TX_RTT", "Age/Sex/CD4/HIVStatus", FALSE)
+# df_rtt_nocontact <- map_disaggs(df, "TX_RTT", "ARTNoContactReasonIIT", FALSE)nam
 
 df_final <- dplyr::bind_rows(df_all,
                              df_prep_test,
                              df_prep_age,
                              df_rtt_age,
-                             df_rtt_nocontact)
+                             df_rtt_nocontact
+                             )
+
+df_final <- dplyr::bind_rows(df_all,
+                             df_prep_test,
+                             df_prep_age,
+                             df_rtt_age,
+                             df_rtt_nocontact
+)
 
 
 if (export_type == "Import") {
@@ -127,10 +153,10 @@ if (export_type == "Import") {
                  "dataElement_uid","categoryOptionCombo_uid",
                  "Total")
 } else if (export_type == "Validation") {
-  keep_vars <- c("period","Province", "District","SubDistrict", "Facility",
+  keep_vars <- c("period","Province", "District","SubDistrict", "Facility", "DSD_TA",
                  "datim_uid", "mech_code", "mech_uid", 'prime_partner_name',
                  "indicator", "numeratordenom","Test Result/Outcome/Duration", "Sex",
-                 "CoarseAgeGroup", "Result","dataElement", "dataElement_uid", "categoryOptionComboName",
+                 "CoarseAgeGroup","dataElement", "dataElement_uid", "categoryOptionComboName",
                  "categoryOptionCombo_uid", "Total")
 }
 

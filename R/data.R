@@ -202,3 +202,32 @@
 #'
 #' @format A character vector with length 8
 "names_tx_tb_d_testtype"
+
+
+#' Standard names for TX PVLS D tab in NDOH
+#'
+#' A character vector of columns in TX PVLS D tab of NDOH with CD4 (TIER)
+#'
+#' @format A character vector with length 8
+"names_tx_pvls_d"
+
+#' Standard names for TX PVLS N tab in NDOH
+#'
+#' A character vector of columns in TX PVLS N tab of NDOH with CD4 (TIER)
+#'
+#' @format A character vector with length 8
+"names_tx_pvls_n"
+
+#' Standard names for TX PVLS N KP tab in NDOH
+#'
+#' A character vector of columns in TX PVLS N KP tab of NDOH with CD4 (TIER)
+#'
+#' @format A character vector with length 8
+"names_tx_pvls_n_kp"
+
+#' Standard names for TX PVLS D KP tab in NDOH
+#'
+#' A character vector of columns in TX PVLS D KP tab of NDOH with CD4 (TIER)
+#'
+#' @format A character vector with length 8
+"names_tx_pvls_d_kp"

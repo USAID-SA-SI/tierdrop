@@ -3,7 +3,7 @@
 # REF ID:   df2e3b9f
 # LICENSE:  MIT
 # DATE:     2023-08-29
-# UPDATED: 2023-11-27 (FY23Q4)
+# UPDATED: 2023-02-27 (FY24Q1)
 
 # DEPENDENCIES ------------------------------------------------------------
 
@@ -20,16 +20,17 @@ genie_folderpath <- "data-raw/MSD-Genie"
 #change filename as needed
   #genie filtered for USAID + FY23
 file_path <- genie_folderpath %>%
-  return_latest("Genie-SiteByIMs-South-Africa-Daily-2023-11-27")
+  return_latest("MER_Structured_Datasets_Site_IM_FY22")
 
 # IMPORT ------------------------------------------------------------------
 
 df_msd <- read_psd(file_path)
 
-tierdrop::get_meta("FY23Q4")
+tierdrop::get_meta("FY24Q1")
 
-curr_fy_lab <- "FY23"
-prev_pd <- glue("{curr_fy_lab}{prev_qtr}")
+curr_fy_lab <- "FY24"
+prev_fy_lab <- "FY23"
+prev_pd <- glue("{prev_fy_lab}{prev_qtr}")
 
 
 
@@ -44,7 +45,7 @@ prev_fy
 #will take a WHILE to run
 df_validation <- df_msd %>%
   filter(funding_agency == "USAID",
-         fiscal_year %in% c(curr_fy),
+         fiscal_year %in% c(prev_fy, curr_fy), # add prev for Q1
          #source_name == "DATIM",
          standardizeddisaggregate == "Total Numerator") %>%
   group_by(snu1, psnu, sitename, facilityuid, prime_partner_name, mech_code, funding_agency,
@@ -54,7 +55,7 @@ df_validation <- df_msd %>%
 #will take a WHILE to run (check on reporting pd to ensure check is looking where you need)
 df_target_result <- df_msd %>%
   filter(funding_agency == "USAID",
-         fiscal_year %in% c(curr_fy),
+         fiscal_year %in% c(prev_fy, curr_fy), #add prev for q1
          standardizeddisaggregate == "Total Numerator") %>%
   group_by(snu1, psnu, sitename, facilityuid, prime_partner_name, mech_code, funding_agency,
            indicator,fiscal_year, standardizeddisaggregate) %>%
@@ -78,13 +79,15 @@ df_validation_denom <- df_msd %>%
   summarise(across(starts_with("qtr"), sum, na.rm = TRUE), .groups = "drop")
 
 
+
+
 # LEVEL 1 CHECKS -------------------------------------------------------
 
 #just net-new: OKAY
 check_1_1 <- df_validation %>%
   reshape_msd() %>%
   pivot_wider(names_from = "period") %>%
-  mutate(check = ifelse(`FY23Q3` > 0 & `FY23Q4` == 0, "Value reported in previous quarter but missing in this quarter", NA),
+  mutate(check = ifelse(`FY23Q4` > 0 & `FY24Q1` == 0, "Value reported in previous quarter but missing in this quarter", NA),
          level = "Level 1",
          today_date = lubridate::today(),
          type_check = "Result in previous quarter") %>%
@@ -124,7 +127,7 @@ check_1_1 %>%
 
 # LEVEL 2 ---------------------------------------------------------------
 
-#2.1 - PrEP_CT  Q4 < PrEP_CT Q3+ PREP_NEW Q4 (facility)
+#2.1 - PrEP_CT  FY24Q1 < PrEP_CT FY23Q4+ PREP_NEW FY24Q1 (facility)
 check_2_1 <- df_validation %>%
   filter(indicator %in% c("PrEP_NEW", "PrEP_CT")) %>%
   group_by(prime_partner_name,mech_code, snu1, psnu, sitename,facilityuid, indicator, standardizeddisaggregate, fiscal_year) %>%
@@ -137,8 +140,8 @@ check_2_1 <- df_validation %>%
   #utate(dataElement_uid = indicator) %>%
   pivot_wider(names_from = "indic_name",values_from = "value") %>%
   # rename()
-  mutate(check = ifelse(`PrEP_CT_FY23Q4` < `PrEP_CT_FY23Q3` + `PrEP_NEW_FY23Q4`,
-                        "PrEP_CT  Q4 < PrEP_CT FY23Q3 + PREP_NEW Q4", NA),
+  mutate(check = ifelse(`PrEP_CT_FY24Q1` < `PrEP_CT_FY23Q4` + `PrEP_NEW_FY24Q1`,
+                        "PrEP_CT  Q1 < PrEP_CT FY23Q4 + PREP_NEW Q1", NA),
          level = "Level 2",
          today_date = lubridate::today(),
          type_check = "IntraIndicator") %>%
@@ -158,7 +161,7 @@ check_2_1 <- df_validation %>%
 
 #2.3 - PREP_CT<= KP Disagg
 
-#2.4 - TB_PREV_D < TB_PREV_N (facility) - SEMI ANNUAL
+#2.4 - TB_PREV_D < TB_PREV_N (facility) - SEMI ANNUAL (only in q2 and q4)
 
 check_2_4 <- df_validation_denom %>%
   filter(indicator %in% c("TB_PREV")) %>%
@@ -214,6 +217,7 @@ check_2_6 <-  df_validation %>%
   filter(!is.na(check)) %>%
   select(mech_code, prime_partner_name, level, today_date, type_check, period, check, snu1, psnu, sitename)
 
+
 # CHECK 2.7- - TX_ML
 check_2_7 <- df_itt %>%
   filter(indicator %in% c("TX_ML")) %>%
@@ -236,6 +240,7 @@ check_2_7 <- df_itt %>%
          type_check = "IntraIndicator") %>%
   filter(!is.na(check)) %>%
   select(mech_code, prime_partner_name, level, today_date, type_check, period, check, snu1, psnu, sitename)
+
 
 #2.8 - TX_RTT > TX_CURR
 
@@ -320,39 +325,41 @@ check_2_11 <- df_msd %>%
   select(mech_code, prime_partner_name,level,today_date, type_check, check, period, snu1, psnu, sitename)
 
 
-#2.12 - HTS_TST_POS (>=15) >=HTS_RECENT #note, no partners reported HTS_RECENT as of 7.29
-HTS_TST_POS_15plus <- df_msd %>%
-  filter(funding_agency == "USAID") %>%
-  filter((`indicator`== "HTS_TST" & (categoryoptioncomboname == "15-19, Male, Positive" | categoryoptioncomboname ==  "15-19, Female, Positive"
-                                     | categoryoptioncomboname == "20-24, Male, Positive" | categoryoptioncomboname ==  "20-24, Female, Positive"
-                                     | categoryoptioncomboname == "25-29, Male, Positive" | categoryoptioncomboname ==  "25-29, Female, Positive"
-                                     | categoryoptioncomboname == "30-34, Male, Positive" | categoryoptioncomboname ==  "30-34, Female, Positive"
-                                     | categoryoptioncomboname == "35-39, Male, Positive" | categoryoptioncomboname ==  "35-39, Female, Positive"
-                                     | categoryoptioncomboname == "40-44, Male, Positive" | categoryoptioncomboname ==  "40-44, Female, Positive"
-                                     | categoryoptioncomboname == "45-49, Male, Positive" | categoryoptioncomboname ==  "45-49, Female, Positive"
-                                     | categoryoptioncomboname == "50+, Male, Positive" | categoryoptioncomboname ==  "50+, Female, Positive")))
+#2.12 - HTS_TST_POS (>=15) >=HTS_RECENT
+  #note, no partners reported HTS_RECENT as of 7.29
 
-
-HTS_RECENT <- df_msd %>%
-  filter(funding_agency == "USAID") %>%
-  filter(indicator %in% c("HTS_RECENT"),
-         fiscal_year %in% c(curr_fy)) %>%
-  group_by(prime_partner_name,mech_code , snu1, psnu, sitename, facilityuid, indicator, fiscal_year) %>%
-  summarise(across(starts_with("qtr"), sum, na.rm = TRUE), .groups = "drop")
-
-
-check_2_12 <- bind_rows(HTS_TST_POS_15plus, HTS_RECENT) %>%
-  group_by(prime_partner_name,mech_code , snu1, psnu, sitename, facilityuid, indicator, fiscal_year) %>%
-  summarise(across(starts_with("qtr"), sum, na.rm = TRUE), .groups = "drop") %>%
-  reshape_msd() %>%
-  filter(period == fiscal_quarter) %>%
-  pivot_wider(names_from = "indicator", values_from = "value") %>%
-  mutate(check = ifelse(`HTS_TST` >= `HTS_RECENT`, "HTS_TST_POS (>=15) >=HTS_RECENT", NA),
-         level = "Level 2",
-         today_date = lubridate::today(),
-         type_check = "IntraIndicator") %>%
-  filter(!is.na(check)) %>%
-  select(mech_code, prime_partner_name,level,today_date, type_check, check, period, snu1, psnu, sitename)
+# HTS_TST_POS_15plus <- df_msd %>%
+#   filter(funding_agency == "USAID") %>%
+#   filter((`indicator`== "HTS_TST" & (categoryoptioncomboname == "15-19, Male, Positive" | categoryoptioncomboname ==  "15-19, Female, Positive"
+#                                      | categoryoptioncomboname == "20-24, Male, Positive" | categoryoptioncomboname ==  "20-24, Female, Positive"
+#                                      | categoryoptioncomboname == "25-29, Male, Positive" | categoryoptioncomboname ==  "25-29, Female, Positive"
+#                                      | categoryoptioncomboname == "30-34, Male, Positive" | categoryoptioncomboname ==  "30-34, Female, Positive"
+#                                      | categoryoptioncomboname == "35-39, Male, Positive" | categoryoptioncomboname ==  "35-39, Female, Positive"
+#                                      | categoryoptioncomboname == "40-44, Male, Positive" | categoryoptioncomboname ==  "40-44, Female, Positive"
+#                                      | categoryoptioncomboname == "45-49, Male, Positive" | categoryoptioncomboname ==  "45-49, Female, Positive"
+#                                      | categoryoptioncomboname == "50+, Male, Positive" | categoryoptioncomboname ==  "50+, Female, Positive")))
+#
+# #no longer reporting
+# HTS_RECENT <- df_msd %>%
+#   filter(funding_agency == "USAID") %>%
+#   filter(indicator %in% c("HTS_RECENT"),
+#          fiscal_year %in% c(curr_fy)) %>%
+#   group_by(prime_partner_name,mech_code , snu1, psnu, sitename, facilityuid, indicator, fiscal_year) %>%
+#   summarise(across(starts_with("qtr"), sum, na.rm = TRUE), .groups = "drop")
+#
+#
+# check_2_12 <- bind_rows(HTS_TST_POS_15plus, HTS_RECENT) %>%
+#   group_by(prime_partner_name,mech_code , snu1, psnu, sitename, facilityuid, indicator, fiscal_year) %>%
+#   summarise(across(starts_with("qtr"), sum, na.rm = TRUE), .groups = "drop") %>%
+#   reshape_msd() %>%
+#   filter(period == fiscal_quarter) %>%
+#   pivot_wider(names_from = "indicator", values_from = "value") %>%
+#   mutate(check = ifelse(`HTS_TST` >= `HTS_RECENT`, "HTS_TST_POS (>=15) >=HTS_RECENT", NA),
+#          level = "Level 2",
+#          today_date = lubridate::today(),
+#          type_check = "IntraIndicator") %>%
+#   filter(!is.na(check)) %>%
+#   select(mech_code, prime_partner_name,level,today_date, type_check, check, period, snu1, psnu, sitename)
 
 #2.13 - HTS_TST<HTS_TST_POS
 check_2_13 <-  df_msd %>%
@@ -370,12 +377,15 @@ check_2_13 <-  df_msd %>%
   filter(!is.na(check)) %>%
   select(mech_code, prime_partner_name,level,today_date, type_check, check, period, snu1, psnu, sitename)
 
+
+
 #2.14 - PMTCT_EID 0-2months > PMTCT_STAT_POS+HTS_TST_POS_PMTCT PostANC1/Age/Sex/Result
 PMTCT_EID_0_2months <- df_msd %>%
   filter(funding_agency == "USAID") %>%
   filter((`indicator`== "PMTCT_EID"
           & categoryoptioncomboname== "<= 2 months"
   ))
+
 
 
 PMTCT_STAT_POS <- df_msd %>%
@@ -405,7 +415,6 @@ check_2_14 <- bind_rows(PMTCT_EID_0_2months, PMTCT_STAT_POS, HTS_TST_POS_PMTCT) 
          type_check = "IntraIndicator") %>%
   filter(!is.na(check)) %>%
   select(mech_code, prime_partner_name,level,today_date,type_check, check, period, snu1, psnu, sitename)
-
 
 #2.15 - PMTCT_HEI_POS > PMTCT_EID
 PMTCT_EID <- df_msd %>%
@@ -451,11 +460,12 @@ check_2_16 <-  df_msd %>%
   select(mech_code, prime_partner_name,level,today_date, type_check, check, period, snu1, psnu, sitename)
 
 
+
 #2.17 - PMTCT_STAT_POS < PMTCT_ART
 PMTCT_ART <- df_msd %>%
   filter(funding_agency == "USAID") %>%
-  filter(`indicator`== "PMTCT_ART",
-         standardizeddisaggregate == "Age/NewExistingArt/Sex/HIVStatus")
+  filter(indicator== "PMTCT_ART",
+         standardizeddisaggregate == "Age/Sex/NewExistingArt/HIVStatus")
 
 
 check_2_17 <-  bind_rows(PMTCT_STAT_POS, PMTCT_ART) %>%
@@ -470,104 +480,72 @@ check_2_17 <-  bind_rows(PMTCT_STAT_POS, PMTCT_ART) %>%
          type_check = "IntraIndicator") %>%
   filter(!is.na(check)) %>%
   select(mech_code, prime_partner_name,level,today_date, type_check, check, period, snu1, psnu, sitename)
-
+beep()
 
 
 #BIND
 
-#without HTS_RECENT
-  # comment out the empty ones
-level2_checks_nonTIER <- bind_rows(
-#  check_2_10,
-  check_2_11,
-  check_2_12,
-  check_2_13,
-  check_2_14,
-  check_2_15,
-  check_2_16,
-  check_2_17,
-  check_2_6,
-  check_2_7) %>%
-  select(mech_code, prime_partner_name, level, today_date, type_check, check,
-         period, snu1, psnu, sitename)
+
 
 # BIND CHECKS ---------------------------------------------------------------------
 
+#without HTS_RECENT - BIND
+# comment out the empty ones
 
-
-#ALL CHECK - comment out the empty ones
 level2_checks_all <- bind_rows(
-  # check_2_1,
-  check_2_4,
-  check_2_5,
-  check_2_6,
-  check_2_7,
-  # check_2_8,
-  # check_2_9,
   #  check_2_10,
   check_2_11,
-  check_2_12,
+  #check_2_12,
   check_2_13,
-  check_2_14,
-  check_2_15,
+  # check_2_14,
+  # check_2_15,
   check_2_16,
-  check_2_17)
-
-#ALL CHECK
-level2_checks_all_no_recency <- bind_rows(
-  # check_2_1,
-  check_2_4,
-  check_2_5,
+  check_2_17,
+  #check_2_5,
   check_2_6,
   check_2_7,
-  # check_2_8,
-  # check_2_9,
-  #  check_2_10,
-  check_2_11,
-  #  check_2_12,
-  check_2_13,
-  check_2_14,
-  check_2_15,
-  check_2_16,
-  check_2_17)
+  #check_2_8,
+  check_2_9) %>%
+  select(mech_code, prime_partner_name, level, today_date, type_check, check,
+         period, snu1, psnu, sitename)
 
 
 
 #ANOVA
-anova_level_2_all <- level2_checks_nonTIER %>%
+anova_level_2_all <- level2_checks_all %>%
   select(mech_code, prime_partner_name, level, today_date, type_check, period,
          check, snu1, psnu, sitename) %>%
   filter(mech_code == "70310")
 
 #BROADREACH
-BR_level_2_all <- level2_checks_nonTIER %>%
+BR_level_2_all <- level2_checks_all %>%
   select(mech_code, prime_partner_name, level, today_date, type_check, period,
          check, snu1, psnu, sitename) %>%
   filter(mech_code == "70287")
 
 
 #MATCH
-MATCH_level_2_all <- level2_checks_nonTIER %>%
+MATCH_level_2_all <- level2_checks_all %>%
   select(mech_code, prime_partner_name, level, today_date, type_check, period,
          check, snu1, psnu, sitename) %>%
   filter(mech_code == "81902")
 
 
 #RIGHT TO CARE
-RTC_level_2_all <-level2_checks_nonTIER %>%
+RTC_level_2_all <-level2_checks_all %>%
   select(mech_code, prime_partner_name, level, today_date, type_check, period,
          check, snu1, psnu, sitename) %>%
   filter(mech_code == "70290")
 
 #WRHI 70301
-WRHI_level_2_all_70301 <- level2_checks_nonTIER %>%
+WRHI_level_2_all_70301 <- level2_checks_all %>%
   select(mech_code, prime_partner_name, level, today_date, type_check, period,
          check, snu1, psnu, sitename) %>%
   filter(prime_partner_name == "WITS HEALTH CONSORTIUM (PTY) LTD",
          mech_code == "70301")
 
 #WRHI 80007
-WRHI_level_2_all_80007 <- level2_checks_nonTIER%>%
+WRHI_level_2_all_80007 <- level2_checks_all%>%
   select(mech_code, prime_partner_name, level, today_date, type_check, period,
          check, snu1, psnu, sitename) %>%
   filter(prime_partner_name == "WITS HEALTH CONSORTIUM (PTY) LTD",

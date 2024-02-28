@@ -67,7 +67,7 @@ get_meta <- function(period) {
   import_vars <<- c("mech_uid", "orgUnit_uid",	"dataElement_uid",
                    "categoryOptionCombo_uid",	"value",	"period")
 
-  partner_vars <<- c("mech_uid", "orgUnit_uid", "Facility","dataElement",	"dataElement_uid", "categoryOptionComboName",
+  partner_vars <<- c("mech_code","mech_uid", "orgUnit_uid", "Facility","dataElement",	"dataElement_uid", "categoryOptionComboName",
                     "categoryOptionCombo_uid",	"value",	"period")
 
 
