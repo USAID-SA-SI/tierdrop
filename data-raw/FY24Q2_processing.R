@@ -20,7 +20,7 @@ library(tierdrop)
 dir_setup()
 
 #store some locals (change this to a grab metadata later as well)
-get_meta("FY24Q1")
+get_meta("FY24Q2")
 
 
 #set folderpaths (@to-do turn this into a get_metadata() function later)
