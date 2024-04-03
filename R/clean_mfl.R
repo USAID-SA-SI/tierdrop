@@ -10,9 +10,9 @@
 #'
 #'   mfl <- clean_mfl()
 #' }
-clean_mfl <- function(mfl_period = "FY24Q1") {
+clean_mfl <- function(mfl_period = "FY24Q2") {
 
-  tab_name <- ifelse(mfl_period == "FY24Q1", "MFL_FY24_Q1", "MFL_FY24_Q2")
+  tab_name <- ifelse(mfl_period == "FY24Q2", "MFL_FY24_Q2", "MFL_FY24_Q2")
 
   #Read in MFL from google drive (need to parameterize this for the sheet name)
   mfl_new_df <- googlesheets4::read_sheet(mfl_fy24_id, sheet = tab_name)
