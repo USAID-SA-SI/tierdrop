@@ -34,7 +34,7 @@ grab_mech_data <- function(mech_df, msd_df, curr_fy, extra_mechs = FALSE) {
   #grab mech codes and mech UIDs for SOuth AFrica - filter to relevant DSPs
   mech_xwalk <- mech_df %>%
     dplyr::filter(operatingunit == "South Africa",
-                  mech_code %in% c(70310, 70287, 81902, 70290, 70301)) %>%
+                  mech_code %in% c(70310, 70287, 87576, 70290, 70301)) %>%
     dplyr::select(mech_code, mech_uid)
 
   #pull in additional mechs manually if true
@@ -49,7 +49,7 @@ grab_mech_data <- function(mech_df, msd_df, curr_fy, extra_mechs = FALSE) {
   msd_mechs2 <- msd_df %>%
     dplyr::filter(funding_agency == "USAID",
                   fiscal_year == curr_fy,
-                  mech_code %in% c("70310", "70287", "81902", "70290", "70301")) %>%
+                  mech_code %in% c("70310", "70287", "87576", "70290", "70301")) %>%
     dplyr::count(sitename, facilityuid, mech_code, prime_partner_name)
 
   #bind extra mechs if true

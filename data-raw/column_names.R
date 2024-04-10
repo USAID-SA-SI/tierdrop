@@ -2,8 +2,7 @@
 
 
 #STANDARD NAMES
-standard_names <- c("Province", "District", "SubDistrict", "Facility", "UID",
-                    "Code")
+standard_names <- c("Province", "District", "SubDistrict", "Facility", "UID","Code")
 usethis::use_data(standard_names, overwrite = TRUE)
 
 #KP NAMES

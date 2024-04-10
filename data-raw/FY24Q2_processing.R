@@ -2,7 +2,7 @@
 # PURPOSE:  FY24Q2 DATIM Processing
 # LICENSE:  MIT
 # DATE:     2024-04-02
-# UPDATED:Clement Trapence & Karishma
+# UPDATED:Clement  & Karishma
 
 # DEPENDENCIES ------------------------------------------------------------
 
@@ -74,18 +74,18 @@ df_fac <- clean_mfl(mfl_period = "FY24Q2") %>%
 #if this breaks, check on tab names (adjust PrEP_NEW in the file itself)
 # update for ou5uid
 ndoh_all <- import_ndoh(filepath = ndoh_filepath, qtr = curr_qtr, kp = FALSE)
-ndoh_all_kp <- import_ndoh(filepath = ndoh_filepath, qtr = curr_qtr, kp = TRUE)
+sheet_namesndoh_all_kp <- import_ndoh(filepath = ndoh_filepath, qtr = curr_qtr, kp = TRUE)
 
 #what facilities are in NDOH but not in MFL? ADdress MFL qc as needed
 # update for ou5uid
 validate_ndoh(ndoh_all)
-validate_ndoh(ndoh_all_kp)
+validate_ndoh(sheet_namesndoh_all_kp)
 
 # TIDY NDOH -----------------------------------------------------------
 
 #TIDY
 ndoh_clean <- tidy_ndoh(ndoh_all, kp = FALSE) %>%
-  select(-c(Code, VL_BIN, Result))
+  select(-c(Code, VL_BIN))
 
 
 ndoh_pvls <- ndoh_clean %>%
@@ -97,11 +97,11 @@ ndoh_pvls <- ndoh_clean %>%
 
 ndoh_clean <- ndoh_clean %>%
   filter(!(indicator == "TX_PVLS" & numeratordenom == "N")) %>%
-  rbind(ndoh_pvls)
+  bind_rows(ndoh_pvls)
 
 
 #KP
-ndoh_clean_kp <- tidy_ndoh(ndoh_all_kp, kp = TRUE) %>%
+ndoh_clean_kp <- tidy_ndoh(sheet_namesndoh_all_kp, kp = TRUE) %>%
   select(-c(Code, Result))
 
 ndoh_clean_kp_pvls <- ndoh_clean_kp %>%
@@ -113,32 +113,107 @@ ndoh_clean_kp_pvls <- ndoh_clean_kp %>%
 
 ndoh_clean_kp <- ndoh_clean_kp %>%
   filter(!(indicator == "TX_PVLS" & numeratordenom == "N")) %>%
-  rbind(ndoh_clean_kp_pvls)
+  bind_rows(ndoh_clean_kp_pvls)
+
+
+#### TB Indicators
+ndoh_clean_tb <- ndoh_join_tb %>%
+  dplyr::mutate(indicator = dplyr::recode(indicator,
+                                          "TX_TB_Denom" = "TX_TB_D",
+                                          "TX_TB_Denom_Pos" = "TX_TB_Pos_D",
+                                          "TX_TB_Denom_TestType" = "TX_TB_TestType_D"),
+                numeratordenom = ifelse(stringr::str_detect(indicator, "_D"), "D", "N"),
+                CoarseAgeGroup = ifelse(indicator != "TX_CURR" & CoarseAgeGroup %in% c("50-54", "55-59", "60-64", "65+"),
+                                        "50+", CoarseAgeGroup),
+                tb_disagg = case_when(indicator == "TX_TB_D" ~ "Age/Sex/TBScreen",
+                                      indicator == "TX_TB_Pos_D" ~ "Specimen Return",
+                                      indicator == "TX_TB_TestType_D" ~ "Specimen Sent Total"),
+                indicator = dplyr::recode(indicator, "TB_PREV_D" = "TB_PREV",
+                                          "TB_PREV_N" = "TB_PREV",
+                                          "TB_STAT_N" = "TB_STAT",
+                                          "TB_STAT_D" = "TB_STAT",
+                                          "TX_PVLS_D" = "TX_PVLS",
+                                          "TX_PVLS_N" = "TX_PVLS",
+                                          "TX_TB_N" = "TX_TB",
+                                          "TX_TB_D" = "TX_TB",
+                                          "TX_TB_Pos_D" = "TX_TB",
+                                          "TX_TB_TestType_D" ="TX_TB"))
+
+#one missing - sex is missing for facility
+tb_age_sex <- ndoh_clean_tb %>%
+  filter(tb_disagg == "Age/Sex/TBScreen") %>%
+  select(-c(tb_disagg,CD4,VL_BIN)) %>%
+  ndoh_post_processing(kp = FALSE, export_type = "Validation")
+
+tb_return <- ndoh_clean_tb %>%
+  filter(tb_disagg == "Specimen Return") %>%
+  select(-c(tb_disagg,CD4,VL_BIN)) %>%
+  ndoh_post_processing(kp = FALSE, export_type = "Validation") %>%
+  filter(str_detect(dataElement, "Return"))
+
+tb_testtype <- ndoh_clean_tb %>%
+  filter(tb_disagg == "Specimen Sent Total") %>%
+  select(-c(tb_disagg,CD4,VL_BIN)) %>%
+  ndoh_post_processing(kp = FALSE, export_type = "Validation")
+
+tb_sent <- ndoh_clean_tb %>%
+  filter(tb_disagg == "Specimen Sent Total") %>%
+  dplyr::group_by(usaid_facility, ou5uid, datim_uid, new_ou5_code, period, DSD_TA,
+                  Province, District, SubDistrict, Facility,
+                  Sex, CoarseAgeGroup, Result, indicator, numeratordenom) %>%
+  dplyr::summarise(dplyr::across(tidyselect::starts_with("Total"), sum, na.rm = TRUE), .groups = "drop")
+
+#grab column names for NDOH
+col_names <- tb_sent %>%
+  names()
+
+col_names <- col_names[col_names %ni% c("Total")]
+group_vars <- c("Sex", "CoarseAgeGroup", "Result", "DSD_TA")
+group_vars <- col_names[col_names %ni% c("usaid_facility", "ou5uid", "datim_uid",
+                                         'new_ou5_code', 'period', 'Province', 'District',
+                                         'SubDistrict', 'Facility')]
+
+tb_sent_map <- tb_sent %>%
+  dplyr::left_join(df_map_distinct %>%
+                     # rename(DSD_TA = `Support Type`) %>%
+                     dplyr::select(-c(`Test Result/Outcome/Duration`)) %>%
+                     dplyr::filter(stringr::str_detect(dataElement, "Specimen Sent/HIVStatus")), by = c(group_vars)) %>%
+  dplyr::distinct() %>%
+  dplyr::left_join(mech_mfl, by = c("datim_uid" = "facilityuid")) %>%
+  rename(mech_name = prime_partner_name,
+         value = Total,
+         orgUnit_uid = datim_uid) %>%
+  select(validation_vars)
+
+#Remove the Result from the Validation_vars for the code below to Run.
+validation_vars <- validation_vars[validation_vars != "Result"]
+
+
+tb_all <- bind_rows(tb_age_sex, tb_return, tb_testtype) %>%
+  filter(!is.na(dataElement)) %>%
+  select(validation_vars)
+
+tb_all_final <- bind_rows(tb_all, tb_sent_map)
 
 
 # MAP -------------------------------------------------------------------------------------------
 
-#indicator mapping file
-df_map_distinct <- googlesheets4::read_sheet(new_disagg_map_id, col_types = "c") %>%
-  dplyr::rename("Test Result/Outcome/Duration" = "Test Resuts/Outcome/Duration",
-                "DSD_TA" = "Support Type")
-
-#Map dataelements and mechs - ignore RTT for now
+#Map dataelements and mechs
 df_mapped <- ndoh_post_processing(ndoh_clean %>% filter(!(indicator == "TX_TB_Denom" & numeratordenom == "D")),
                                   kp = FALSE, export_type = "Validation")
 
 df_mapped_kp <- ndoh_post_processing(ndoh_clean_kp, kp = TRUE, export_type = "Validation")
 
-
-#just TX_CURR and PVLS with missing sex
+# do a check to see what is not getting mapped
+  #6 sites with missing sex / other disaggs for TX indicators
 df_mapped %>%
   distinct() %>%
   filter(is.na(dataElement))
 
-#just TX_CURR and PVLS with missing sex
 df_mapped_kp %>%
   distinct() %>%
   filter(is.na(dataElement))
+
 
 #bind together and filter out those that did not have mappings
 df_final <- dplyr::bind_rows(df_mapped,
@@ -151,14 +226,38 @@ df_final %>%
   janitor::get_dupes()
 
 
+# ARVDISP ------------------------------------------------------------
+
+#check for facilities in but not in MFL
+#import_arvdisp(ndoh_filepath) %>% validate_ndoh()
+
+#import arvdisp tab + tidy / map disaggs (and condense / aggregate to dataElement / categoryoptionCombo)
+  #note: this function may take some time to run
+#ndoh_arvdisp <- import_arvdisp(ndoh_filepath) %>% tidy_map_arvdisp()
+
+#partner review file format
+# ndoh_arv_final <- ndoh_arvdisp %>%
+#   rename(
+#     value = Packs,
+#     orgUnit_uid = datim_uid) %>%
+#   filter(!is.na(dataElement_uid),
+#          !is.na(mech_uid),
+#          !is.na(orgUnit_uid)) %>%
+#   select(partner_vars)
+#
+# #import file format
+# ndoh_arv_final %>%
+#   select(import_vars)
+
 # CLEAN UP ------------------------------------------------------------
 
 #Step 1: Filter out PrEP for Harry Gwala, Capricorn and Mopani; filter out all of MATCH PrEP for now
 df_final_clean <- df_final %>%
+  mutate(mech_code =as.integer(mech_code)) %>%
   filter(!(District == "kz Harry Gwala District Municipality" & indicator %in% c("PrEP_CT", "PrEP_NEW"))) %>%
-  # filter(!(District %in% c("lp Capricorn District Municipality",
-  #                          "lp Mopani District Municipality")
-  #          & indicator %in% c("PrEP_CT", "PrEP_NEW"))) %>%
+  filter(!(District %in% c("lp Capricorn District Municipality",
+                           "lp Mopani District Municipality")
+           & indicator %in% c("PrEP_CT", "PrEP_NEW"))) %>%
   filter(!(mech_code == "81902" & indicator %in% c("PrEP_CT", "PrEP_NEW")))
 
 
@@ -182,24 +281,23 @@ match_prep_uids <- match_prep_q2 %>%
 import_MATCH_prep <- df_final %>%
   filter((orgUnit_uid %in% match_prep_uids
           & indicator %in% c("PrEP_CT", "PrEP_NEW"))) %>%
-  mutate(period = import_period_style)
+  mutate(period = import_period_style,
+         mech_code=as.integer(mech_code))
 
 
 # BIND WITH REST ---------------------------------------------------------
 #for partner review
-tier_final_partner <- bind_rows(df_final_clean %>% select(all_of(partner_vars)),
-                                #ndoh_arv_final %>% select(all_of(partner_vars)),
-                               # tb_all_final%>% select(all_of(partner_vars)),
-                                import_MATCH_prep %>% select(all_of(partner_vars))
-) %>%
+tier_final_partner <- bind_rows(df_final_clean %>% select(all_of(partner_vars))%>%
+select(all_of(partner_vars)),
+tb_all_final%>% select(all_of(partner_vars)),
+import_MATCH_prep %>% select(all_of(partner_vars))) %>%
   mutate(period = import_period_style) %>%
   filter(!is.na(orgUnit_uid), #beatty mobile 5 and senorita hospital
          !is.na(mech_uid))
 
 #for import file
 tier_final_import <- bind_rows(df_final_clean %>% select(all_of(import_vars)),
-                              # ndoh_arv_final %>% select(all_of(import_vars)),
-                              # tb_all_final%>% select(all_of(import_vars)),
+                               tb_all_final%>% select(all_of(import_vars)),
                                import_MATCH_prep %>% select(all_of(import_vars))) %>%
   mutate(period = import_period_style) %>%
   filter(!is.na(orgUnit_uid), #beatty mobile 5 and senorita hospital
@@ -208,80 +306,19 @@ tier_final_import <- bind_rows(df_final_clean %>% select(all_of(import_vars)),
 #check for dupes
 tier_final_import %>%
   select(import_vars) %>%
-  select(-c(value)) %>%
   janitor::get_dupes()
 
 #EXPORT
 today <- lubridate::today()
 
 tier_final_import %>%
-  readr::write_csv(glue::glue("{import_folder}/{fiscal_quarter}_TIER_Import_File_v4_{today}.csv"))
-
-tier_final_partner %>%
-  readr::write_csv(glue::glue("{import_folder}/{fiscal_quarter}_TIER_Import_File_v4_{today}_VERIFY.csv"))
+  readr::write_csv(glue::glue("{import_folder}/{fiscal_quarter}_TIER_Import_File_v2_{today}.csv"))
 
 
 #Partner files
-Broadreach_import <- partner_import(df = tier_final_partner, "70287")
-RTC_import <- partner_import(df = tier_final_partner, "70290")
-ANOVA_import <- partner_import(df = tier_final_partner, "70310")
-MATCH_import <- partner_import(df = tier_final_partner, "81902")
-WRHI_import <- partner_import(df = tier_final_partner, "70301")
+Broadreach_import <- partner_import(df = tier_final_partner, 70287)
+RTC_import <- partner_import(df = tier_final_partner, 70290)
+ANOVA_import <- partner_import(df = tier_final_partner, 70310)
+MATCH_import <- partner_import(df = tier_final_partner, 81902)
+WRHI_import <- partner_import(df = tier_final_partner, 70301)
 
-
-
-
-
-# #one missing - sex is missing for facility
-# rtt_reason <- ndoh_clean_kp %>%
-#   filter(indicator == "TX_RTT",
-#          str_detect(`Test Result/Outcome/Duration`, "IIT")) %>%
-#   map_disaggs(., "TX_RTT", "ARTNoContactReasonIIT", FALSE) %>%
-#   mutate(Sex = NA,
-#          CoarseAgeGroup = NA) %>%
-#   relocate(CoarseAgeGroup, .before = Total) %>%
-#   relocate(Sex, .before = CoarseAgeGroup) %>%
-#   mutate(Sex = as.character(Sex),
-#          CoarseAgeGroup = as.character(CoarseAgeGroup))
-#
-# # test2 <- rtt_reason %>%
-# #   mutate(Sex = NA,
-# #          CoarseAgeGroup = NA) %>%
-# #   relocate(CoarseAgeGroup, .before = Total) %>%
-# #   relocate(Sex, .before = CoarseAgeGroup) %>% names()
-#
-#
-# rtt_cd4 <- ndoh_clean_kp %>%
-#   filter(indicator == "TX_RTT",
-#          !str_detect(`Test Result/Outcome/Duration`, "IIT")) %>%
-#   #count(`Test Result/Outcome/Duration`)
-#   map_disaggs(., "TX_RTT", "Age/Sex/CD4/HIVStatus", FALSE)
-
-#
-# d
-# rbind(df_all, rtt_cd4, rtt_reason)
-#
-#
-#
-# disaggregate <- "ARTNoContactReasonIIT"
-#
-# test2 <- ndoh_clean %>%
-#   filter(indicator == "TX_RTT",
-#          str_detect(`Test Result/Outcome/Duration`, "IIT")) %>%
-#   dplyr::group_by(.[,select_vars]) %>%
-#   dplyr::summarise(dplyr::across(tidyselect::starts_with("Total"), sum, na.rm = TRUE), .groups = "drop") %>%
-#   dplyr::left_join(df_map_distinct %>%
-#                      dplyr::select(-c(unselect_vars)) %>%
-#                      dplyr::filter(stringr::str_detect(dataElement, disaggregate)), by = c(group_vars)) %>%
-#   dplyr::distinct() %>%
-#   dplyr::left_join(mech_mfl, by = c("datim_uid" = "facilityuid"))
-#
-#
-# #select(c("Sex", "CoarseAgeGroup")) %>%
-# #  ndoh_post_processing(kp = FALSE, export_type = "Validation")
-#
-# tb_return <- ndoh_clean_tb %>%
-#   filter(tb_disagg == "Specimen Return") %>%
-#   select(-c(tb_disagg)) %>%
-#   ndoh_post_processing(kp = FALSE, export_type = "Validation") %>%
-#   filter(str_detect(dataElement, "Return"))

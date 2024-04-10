@@ -4,7 +4,7 @@
 \alias{clean_mfl}
 \title{Reshape MFL}
 \usage{
-clean_mfl(mfl_period = "FY24Q1")
+clean_mfl(mfl_period = "FY24Q2")
 }
 \arguments{
 \item{mfl_period}{version of MFL}

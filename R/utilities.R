@@ -152,8 +152,8 @@ partner_import <- function(df, mech_code, save = TRUE) {
     uid <- "koVrJ0HjBxy"
   } else if (mech_code == "70310") {
     uid <- "LbZtY0khSQw"
-  } else if (mech_code == "81902") {
-    uid <- "Sm6Y3REDZ42"
+  } else if (mech_code == "87576") {
+    uid <- "OqUUS4Qs62C"
   } else if (mech_code == "70290") {
     uid <- "R6zwVobwi58"
   } else if (mech_code == "70301") {
