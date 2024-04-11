@@ -158,7 +158,12 @@ partner_import <- function(df, mech_code, save = TRUE) {
     uid <- "R6zwVobwi58"
   } else if (mech_code == "70301") {
     uid <- "Rv3LaFFxBCY"
-  }
+    } else if (mech_code == "87577") {
+  uid <- "Kk2uIim6u4A"
+    } else if (mech_code == "87575") {
+  uid <- "q2gSoCyysic"
+}
+
 
   df_partner <- df %>%
     dplyr::filter(!is.na(dataElement_uid)) %>%
