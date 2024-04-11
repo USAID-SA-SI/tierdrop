@@ -117,6 +117,17 @@ ndoh_clean_kp <- ndoh_clean_kp %>%
 
 
 #### TB Indicators
+
+
+#clean up the NDOH variable names and tidy df
+
+ndoh_tb <- ndoh_all  %>%
+  filter(indicator %in% c("TX_TB_Denom", "TX_TB_Denom_TestType", "TX_TB_Denom_Pos"))
+
+ndoh_join_tb <- df_fac %>%
+  tidylog::left_join(ndoh_tb,  by = c("ou5uid" = "UID")) %>%
+  select(-c(Code))
+
 ndoh_clean_tb <- ndoh_join_tb %>%
   dplyr::mutate(indicator = dplyr::recode(indicator,
                                           "TX_TB_Denom" = "TX_TB_D",
