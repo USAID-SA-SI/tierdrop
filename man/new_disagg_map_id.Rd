@@ -3,7 +3,7 @@
 \docType{data}
 \name{new_disagg_map_id}
 \alias{new_disagg_map_id}
-\title{USAID Disaggregate Mapping File Google Sheet ID}
+\title{FY23 Master Facility List Google Sheet ID}
 \format{
 An object of class \code{character} of length 1.
 }
@@ -12,8 +12,17 @@ new_disagg_map_id
 }
 \value{
 google sheet id
+
+google sheet id
 }
 \description{
-USAID Disaggregate Mapping File Google Sheet ID
+FY23 Master Facility List Google Sheet ID
 }
+\keyword{Disaggregate}
+\keyword{File}
+\keyword{Google}
+\keyword{ID}
+\keyword{Mapping}
+\keyword{Sheet}
+\keyword{USAID}
 \keyword{internal}
