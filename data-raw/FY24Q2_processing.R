@@ -208,7 +208,9 @@ tb_all_final <- bind_rows(tb_all, tb_sent_map)
 # MAP -------------------------------------------------------------------------------------------
 
 #Map dataelements and mechs
-df_mapped <- ndoh_post_processing(ndoh_clean %>% filter(!(indicator == "TX_TB_Denom" & numeratordenom == "D")),
+df_mapped <- ndoh_post_processing(ndoh_clean %>%
+                                    mutate(indicator=if_else(indicator=="TX_TB_Numer","TX_TB",indicator)) %>%
+                                    filter(!(indicator == "TX_TB_Denom" & numeratordenom == "D")),
                                   kp = FALSE, export_type = "Validation")
 
 df_mapped_kp <- ndoh_post_processing(ndoh_clean_kp, kp = TRUE, export_type = "Validation")
@@ -227,7 +229,7 @@ df_mapped_kp %>%
 #bind together and filter out those that did not have mappings
 df_final <- dplyr::bind_rows(df_mapped,
                              df_mapped_kp) %>%
-  distinct() %>%
+  #distinct() %>%
   filter(!is.na(dataElement)) %>%
   mutate(mech_code = as.character(mech_code))
 

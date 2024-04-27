@@ -155,8 +155,6 @@ ndoh_clean_tb <- ndoh_join_tb %>%
                                           "TX_TB_Denom_Pos" = "TX_TB_Pos_D",
                                           "TX_TB_Denom_TestType" = "TX_TB_TestType_D"),
                 numeratordenom = ifelse(stringr::str_detect(indicator, "_D"), "D", "N"),
-                CoarseAgeGroup = ifelse(indicator != "TX_CURR" & CoarseAgeGroup %in% c("50-54", "55-59", "60-64", "65+"),
-                                        "50+", CoarseAgeGroup),
                 tb_disagg = case_when(indicator == "TX_TB_D" ~ "Age/Sex/TBScreen",
                                       indicator == "TX_TB_Pos_D" ~ "Specimen Return",
                                       indicator == "TX_TB_TestType_D" ~ "Specimen Sent Total"),
