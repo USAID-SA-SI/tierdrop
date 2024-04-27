@@ -273,43 +273,41 @@ df_final_clean <- df_final %>%
 
 
 # Step 2: Keep only certain sites for MATCH prep sites
-match_prep_q2 <- reference_folder %>%
-  return_latest("PrEP Facilities MatCH Q2 reporting") %>%
-  read_excel() %>%
-  janitor::clean_names()
-
+# match_prep_q2 <- reference_folder %>%
+#   return_latest("PrEP Facilities MatCH Q2 reporting") %>%
+#   read_excel() %>%
+#   janitor::clean_names()
+#
 
 #grab uids for prep MATCH sites
-match_prep_uids <- match_prep_q2 %>%
-  # filter(prep_facility == "YES") %>%
-  left_join(df_fac %>% select(usaid_facility, datim_uid),
-            by = c("supported_facilities" = "usaid_facility")) %>%
-  distinct(datim_uid) %>%
-  pull()
+# match_prep_uids <- match_prep_q2 %>%
+#   # filter(prep_facility == "YES") %>%
+#   left_join(df_fac %>% select(usaid_facility, datim_uid),
+#             by = c("supported_facilities" = "usaid_facility")) %>%
+#   distinct(datim_uid) %>%
+#   pull()
 
 
 #MATCH PREP IMPORT FILE
-import_MATCH_prep <- df_final %>%
-  filter((orgUnit_uid %in% match_prep_uids
-          & indicator %in% c("PrEP_CT", "PrEP_NEW"))) %>%
-  mutate(period = import_period_style,
-         mech_code=as.integer(mech_code))
+# import_MATCH_prep <- df_final %>%
+#   filter((orgUnit_uid %in% match_prep_uids
+#           & indicator %in% c("PrEP_CT", "PrEP_NEW"))) %>%
+#   mutate(period = import_period_style,
+#          mech_code=as.integer(mech_code))
 
 
 # BIND WITH REST ---------------------------------------------------------
 #for partner review
 tier_final_partner <- bind_rows(df_final_clean %>% select(all_of(partner_vars))%>%
 select(all_of(partner_vars)),
-tb_all_final%>% select(all_of(partner_vars)),
-import_MATCH_prep %>% select(all_of(partner_vars))) %>%
+tb_all_final %>% select(all_of(partner_vars))) %>%
   mutate(period = import_period_style) %>%
   filter(!is.na(orgUnit_uid), #beatty mobile 5 and senorita hospital
          !is.na(mech_uid))
 
 #for import file
 tier_final_import <- bind_rows(df_final_clean %>% select(all_of(import_vars)),
-                               tb_all_final%>% select(all_of(import_vars)),
-                               import_MATCH_prep %>% select(all_of(import_vars))) %>%
+                               tb_all_final%>% select(all_of(import_vars))%>% select(all_of(import_vars))) %>%
   mutate(period = import_period_style) %>%
   filter(!is.na(orgUnit_uid), #beatty mobile 5 and senorita hospital
          !is.na(mech_uid))
