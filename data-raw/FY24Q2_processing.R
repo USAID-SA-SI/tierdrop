@@ -39,6 +39,9 @@ df_map_distinct <- googlesheets4::read_sheet(new_disagg_map_id) %>%
   dplyr::rename("Test Result/Outcome/Duration" = "Test Resuts/Outcome/Duration",
                 "DSD_TA" = "Support Type")
 
+arv_map <- googlesheets4::read_sheet(new_disagg_map_id, sheet = "ARVDISP_FY23") %>%
+  mutate(RegimenCode = as.character(RegimenCode))
+
 
 # #read the most recent MSD from the Genie folder
 # df_genie <- msd_folder %>%
@@ -69,24 +72,21 @@ df_fac <- clean_mfl(mfl_period = "FY24Q2") %>%
 
 # NDOH ---------------------------------------------------------------------
 
-#FIX TB_STAT
+#import NDOH dataframe
+ndoh_all <- import_ndoh(filepath = ndoh_filepath, qtr = curr_qtr, kp = FALSE) %>%
+  filter(Facility != "kz Turton Mobile 4")
 
-#if this breaks, check on tab names (adjust PrEP_NEW in the file itself)
-# update for ou5uid
-ndoh_all <- import_ndoh(filepath = ndoh_filepath, qtr = curr_qtr, kp = FALSE)
-sheet_namesndoh_all_kp <- import_ndoh(filepath = ndoh_filepath, qtr = curr_qtr, kp = TRUE)
+ndoh_all_kp <- import_ndoh(filepath = ndoh_filepath, qtr = curr_qtr, kp = TRUE)
 
 #what facilities are in NDOH but not in MFL? ADdress MFL qc as needed
-# update for ou5uid
 validate_ndoh(ndoh_all)
-validate_ndoh(sheet_namesndoh_all_kp)
+validate_ndoh(ndoh_all_kp)
 
 # TIDY NDOH -----------------------------------------------------------
 
 #TIDY
 ndoh_clean <- tidy_ndoh(ndoh_all, kp = FALSE) %>%
   select(-c(Code, VL_BIN))
-
 
 ndoh_pvls <- ndoh_clean %>%
   filter(indicator == "TX_PVLS",
@@ -101,7 +101,7 @@ ndoh_clean <- ndoh_clean %>%
 
 
 #KP
-ndoh_clean_kp <- tidy_ndoh(sheet_namesndoh_all_kp, kp = TRUE) %>%
+ndoh_clean_kp <- tidy_ndoh(ndoh_all_kp, kp = TRUE) %>%
   select(-c(Code, Result))
 
 ndoh_clean_kp_pvls <- ndoh_clean_kp %>%
@@ -116,8 +116,7 @@ ndoh_clean_kp <- ndoh_clean_kp %>%
   bind_rows(ndoh_clean_kp_pvls)
 
 
-#### TB Indicators
-
+#### TB Indicators -------------------------------------------------------
 
 #clean up the NDOH variable names and tidy df
 
@@ -204,6 +203,10 @@ tb_all <- bind_rows(tb_age_sex, tb_return, tb_testtype) %>%
 
 tb_all_final <- bind_rows(tb_all, tb_sent_map)
 
+tb_testtype %>%
+  janitor::get_dupes("mech_uid","orgUnit_uid","dataElement_uid","categoryOptionCombo_uid","value","period")
+
+
 
 # MAP -------------------------------------------------------------------------------------------
 
@@ -234,80 +237,69 @@ df_final <- dplyr::bind_rows(df_mapped,
   mutate(mech_code = as.character(mech_code))
 
 df_final %>%
-  janitor::get_dupes()
+  janitor::get_dupes(import_vars)
 
+df_mapped %>%
+  filter(!is.na(dataElement_uid)) %>%
+#  select(import_vars) %>%
+  janitor::get_dupes("mech_uid","orgUnit_uid","dataElement_uid","categoryOptionCombo_uid","value","period")
 
 # ARVDISP ------------------------------------------------------------
 
 #check for facilities in but not in MFL
-#import_arvdisp(ndoh_filepath) %>% validate_ndoh()
+import_arvdisp(ndoh_filepath) %>% validate_ndoh()
 
 #import arvdisp tab + tidy / map disaggs (and condense / aggregate to dataElement / categoryoptionCombo)
-  #note: this function may take some time to run
-#ndoh_arvdisp <- import_arvdisp(ndoh_filepath) %>% tidy_map_arvdisp()
+#note: this function may take some time to run
+ndoh_arvdisp <- import_arvdisp(ndoh_filepath) %>%
+  filter(Facility != "kz Turton Mobile 4") %>%
+  tidy_map_arvdisp()
+
+#check for missing mapping
+ndoh_arvdisp %>%
+  filter(is.na(dataElement))
 
 #partner review file format
-# ndoh_arv_final <- ndoh_arvdisp %>%
-#   rename(
-#     value = Packs,
-#     orgUnit_uid = datim_uid) %>%
-#   filter(!is.na(dataElement_uid),
-#          !is.na(mech_uid),
-#          !is.na(orgUnit_uid)) %>%
-#   select(partner_vars)
-#
-# #import file format
-# ndoh_arv_final %>%
-#   select(import_vars)
+ndoh_arv_final <- ndoh_arvdisp %>%
+  rename(
+    value = Packs,
+    orgUnit_uid = datim_uid) %>%
+  filter(!is.na(dataElement_uid),
+         !is.na(mech_uid),
+         !is.na(orgUnit_uid)) %>%
+  select(partner_vars)
+
+#check for dupes
+ndoh_arv_final %>%
+  #select(import_vars) %>%
+  janitor::get_dupes(import_vars)
+
+#import file format
+ndoh_arv_final %>%
+  select(import_vars)
 
 # CLEAN UP ------------------------------------------------------------
 
 #Step 1: Filter out PrEP for Harry Gwala, Capricorn and Mopani; filter out all of MATCH PrEP for now
 df_final_clean <- df_final %>%
   mutate(mech_code =as.integer(mech_code)) %>%
-  filter(!(District == "kz Harry Gwala District Municipality" & indicator %in% c("PrEP_CT", "PrEP_NEW"))) %>%
-  filter(!(District %in% c("lp Capricorn District Municipality",
-                           "lp Mopani District Municipality")
-           & indicator %in% c("PrEP_CT", "PrEP_NEW"))) %>%
-  filter(!(mech_code == "81902" & indicator %in% c("PrEP_CT", "PrEP_NEW")))
+  filter(!(District == "kz Harry Gwala District Municipality" & indicator %in% c("PrEP_CT", "PrEP_NEW")))
 
-
-# Step 2: Keep only certain sites for MATCH prep sites
-# match_prep_q2 <- reference_folder %>%
-#   return_latest("PrEP Facilities MatCH Q2 reporting") %>%
-#   read_excel() %>%
-#   janitor::clean_names()
-#
-
-#grab uids for prep MATCH sites
-# match_prep_uids <- match_prep_q2 %>%
-#   # filter(prep_facility == "YES") %>%
-#   left_join(df_fac %>% select(usaid_facility, datim_uid),
-#             by = c("supported_facilities" = "usaid_facility")) %>%
-#   distinct(datim_uid) %>%
-#   pull()
-
-
-#MATCH PREP IMPORT FILE
-# import_MATCH_prep <- df_final %>%
-#   filter((orgUnit_uid %in% match_prep_uids
-#           & indicator %in% c("PrEP_CT", "PrEP_NEW"))) %>%
-#   mutate(period = import_period_style,
-#          mech_code=as.integer(mech_code))
 
 
 # BIND WITH REST ---------------------------------------------------------
 #for partner review
-tier_final_partner <- bind_rows(df_final_clean %>% select(all_of(partner_vars))%>%
-select(all_of(partner_vars)),
-tb_all_final %>% select(all_of(partner_vars))) %>%
+tier_final_partner <- bind_rows(df_final_clean %>% select(all_of(partner_vars)),
+                                ndoh_arv_final %>% select(all_of(partner_vars)),
+                                tb_all_final%>% select(all_of(partner_vars))) %>%
   mutate(period = import_period_style) %>%
   filter(!is.na(orgUnit_uid), #beatty mobile 5 and senorita hospital
          !is.na(mech_uid))
 
 #for import file
-tier_final_import <- bind_rows(df_final_clean %>% select(all_of(import_vars)),
-                               tb_all_final%>% select(all_of(import_vars))%>% select(all_of(import_vars))) %>%
+tier_final_import <-  bind_rows(df_final_clean %>% select(all_of(import_vars)),
+                                ndoh_arv_final %>% select(all_of(import_vars)),
+                                tb_all_final%>% select(all_of(import_vars))) %>%
   mutate(period = import_period_style) %>%
   filter(!is.na(orgUnit_uid), #beatty mobile 5 and senorita hospital
          !is.na(mech_uid))
@@ -321,8 +313,9 @@ tier_final_import %>%
 today <- lubridate::today()
 
 tier_final_import %>%
-  readr::write_csv(glue::glue("{import_folder}/{fiscal_quarter}_TIER_Import_File_v2_{today}.csv"))
+  readr::write_csv(glue::glue("{import_folder}/{fiscal_quarter}_TIER_Import_File_v1_FINAL_{today}.csv"))
 
+tier_final_partner
 
 #Partner files
 Broadreach_import <- partner_import(df = tier_final_partner, 70287)
