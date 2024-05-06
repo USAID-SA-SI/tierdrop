@@ -2,7 +2,7 @@
 # PURPOSE:  FY24Q2 DATIM Processing
 # LICENSE:  MIT
 # DATE:     2024-04-02
-# UPDATED:Clement  & Karishma
+# UPDATED:Clement  & Karishma 2024-05-06
 
 # DEPENDENCIES ------------------------------------------------------------
 
@@ -315,7 +315,9 @@ today <- lubridate::today()
 tier_final_import %>%
   readr::write_csv(glue::glue("{import_folder}/{fiscal_quarter}_TIER_Import_File_v1_FINAL_{today}.csv"))
 
-tier_final_partner
+tier_final_partner %>%
+  readr::write_csv(glue::glue("{import_folder}/{fiscal_quarter}_TIER_Import_File_v3_REVIEW_{today}.csv"))
+
 
 #Partner files
 Broadreach_import <- partner_import(df = tier_final_partner, 70287)
