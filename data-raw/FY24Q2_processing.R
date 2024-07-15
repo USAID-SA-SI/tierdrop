@@ -2,7 +2,7 @@
 # PURPOSE:  FY24Q2 DATIM Processing
 # LICENSE:  MIT
 # DATE:     2024-04-02
-# UPDATED:Clement  & Karishma 2024-05-06
+# UPDATED:Clement  & Karishma 2024-05-08
 
 # DEPENDENCIES ------------------------------------------------------------
 
@@ -74,7 +74,10 @@ df_fac <- clean_mfl(mfl_period = "FY24Q2") %>%
 
 #import NDOH dataframe
 ndoh_all <- import_ndoh(filepath = ndoh_filepath, qtr = curr_qtr, kp = FALSE) %>%
-  filter(Facility != "kz Turton Mobile 4")
+filter(Facility %ni% c("fs Beatrix Clinic",
+                       "fs Harmony South Joel Occupational Health Centre",
+                       "fs Harmony South Target Occupational Health Centre",
+                       "kz Turton Mobile 4"))
 
 ndoh_all_kp <- import_ndoh(filepath = ndoh_filepath, qtr = curr_qtr, kp = TRUE)
 
@@ -252,7 +255,10 @@ import_arvdisp(ndoh_filepath) %>% validate_ndoh()
 #import arvdisp tab + tidy / map disaggs (and condense / aggregate to dataElement / categoryoptionCombo)
 #note: this function may take some time to run
 ndoh_arvdisp <- import_arvdisp(ndoh_filepath) %>%
-  filter(Facility != "kz Turton Mobile 4") %>%
+  filter(Facility %ni% c("fs Beatrix Clinic",
+"fs Harmony South Joel Occupational Health Centre",
+"fs Harmony South Target Occupational Health Centre",
+"kz Turton Mobile 4")) %>%
   tidy_map_arvdisp()
 
 #check for missing mapping
@@ -313,10 +319,10 @@ tier_final_import %>%
 today <- lubridate::today()
 
 tier_final_import %>%
-  readr::write_csv(glue::glue("{import_folder}/{fiscal_quarter}_TIER_Import_File_v1_FINAL_{today}.csv"))
+  readr::write_csv(glue::glue("{import_folder}/{fiscal_quarter}_TIER_Import_File_v2_FINAL_{today}.csv"))
 
 tier_final_partner %>%
-  readr::write_csv(glue::glue("{import_folder}/{fiscal_quarter}_TIER_Import_File_v3_REVIEW_{today}.csv"))
+  readr::write_csv(glue::glue("{import_folder}/{fiscal_quarter}_TIER_Import_File_v4_REVIEW_{today}.csv"))
 
 
 #Partner files
