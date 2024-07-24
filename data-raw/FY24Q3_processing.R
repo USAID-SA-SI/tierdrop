@@ -47,7 +47,7 @@ df_map_distinct <- googlesheets4::read_sheet(new_disagg_map_id) %>%
 
 # MFL ---------------------------------------------
 
-mfl_new_df <- googlesheets4::read_sheet(mfl_fy24_id, sheet = "MFL_FY24_Q1")
+mfl_new_df <- googlesheets4::read_sheet(mfl_fy24_id, sheet = "MFL_FY24_Q3")
 
 #get mech info from MFL
 mech_mfl <- mfl_new_df %>%
@@ -61,7 +61,7 @@ mech_mfl <- mfl_new_df %>%
          mech_uid = mechanism_uid)
 
 #get DSD/TA breakdown
-df_fac <- clean_mfl(mfl_period = "FY24Q1") %>%
+df_fac <- clean_mfl(mfl_period = "FY24Q3") %>%
   rename(DSD_TA = dsd_ta)
 
 #adjust TX_TB_D names for now
@@ -222,13 +222,13 @@ tier_final_partner %>%
 
 
 #Partner files
-Broadreach_import <- partner_import(df = tier_final_partner, "70287")
-RTC_import <- partner_import(df = tier_final_partner, "70290")
-ANOVA_import <- partner_import(df = tier_final_partner, "70310")
-MATCH_import <- partner_import(df = tier_final_partner, "81902")
-WRHI_import <- partner_import(df = tier_final_partner, "70301")
-
-
+Broadreach_import <- partner_import(df = tier_final_partner, 70287)
+RTC_import <- partner_import(df = tier_final_partner, 70290)
+ANOVA_import <- partner_import(df = tier_final_partner, 70310)
+ANOVA_Limpopo_import <- partner_import(df = tier_final_partner, 87577)
+MATCH_import <- partner_import(df = tier_final_partner, 87576)
+MATCH_KZN_import <- partner_import(df = tier_final_partner, 87575 )
+WRHI_import <- partner_import(df = tier_final_partner, 70301)
 
 
 
