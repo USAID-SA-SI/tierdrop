@@ -33,8 +33,9 @@ df_map_distinct <- df_map_clean %>% dplyr::distinct(`Test Resuts/Outcome/Duratio
 #          `Support Type` = DSD_TA)
 
 #bind mapping files
-df_map_distinct <- df_map_distinct %>%
-  dplyr::bind_rows(additional_map)
+df_map_distinct <- df_map_distinct
+#%>%
+  #dplyr::bind_rows(additional_map)
 
 # send this up to drive for now
 
