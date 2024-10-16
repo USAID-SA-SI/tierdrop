@@ -45,7 +45,7 @@ map_disaggs <- function(df, ind_sel = "All", disaggregate = "All", all_indic = T
     col_names <- col_names[col_names %ni% c("Total")]
 
     if (ind_sel == "PrEP_CT" & disaggregate == "Age/Sex") {
-      unselect_vars <- c("Test Result/Outcome/Duration")
+      unselect_vars <- c("Test Result/Outcome/Duration", "Result")
     } else if (ind_sel == "PrEP_CT" & disaggregate == "TestResult") {
       unselect_vars <- c("Sex", "CoarseAgeGroup")
     } else if (ind_sel == "TX_RTT" & disaggregate == "Age/Sex/CD4/HIVStatus") {

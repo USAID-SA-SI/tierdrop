@@ -1,6 +1,6 @@
 #MER mapping file
 mapping_df <- reference_folder %>%
-  glamr::return_latest("RTC_DATIM MER TIER Results Consolidated_Workfile.xlsx") %>%
+  glamr::return_latest("RTC_DATIM MER TIER Results Consolidated_Workfilev2.xlsx") %>%
   readxl::read_xlsx()
 
 #create indicator and N/D variable in mapping file
@@ -9,7 +9,7 @@ df_map_clean <- mapping_df %>%
   dplyr::mutate(indicator = stringr::str_extract(`Datim UID`, "[^ (]+"),
          numeratordenom = stringr::str_extract(`Datim UID`, "[^,]+"),
          numeratordenom = stringr::str_sub(numeratordenom, start= -1),
-         CoarseAgeGroup = ifelse(stringr::str_detect(`Data Element`, "TX_RTT") & CoarseAgeGroup %in% c("50-54", "55-59", "60-64", "65+"),
+         CoarseAgeGroup = ifelse(stringr::str_detect(dataElement, "TX_RTT") & CoarseAgeGroup %in% c("50-54", "55-59", "60-64", "65+"),
                                  "50+", CoarseAgeGroup),
          DSD_TA = stringr::str_split(`Datim UID`, ", ") %>% unlist() %>% dplyr::nth(2),
          indicator = ifelse(indicator == "PMTCT_HEI_POS" & dataElement == "PMTCT_HEI_POS (N, DSD, Age/HIVStatus/ARTStatus): Infant Testing",
@@ -21,25 +21,27 @@ df_map_distinct <- df_map_clean %>% dplyr::distinct(`Test Resuts/Outcome/Duratio
                                              dataElement, dataElement_uid, categoryOptionComboName, categoryOptionCombo_uid, `Support Type`)
 
 #because mapping file is incomplete, read in additional mapping file
-additional_map <- reference_folder %>%
-  glamr::return_latest("additional-disagg-mapping-fy22q3") %>%
-  readxl::read_xlsx()
-
-additional_map <- additional_map %>%
-  dplyr::select(`Test Resuts/Outcome/Duration`, Sex, CoarseAgeGroup, Result, dataElement, dataElement_uid,
-         categoryOptionComboName, categoryOptionCombo_uid, DSD_TA, indicator, numeratordenom) %>%
-  dplyr::distinct() %>%
-  dplyr::rename(`Test Resuts/Outcome/Duration` = `Test Resuts/Outcome/Duration`,
-         `Support Type` = DSD_TA)
+# additional_map <- reference_folder %>%
+#   glamr::return_latest("additional-disagg-mapping-fy22q3") %>%
+#   readxl::read_xlsx()
+#
+# additional_map <- additional_map %>%
+#   dplyr::select(`Test Resuts/Outcome/Duration`, Sex, CoarseAgeGroup, Result, dataElement, dataElement_uid,
+#          categoryOptionComboName, categoryOptionCombo_uid, DSD_TA, indicator, numeratordenom) %>%
+#   dplyr::distinct() %>%
+#   dplyr::rename(`Test Resuts/Outcome/Duration` = `Test Resuts/Outcome/Duration`,
+#          `Support Type` = DSD_TA)
 
 #bind mapping files
-df_map_distinct <- df_map_distinct %>%
-  dplyr::bind_rows(additional_map)
+df_map_distinct <- df_map_distinct
+#%>%
+  #dplyr::bind_rows(additional_map)
 
 # send this up to drive for now
 
 #add file to drive
-map_id <- "1IJpv6rA2JTz7dt2HdoRSy_Ulo1hzow_xMBgBKcN3Fzs"
+
+map_id <- "1-fZqjcK0F5iprJIg1lpITTjw4rYtQbCmnBs9-buxhUY"
 map_id <- googledrive::drive_create(name = "USAID disaggregate mapping file", path = "Partner Reporting/Panagora/USAID SI Data Management & Reporting/MER/DATIM Import Files/Mapping File", type = "spreadsheet")
 
 #read to google sheets

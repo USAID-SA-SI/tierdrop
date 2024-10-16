@@ -2,8 +2,7 @@
 
 
 #STANDARD NAMES
-standard_names <- c("Province", "District", "SubDistrict", "Facility", "UID",
-                    "Code")
+standard_names <- c("Province", "District", "SubDistrict", "Facility", "UID","Code")
 usethis::use_data(standard_names, overwrite = TRUE)
 
 #KP NAMES
@@ -25,7 +24,7 @@ names_tb_art <- c(standard_names, "CoarseAgeGroup", "Sex","Test Result/Outcome/D
 names_tx_pvls_n <- c(standard_names, "Sex", "CoarseAgeGroup","VL_BIN","Total")
 names_tx_pvls_d <- c(standard_names, "Sex", "CoarseAgeGroup", "Total")
 names_tb_stat_d <- c(standard_names, "Sex", "CoarseAgeGroup", "Total")
-names_tb_stat_n <- c(standard_names, "Sex", "Test Result/Outcome/Duration", "CoarseAgeGroup", "Total")
+names_tb_stat_n <- c(standard_names, "Sex", "CoarseAgeGroup", "Test Result/Outcome/Duration", "Total")
 names_tx_tb_d <- c(standard_names, "Test Result/Outcome/Duration", "CoarseAgeGroup",  "Sex", "Result","Total")
 names_tx_tb_d_pos <- c(standard_names, "Total")
 names_tx_tb_d_testtype <- c(standard_names, "Test Result/Outcome/Duration","Total")

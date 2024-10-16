@@ -1,5 +1,5 @@
 # AUTHOR:   K. Srikanth | USAID
-# PURPOSE:  FY24Q1 DATIM Processing
+# PURPOSE:  FY24Q3 DATIM Processing
 # LICENSE:  MIT
 # DATE:     2024-07-15
 # UPDATED: Clement Trapence
@@ -47,7 +47,7 @@ df_map_distinct <- googlesheets4::read_sheet(new_disagg_map_id) %>%
 
 # MFL ---------------------------------------------
 
-mfl_new_df <- googlesheets4::read_sheet(mfl_fy24_id, sheet = "MFL_FY24_Q1")
+mfl_new_df <- googlesheets4::read_sheet(mfl_fy24_id, sheet = "MFL_FY24_Q3")
 
 #get mech info from MFL
 mech_mfl <- mfl_new_df %>%
@@ -61,7 +61,7 @@ mech_mfl <- mfl_new_df %>%
          mech_uid = mechanism_uid)
 
 #get DSD/TA breakdown
-df_fac <- clean_mfl(mfl_period = "FY24Q1") %>%
+df_fac <- clean_mfl(mfl_period = "FY24Q3") %>%
   rename(DSD_TA = dsd_ta)
 
 #adjust TX_TB_D names for now
@@ -73,7 +73,12 @@ df_fac <- clean_mfl(mfl_period = "FY24Q1") %>%
 
 #if this breaks, check on tab names (adjust PrEP_NEW in the file itself)
 # update for ou5uid
-ndoh_all <- import_ndoh(filepath = ndoh_filepath, qtr = curr_qtr, kp = FALSE)
+ndoh_all <- import_ndoh(filepath = ndoh_filepath, qtr = curr_qtr, kp = FALSE) %>%
+  filter(Facility %ni% c("fs Beatrix Clinic",
+                         "fs Harmony South Joel Occupational Health Centre",
+                         "fs Harmony South Target Occupational Health Centre",
+                         "kz Turton Mobile 4"))
+
 ndoh_all_kp <- import_ndoh(filepath = ndoh_filepath, qtr = curr_qtr, kp = TRUE)
 
 #what facilities are in NDOH but not in MFL? ADdress MFL qc as needed
@@ -131,7 +136,7 @@ df_mapped_kp <- ndoh_post_processing(ndoh_clean_kp, kp = TRUE, export_type = "Va
 
 
 #just TX_CURR and PVLS with missing sex
-df_mapped %>%
+ df_mapped %>%
   distinct() %>%
   filter(is.na(dataElement))
 
@@ -179,34 +184,35 @@ match_prep_uids <- match_prep_q2 %>%
 
 
 #MATCH PREP IMPORT FILE
-import_MATCH_prep <- df_final %>%
-  filter((orgUnit_uid %in% match_prep_uids
-          & indicator %in% c("PrEP_CT", "PrEP_NEW"))) %>%
-  mutate(period = import_period_style)
+# import_MATCH_prep <- df_final %>%
+#   filter((orgUnit_uid %in% match_prep_uids
+#           & indicator %in% c("PrEP_CT", "PrEP_NEW"))) %>%
+#   mutate(period = import_period_style)
 
 
 # BIND WITH REST ---------------------------------------------------------
 #for partner review
-tier_final_partner <- bind_rows(df_final_clean %>% select(all_of(partner_vars)),
+tier_final_partner <- bind_rows(df_final_clean %>% select(all_of(partner_vars))#,
                                 #ndoh_arv_final %>% select(all_of(partner_vars)),
                                # tb_all_final%>% select(all_of(partner_vars)),
-                                import_MATCH_prep %>% select(all_of(partner_vars))
+                                #import_MATCH_prep %>% select(all_of(partner_vars))
 ) %>%
   mutate(period = import_period_style) %>%
   filter(!is.na(orgUnit_uid), #beatty mobile 5 and senorita hospital
          !is.na(mech_uid))
 
 #for import file
-tier_final_import <- bind_rows(df_final_clean %>% select(all_of(import_vars)),
+tier_final_import <- bind_rows(df_final_clean %>% select(all_of(import_vars)) %>%
+                                 #,
                               # ndoh_arv_final %>% select(all_of(import_vars)),
                               # tb_all_final%>% select(all_of(import_vars)),
-                               import_MATCH_prep %>% select(all_of(import_vars))) %>%
-  mutate(period = import_period_style) %>%
+                               #import_MATCH_prep %>% select(all_of(import_vars)))
+  mutate(period = import_period_style)) %>%
   filter(!is.na(orgUnit_uid), #beatty mobile 5 and senorita hospital
          !is.na(mech_uid))
 
 #check for dupes
-tier_final_import %>%
+ tier_final_import %>%
   select(import_vars) %>%
   select(-c(value)) %>%
   janitor::get_dupes()
@@ -222,13 +228,13 @@ tier_final_partner %>%
 
 
 #Partner files
-Broadreach_import <- partner_import(df = tier_final_partner, "70287")
-RTC_import <- partner_import(df = tier_final_partner, "70290")
-ANOVA_import <- partner_import(df = tier_final_partner, "70310")
-MATCH_import <- partner_import(df = tier_final_partner, "81902")
-WRHI_import <- partner_import(df = tier_final_partner, "70301")
-
-
+Broadreach_import <- partner_import(df = tier_final_partner, 70287)
+RTC_import <- partner_import(df = tier_final_partner, 70290)
+ANOVA_import <- partner_import(df = tier_final_partner, 70310)
+ANOVA_Limpopo_import <- partner_import(df = tier_final_partner, 87577)
+MATCH_import <- partner_import(df = tier_final_partner, 87576)
+MATCH_KZN_import <- partner_import(df = tier_final_partner, 87575 )
+WRHI_import <- partner_import(df = tier_final_partner, 70301)
 
 
 
