@@ -25,11 +25,10 @@ get_meta("FY24Q4")
 
 #set folderpaths (@to-do turn this into a get_metadata() function later)
 ndoh_filepath <- ndoh_folderpath %>% glamr::return_latest(fiscal_quarter)
-msd_filepath <- msd_folder %>% glamr::return_latest()
 
 #check to ensure that the most recent ndoh_file is the you want to use
 print(ndoh_filepath)
-print(msd_filepath)
+
 
 #load secrets
 glamr::load_secrets()
@@ -79,11 +78,11 @@ filter(Facility %ni% c("fs Beatrix Clinic",
                        "fs Harmony South Target Occupational Health Centre",
                        "kz Turton Mobile 4"))
 
-ndoh_all_kp <- import_ndoh(filepath = ndoh_filepath, qtr = curr_qtr, kp = TRUE)
+#ndoh_all_kp <- import_ndoh(filepath = ndoh_filepath, qtr = curr_qtr, kp = TRUE)
 
 #what facilities are in NDOH but not in MFL? ADdress MFL qc as needed
 validate_ndoh(ndoh_all)
-validate_ndoh(ndoh_all_kp)
+#validate_ndoh(ndoh_all_kp)
 
 # TIDY NDOH -----------------------------------------------------------
 
@@ -150,12 +149,18 @@ ndoh_clean_tb <- ndoh_join_tb %>%
                                           "TX_TB_N" = "TX_TB",
                                           "TX_TB_D" = "TX_TB",
                                           "TX_TB_Pos_D" = "TX_TB",
-                                          "TX_TB_TestType_D" ="TX_TB"))
+                                          "TX_TB_TestType_D" ="TX_TB")) %>%
+  mutate(`Test Result/Outcome/Duration` = ifelse(`Test Result/Outcome/Duration` == "Previously on ART", "Previously On ART", `Test Result/Outcome/Duration`))
 
 #one missing - sex is missing for facility
 tb_age_sex <- ndoh_clean_tb %>%
   filter(tb_disagg == "Age/Sex/TBScreen") %>%
+  mutate(Sex = str_to_title(Sex)) %>% #add this because some are all CAPS
   select(-c(tb_disagg,CD4,VL_BIN)) %>%
+  # dplyr::group_by(usaid_facility, ou5uid, datim_uid, new_ou5_code, period, DSD_TA,
+  #                 Province, District, SubDistrict, Facility,`Test Result/Outcome/Duration`,
+  #                 Sex, CoarseAgeGroup, Result, indicator, numeratordenom) %>%
+  # dplyr::summarise(dplyr::across(tidyselect::starts_with("Total"), sum, na.rm = TRUE), .groups = "drop") %>%
   ndoh_post_processing(kp = FALSE, export_type = "Validation")
 
 tb_return <- ndoh_clean_tb %>%
@@ -164,11 +169,17 @@ tb_return <- ndoh_clean_tb %>%
   ndoh_post_processing(kp = FALSE, export_type = "Validation") %>%
   filter(str_detect(dataElement, "Return"))
 
+# TEST TYPE ----------- # remove screen type from mapping
 tb_testtype <- ndoh_clean_tb %>%
   filter(tb_disagg == "Specimen Sent Total") %>%
   select(-c(tb_disagg,CD4,VL_BIN)) %>%
+  dplyr::group_by(usaid_facility, ou5uid, datim_uid, new_ou5_code, period, DSD_TA,
+                  Province, District, SubDistrict, Facility,`Test Result/Outcome/Duration`,
+                  Sex, CoarseAgeGroup, Result, indicator, numeratordenom) %>%
+  dplyr::summarise(dplyr::across(tidyselect::starts_with("Total"), sum, na.rm = TRUE), .groups = "drop") %>%
   ndoh_post_processing(kp = FALSE, export_type = "Validation")
 
+# SPECIMEN SENT ----------
 tb_sent <- ndoh_clean_tb %>%
   filter(tb_disagg == "Specimen Sent Total") %>%
   dplyr::group_by(usaid_facility, ou5uid, datim_uid, new_ou5_code, period, DSD_TA,
@@ -208,8 +219,8 @@ tb_all <- bind_rows(tb_age_sex, tb_return, tb_testtype) %>%
 
 tb_all_final <- bind_rows(tb_all, tb_sent_map)
 
-tb_testtype %>%
-  janitor::get_dupes("mech_uid","orgUnit_uid","dataElement_uid","categoryOptionCombo_uid","value","period")
+# tb_testtype %>%
+#   janitor::get_dupes("mech_uid","orgUnit_uid","dataElement_uid","categoryOptionCombo_uid","period")
 
 
 
@@ -219,11 +230,15 @@ tb_testtype %>%
 df_mapped <- ndoh_post_processing(ndoh_clean %>%
                                     mutate(indicator=if_else(indicator=="TX_TB_Numer","TX_TB",indicator)) %>%
                                     filter(!(indicator == "TX_TB_Denom" & numeratordenom == "D")),
-                                  kp = FALSE, export_type = "Validation") %>%
-  #'[' Added a grouping value to account for 1-4 CD4 results
+                                  kp = FALSE, export_type = "Validation")
+
+df_mapped2 <- df_mapped %>%
   select(period: numeratordenom,Sex:value) %>%
+  mutate(mech_code = as.character(mech_code)) %>%
   group_by_if(is.character) %>%
-  summarise(value=sum(value,na.rm = TRUE))
+  summarise(value=sum(value,na.rm = TRUE)) %>%
+  ungroup() %>%
+  filter(!is.na(dataElement)) %>% janitor::get_dupes(mech_uid, dataElement_uid, categoryOptionCombo_uid, dataElement_uid) %>% View()
 
 #' df_mapped_kp <- ndoh_post_processing(ndoh_clean_kp, kp = TRUE, export_type = "Validation") %>%
 #'   #' Added a grouping value to account for 1-4 CD4 results
@@ -233,29 +248,31 @@ df_mapped <- ndoh_post_processing(ndoh_clean %>%
 
 # do a check to see what is not getting mapped
   #6 sites with missing sex / other disaggs for TX indicators
-df_mapped %>%
+df_mapped2 %>%
   distinct() %>%
   filter(is.na(dataElement))
 
-df_mapped_kp %>%
-  distinct() %>%
-  filter(is.na(dataElement))
+# df_mapped_kp %>%
+#   distinct() %>%
+#   filter(is.na(dataElement))
 
 
 #bind together and filter out those that did not have mappings
-df_final <- dplyr::bind_rows(df_mapped,
-                             df_mapped_kp) %>%
+df_final <- dplyr::bind_rows(df_mapped2
+                             # ,
+                             # df_mapped_kp
+                             ) %>%
   #distinct() %>%
-  filter(!is.na(dataElement)) %>%
-  mutate(mech_code = as.character(mech_code))
+  filter(!is.na(dataElement))
 
+#10 obs for TX_NEW <1 and 1-4
 df_final %>%
-  janitor::get_dupes(import_vars)
+  janitor::get_dupes(mech_uid ,orgUnit_uid,dataElement_uid,categoryOptionCombo_uid)
 
-dupes2 <- df_mapped %>%
-  filter(!is.na(dataElement_uid)) %>%
-#  select(import_vars) %>%
-  janitor::get_dupes("mech_uid","orgUnit_uid","dataElement_uid","categoryOptionCombo_uid","value","period")
+# dupes2 <- df_mapped2 %>%
+#   filter(!is.na(dataElement_uid)) %>%
+# #  select(import_vars) %>%
+#   janitor::get_dupes("mech_uid","orgUnit_uid","dataElement_uid","categoryOptionCombo_uid","value","period")
 
 # ARVDISP ------------------------------------------------------------
 
@@ -288,7 +305,8 @@ ndoh_arv_final <- ndoh_arvdisp %>%
 #check for dupes
 ndoh_arv_final %>%
   #select(import_vars) %>%
-  janitor::get_dupes(import_vars)
+  janitor::get_dupes(mech_uid ,orgUnit_uid,dataElement_uid,categoryOptionCombo_uid)
+
 
 #import file format
 ndoh_arv_final %>%
@@ -298,7 +316,7 @@ ndoh_arv_final %>%
 
 #Step 1: Filter out PrEP for Harry Gwala, Capricorn and Mopani; filter out all of MATCH PrEP for now
 df_final_clean <- df_final %>%
-  mutate(mech_code =as.integer(mech_code)) %>%
+ mutate(mech_code =as.integer(mech_code)) %>%
   filter(!(District == "kz Harry Gwala District Municipality" & indicator %in% c("PrEP_CT", "PrEP_NEW")))
 
 
@@ -323,13 +341,34 @@ tier_final_import <-  bind_rows(df_final_clean %>% select(all_of(import_vars)),
 #check for dupes
 dupes <- tier_final_import %>%
   select(import_vars) %>%
-  janitor::get_dupes()
+  janitor::get_dupes(mech_uid ,orgUnit_uid,dataElement_uid,categoryOptionCombo_uid, period) %>%
+  pull(orgUnit_uid)
 
-  #EXPORT
+#filter to the sites with dupes and do another group_by
+tier_final_import_dupes <- tier_final_import %>%
+  select(import_vars) %>%
+  filter(orgUnit_uid %in% dupes) %>%
+  group_by(mech_uid, orgUnit_uid, dataElement_uid, categoryOptionCombo_uid, period) %>%
+  summarise(value=sum(value,na.rm = TRUE)) %>%
+  ungroup()
+
+#now bind it back
+tier_final_import_joined <- tier_final_import %>%
+  select(import_vars) %>%
+  filter(orgUnit_uid %ni% dupes) %>%
+  rbind(tier_final_import_dupes)
+
+tier_final_import_joined %>%
+  janitor::get_dupes(mech_uid ,orgUnit_uid,dataElement_uid,categoryOptionCombo_uid, period)
+
+
+#EXPORT
 today <- lubridate::today()
 
-tier_final_import %>%
-  readr::write_csv(glue::glue("{import_folder}/{fiscal_quarter}_TIER_Import_File_v2_FINAL_{today}.csv"))
+tier_final_import_joined %>%
+  readr::write_csv(glue::glue("{import_folder}/{fiscal_quarter}_TIER_Import_File_v3_FINAL_{today}.csv"))
+
+
 
 tier_final_partner %>%
   readr::write_csv(glue::glue("{import_folder}/{fiscal_quarter}_TIER_Import_File_v4_REVIEW_{today}.csv"))
@@ -343,5 +382,4 @@ ANOVA_Limpopo_import <- partner_import(df = tier_final_partner, 87577)
 MATCH_import <- partner_import(df = tier_final_partner, 87576)
 MATCH_KZN_import <- partner_import(df = tier_final_partner, 87575 )
 WRHI_import <- partner_import(df = tier_final_partner, 70301)
-
 
