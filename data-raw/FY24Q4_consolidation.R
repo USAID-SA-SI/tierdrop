@@ -32,7 +32,7 @@ list.files(folderpath)
 # 1) pull in tier files -----------------------------------------------------------
 
 fy24q4_tier <- dataout %>%
-  return_latest("FY24Q4_TIER_Import_File_v3_FINAL_2024-11-13") %>%
+  return_latest("FY24Q4_TIER_Import_File_v5_FINAL_2024-11-13") %>%
   read_csv()
 
 
@@ -40,7 +40,8 @@ fy24q4_tier <- dataout %>%
 fy24q4_nontier <- folderpath %>%
   return_latest("Appended Non-TiER") %>% #change to match the extract filepath
   read_csv() %>%
-  select(mech_uid,orgUnit_uid, dataElement_uid, categoryOptionCombo_uid, value, period)
+  select(mech_uid,orgUnit_uid, dataElement_uid, categoryOptionCombo_uid, value, period) %>%
+  mutate(period == "2024Q3")
 
 #no dupes
 fy24q4_nontier %>%
@@ -51,9 +52,12 @@ fy24q4_nontier %>%
   filter(is.na(dataElement_uid))
 
 # rbind - tons of dupes
-bind_rows(fy24q4_tier, fy24q4_nontier) %>%
+fy24q4_tier_nontier <- bind_rows(fy24q4_tier, fy24q4_nontier) %>%
   distinct() %>%
-  janitor::get_dupes(mech_uid ,orgUnit_uid,dataElement_uid,categoryOptionCombo_uid, period)
+  filter(value != 0) %>%
+  group_by(mech_uid ,orgUnit_uid,dataElement_uid,categoryOptionCombo_uid, period) %>%
+  summarise(value=sum(value,na.rm = TRUE)) %>%
+  ungroup()
 
 # --------------------------------------------------------------------------------------
 # AGYW -----------------------------------------------------
@@ -107,14 +111,15 @@ bind_rows(fy24q4_agyw, fy24q4_CDC, fy24q4_HRH, fy24q4_LAB) %>%
   janitor::get_dupes(mech_uid ,orgUnit_uid,dataElement_uid,categoryOptionCombo_uid, period)
 
 # BIND ALL --------------------------------------------------------------------------------------
-fy24q4_tier_nontier <- bind_rows(fy24q4_tier, fy24q4_nontier) %>%
-  distinct()
+# fy24q4_tier_nontier <- bind_rows(fy24q4_tier, fy24q4_nontier) %>%
+#   distinct()
 
 fy24q4_all_others <- bind_rows(fy24q4_agyw, fy24q4_CDC, fy24q4_HRH, fy24q4_LAB)
 #Aggregate final NON-TIER import files for all DSP partners
 
 df_final_consolidated <- bind_rows(fy24q4_tier_nontier, fy24q4_all_others) %>%
-  select(mech_uid, orgUnit_uid, dataElement_uid, categoryOptionCombo_uid, value, period) %>%
+select(dataElement_uid, period, orgUnit_uid, categoryOptionCombo_uid, mech_uid, value) %>%
+mutate(period = "2024Q3") %>%
   #select(-c(Column1, Column2)) %>%
   drop_na() %>%
   distinct()
@@ -125,7 +130,7 @@ df_final_consolidated %>%
 
 
 #export
-write_csv(df_final_consolidated, glue("{dataout}/{fiscal_quarter}_NonTIER_consolidated_v1_{today}.csv"))
+write_csv(df_final_consolidated, glue("{dataout}/{fiscal_quarter}_FINAL_consolidated_v3_{today}.csv"))
 
 
 
