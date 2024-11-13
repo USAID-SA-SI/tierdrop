@@ -217,7 +217,8 @@ tb_all <- bind_rows(tb_age_sex, tb_return, tb_testtype) %>%
   filter(!is.na(dataElement)) %>%
   select(validation_vars)
 
-tb_all_final <- bind_rows(tb_all, tb_sent_map)
+tb_all_final <- bind_rows(tb_all, tb_sent_map) %>%
+  filter(Province != "wc Western Cape Province")
 
 # tb_testtype %>%
 #   janitor::get_dupes("mech_uid","orgUnit_uid","dataElement_uid","categoryOptionCombo_uid","period")
@@ -294,6 +295,7 @@ ndoh_arvdisp %>%
 
 #partner review file format
 ndoh_arv_final <- ndoh_arvdisp %>%
+  filter(Province != "wc Western Cape Province") %>%
   rename(
     value = Packs,
     orgUnit_uid = datim_uid) %>%
@@ -315,11 +317,11 @@ ndoh_arv_final %>%
 # CLEAN UP ------------------------------------------------------------
 
 #Step 1: Filter out PrEP for Harry Gwala, Capricorn and Mopani; filter out all of MATCH PrEP for now
+#filter out WC - use WC data  from nonTIER file
 df_final_clean <- df_final %>%
  mutate(mech_code =as.integer(mech_code)) %>%
-  filter(!(District == "kz Harry Gwala District Municipality" & indicator %in% c("PrEP_CT", "PrEP_NEW")))
-
-
+  filter(!(District == "kz Harry Gwala District Municipality" & indicator %in% c("PrEP_CT", "PrEP_NEW"))) %>%
+  filter(Province != "wc Western Cape Province")
 
 # BIND WITH REST ---------------------------------------------------------
 #for partner review
@@ -364,9 +366,10 @@ tier_final_import_joined %>%
 
 #EXPORT
 today <- lubridate::today()
+version <- "v5"
 
 tier_final_import_joined %>%
-  readr::write_csv(glue::glue("{import_folder}/{fiscal_quarter}_TIER_Import_File_v3_FINAL_{today}.csv"))
+  readr::write_csv(glue::glue("{import_folder}/{fiscal_quarter}_TIER_Import_File_{version}_FINAL_{today}.csv"))
 
 
 
