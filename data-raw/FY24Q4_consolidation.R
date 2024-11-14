@@ -106,7 +106,9 @@ fy24q4_LAB <- folderpath %>%
   select(mech_uid,orgUnit_uid, dataElement_uid, categoryOptionCombo_uid, value, period)
 
 #check dupes
-bind_rows(fy24q4_agyw, fy24q4_CDC, fy24q4_HRH, fy24q4_LAB) %>%
+bind_rows(fy24q4_agyw,
+         # fy24q4_CDC,
+          fy24q4_HRH, fy24q4_LAB) %>%
   filter(is.na(dataElement_uid)) %>%
   janitor::get_dupes(mech_uid ,orgUnit_uid,dataElement_uid,categoryOptionCombo_uid, period)
 
@@ -114,7 +116,9 @@ bind_rows(fy24q4_agyw, fy24q4_CDC, fy24q4_HRH, fy24q4_LAB) %>%
 # fy24q4_tier_nontier <- bind_rows(fy24q4_tier, fy24q4_nontier) %>%
 #   distinct()
 
-fy24q4_all_others <- bind_rows(fy24q4_agyw, fy24q4_CDC, fy24q4_HRH, fy24q4_LAB)
+fy24q4_all_others <- bind_rows(fy24q4_agyw,
+                              # fy24q4_CDC,
+                               fy24q4_HRH, fy24q4_LAB)
 #Aggregate final NON-TIER import files for all DSP partners
 
 df_final_consolidated <- bind_rows(fy24q4_tier_nontier, fy24q4_all_others) %>%
@@ -129,8 +133,9 @@ df_final_consolidated %>%
   janitor::get_dupes(mech_uid ,orgUnit_uid,dataElement_uid,categoryOptionCombo_uid, period)
 
 
-#export
-write_csv(df_final_consolidated, glue("{dataout}/{fiscal_quarter}_FINAL_consolidated_v3_{today}.csv"))
+#EXPORT
+today <- lubridate::today()
+write_csv(df_final_consolidated, glue("{dataout}/{fiscal_quarter}_FINAL_consolidated_v4_NO_CDC_{today}.csv"))
 
 
 
