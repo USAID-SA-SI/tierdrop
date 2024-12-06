@@ -35,8 +35,8 @@ tidy_ndoh <- function(df, kp = FALSE) {
                                             "TX_PVLS_Denom" = "TX_PVLS_D",
                                             "TX_PVLS_Numer" = "TX_PVLS_N"),
                   numeratordenom = ifelse(stringr::str_detect(indicator, "_D"), "D", "N"),
-                  CoarseAgeGroup = ifelse(indicator %ni% c("TX_CURR", "TX_PVLS_D", "TX_PVLS_N", "TX_NEW", "TX_ML", "TX_RTT") & CoarseAgeGroup %in% c("50-54", "55-59", "60-64", "65+"),
-                                          "50+", CoarseAgeGroup),
+                  FineAgeGroup = ifelse(indicator %ni% c("TX_CURR", "TX_PVLS_D", "TX_PVLS_N", "TX_NEW", "TX_ML", "TX_RTT") & FineAgeGroup %in% c("50-54", "55-59", "60-64", "65+"),
+                                          "50+", FineAgeGroup),
                   indicator = dplyr::recode(indicator, "TB_PREV_D" = "TB_PREV",
                                             "TB_PREV_N" = "TB_PREV",
                                             "TB_STAT_N" = "TB_STAT",
@@ -45,19 +45,20 @@ tidy_ndoh <- function(df, kp = FALSE) {
                                             "TX_PVLS_N" = "TX_PVLS",
                                             "TX_TB_N" = "TX_TB",
                                             "TX_TB_D" = "TX_TB")) %>%
-    dplyr::mutate(Sex = stringr::str_to_title(Sex))
+    dplyr::mutate(Sex = stringr::str_to_title(Sex)) %>%
+    rename(SubDistrict = `Sub district`)
 
 
   #address over50 disagg issue (need to reclassify age groups above 50 as "50+")
   ndoh_over50 <- ndoh_clean %>%
-    dplyr::filter(CoarseAgeGroup == "50+") %>%
+    dplyr::filter(FineAgeGroup == "50+") %>%
     dplyr::group_by(usaid_facility, ou5uid, datim_uid, new_ou5_code, period, DSD_TA,
                     Province, District, SubDistrict, Facility, `Test Result/Outcome/Duration`,
-                    Sex, CoarseAgeGroup, Result, indicator, numeratordenom) %>%
+                    Sex, FineAgeGroup, Result, indicator, numeratordenom) %>%
     dplyr::summarise(dplyr::across(tidyselect::starts_with("Total"), sum, na.rm = TRUE), .groups = "drop")
 
   ndoh_clean <- ndoh_clean %>%
-    dplyr::filter(CoarseAgeGroup != "50+") %>%
+    dplyr::filter(FineAgeGroup != "50+") %>%
     dplyr::bind_rows(ndoh_over50)
 
   #move disaggs from Results to Test Results/Outcomes/Duration for mapping (FY24)
@@ -111,11 +112,11 @@ tidy_map_arvdisp <- function(df) {
   #map disaggs + mechs
   df_arv_mapped <- df_arv_clean %>%
     dplyr::filter(!is.na(Facility)) %>%
-    dplyr::left_join(arv_map, by = c("CoarseAgeGroup", "RegimenCode", "indicator")) %>%
+    dplyr::left_join(arv_map, by = c("FineAgeGroup", "RegimenCode", "indicator")) %>%
     dplyr::mutate(dataElement = ifelse(is.na(dataElement), "SC_ARVDISP (N, NoApp, DispensedARVBottles): Dispensed ARV bottles", dataElement),
            dataElement_uid = ifelse(is.na(dataElement_uid), "jjXWGplLXqF", dataElement_uid)) %>%
-    dplyr::mutate(categoryOptionComboName = dplyr::case_when(CoarseAgeGroup %in% c(">=15") & is.na(categoryOptionComboName) ~ "ARV Bottles - Other (Adult)",
-                                               CoarseAgeGroup %in% c("<15") & is.na(categoryOptionComboName) ~ "ARV Bottles - Other (Pediatric)",
+    dplyr::mutate(categoryOptionComboName = dplyr::case_when(FineAgeGroup %in% c(">=15") & is.na(categoryOptionComboName) ~ "ARV Bottles - Other (Adult)",
+                                                             FineAgeGroup %in% c("<15") & is.na(categoryOptionComboName) ~ "ARV Bottles - Other (Pediatric)",
                                                TRUE ~ categoryOptionComboName)) %>%
     dplyr::left_join(arv_map %>% dplyr::select(categoryOptionComboName, categoryOptionCombo_uid) %>% dplyr::distinct(), by = c("categoryOptionComboName")) %>%
     dplyr::select(-c(categoryOptionCombo_uid.x)) %>%
