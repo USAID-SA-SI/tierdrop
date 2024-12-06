@@ -75,7 +75,7 @@ get_meta <- function(period) {
   validation_vars <<- c("period","Province", "District","SubDistrict", "Facility",
                        "orgUnit_uid", "mech_code", "mech_uid",
                        "indicator", "numeratordenom", "Sex",
-                       "CoarseAgeGroup", "Result","dataElement", "dataElement_uid", "categoryOptionComboName",
+                       "FineAgeGroup", "Result","dataElement", "dataElement_uid", "categoryOptionComboName",
                        "categoryOptionCombo_uid", "value")
 
   #print
