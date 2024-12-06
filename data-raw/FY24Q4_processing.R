@@ -3,6 +3,7 @@
 # LICENSE:  MIT
 # DATE:     2024-04-02
 # UPDATED:Clement  & Karishma 2024-05-08
+# UPDATE FOR CLEAN: 2024-12-05
 
 # DEPENDENCIES ------------------------------------------------------------
 
@@ -12,7 +13,8 @@ library(gophr)
 library(glue)
 library(readxl)
 library(googlesheets4)
-library(tierdrop)
+#library(tierdrop)
+devtools::load_all(".")
 
 # SETUP script -----------------------------------------
 
@@ -24,7 +26,9 @@ get_meta("FY24Q4")
 
 
 #set folderpaths (@to-do turn this into a get_metadata() function later)
-ndoh_filepath <- ndoh_folderpath %>% glamr::return_latest(fiscal_quarter)
+ndoh_filepath <- ndoh_folderpath %>% glamr::return_latest("joined")
+ndoh_filepath_new <- ndoh_folderpath %>% glamr::return_latest("MER Reporting FY24Q4 05122024 PM")
+
 
 #check to ensure that the most recent ndoh_file is the you want to use
 print(ndoh_filepath)
@@ -71,36 +75,53 @@ df_fac <- clean_mfl(mfl_period = "FY24Q4") %>%
 
 # NDOH ---------------------------------------------------------------------
 
-#import NDOH dataframe
-ndoh_all <- import_ndoh(filepath = ndoh_filepath, qtr = curr_qtr, kp = FALSE) %>%
-filter(Facility %ni% c("fs Beatrix Clinic",
-                       "fs Harmony South Joel Occupational Health Centre",
-                       "fs Harmony South Target Occupational Health Centre",
-                       "kz Turton Mobile 4"))
+# #import NDOH dataframe
+# ndoh_all <- import_ndoh(filepath = ndoh_filepath, qtr = curr_qtr, kp = FALSE) %>%
+# filter(Facility %ni% c("fs Beatrix Clinic",
+#                        "fs Harmony South Joel Occupational Health Centre",
+#                        "fs Harmony South Target Occupational Health Centre",
+#                        "kz Turton Mobile 4"))
+#
+# #ndoh_all_kp <- import_ndoh(filepath = ndoh_filepath, qtr = curr_qtr, kp = TRUE)
+#
+# #what facilities are in NDOH but not in MFL? ADdress MFL qc as needed
+# validate_ndoh(ndoh_all)
+# #validate_ndoh(ndoh_all_kp)
 
-#ndoh_all_kp <- import_ndoh(filepath = ndoh_filepath, qtr = curr_qtr, kp = TRUE)
+# FY24Qc - RUN THIS INSTEAD
 
-#what facilities are in NDOH but not in MFL? ADdress MFL qc as needed
+
+
+test_df <- import_ndoh2(filepath = ndoh_filepath_new, qtr = curr_qtr, kp = FALSE,
+                        skip_tabs = c("TX_CURR", "TX_NEW", "TX_PVLS_Denom", "TX_PVLS_Numer")) %>%
+  filter(Facility %ni% c("fs Beatrix Clinic",
+                         "fs Harmony South Joel Occupational Health Centre",
+                         "fs Harmony South Target Occupational Health Centre",
+                         "kz Turton Mobile 4"))
+
+ndoh_all <- test_df
 validate_ndoh(ndoh_all)
-#validate_ndoh(ndoh_all_kp)
+
+
+
 
 # TIDY NDOH -----------------------------------------------------------
 
 #TIDY
 ndoh_clean <- tidy_ndoh(ndoh_all, kp = FALSE) %>%
-  select(-c(Code, VL_BIN))
+  select(-c(Code))
 
 ndoh_pvls <- ndoh_clean %>%
   filter(indicator == "TX_PVLS",
          numeratordenom == "N") %>%
   group_by(usaid_facility, ou5uid, datim_uid, new_ou5_code, period, DSD_TA, Province, SubDistrict, District, Facility, `Test Result/Outcome/Duration`,
-           Sex, CoarseAgeGroup, indicator, numeratordenom) %>%
+           Sex, FineAgeGroup, indicator, numeratordenom) %>%
   dplyr::summarise(dplyr::across(tidyselect::starts_with("Total"), \(x) sum(x, na.rm = TRUE)), .groups = "drop")
 
 ndoh_clean <- ndoh_clean %>%
   filter(!(indicator == "TX_PVLS" & numeratordenom == "N")) %>%
   bind_rows(ndoh_pvls) %>%
-  mutate(CoarseAgeGroup=ifelse(CoarseAgeGroup=="unknown age","Unknown Age",CoarseAgeGroup ))
+  mutate(FineAgeGroup=ifelse(FineAgeGroup=="unknown age","Unknown Age",FineAgeGroup ))
 
 
 
@@ -125,7 +146,8 @@ ndoh_clean <- ndoh_clean %>%
 #clean up the NDOH variable names and tidy df
 
 ndoh_tb <- ndoh_all  %>%
-  filter(indicator %in% c("TX_TB_Denom", "TX_TB_Denom_TestType", "TX_TB_Denom_Pos"))
+  filter(indicator %in% c("TX_TB_Denom", "TX_TB_Denom_TestType", "TX_TB_Denom_Pos")) %>%
+  rename(SubDistrict = `Sub district`)
 
 ndoh_join_tb <- df_fac %>%
   tidylog::left_join(ndoh_tb,  by = c("ou5uid" = "UID")) %>%
@@ -156,7 +178,7 @@ ndoh_clean_tb <- ndoh_join_tb %>%
 tb_age_sex <- ndoh_clean_tb %>%
   filter(tb_disagg == "Age/Sex/TBScreen") %>%
   mutate(Sex = str_to_title(Sex)) %>% #add this because some are all CAPS
-  select(-c(tb_disagg,CD4,VL_BIN)) %>%
+  select(-c(tb_disagg,CD4)) %>%
   # dplyr::group_by(usaid_facility, ou5uid, datim_uid, new_ou5_code, period, DSD_TA,
   #                 Province, District, SubDistrict, Facility,`Test Result/Outcome/Duration`,
   #                 Sex, CoarseAgeGroup, Result, indicator, numeratordenom) %>%
@@ -165,17 +187,17 @@ tb_age_sex <- ndoh_clean_tb %>%
 
 tb_return <- ndoh_clean_tb %>%
   filter(tb_disagg == "Specimen Return") %>%
-  select(-c(tb_disagg,CD4,VL_BIN)) %>%
+  select(-c(tb_disagg,CD4)) %>%
   ndoh_post_processing(kp = FALSE, export_type = "Validation") %>%
   filter(str_detect(dataElement, "Return"))
 
 # TEST TYPE ----------- # remove screen type from mapping
 tb_testtype <- ndoh_clean_tb %>%
   filter(tb_disagg == "Specimen Sent Total") %>%
-  select(-c(tb_disagg,CD4,VL_BIN)) %>%
+  select(-c(tb_disagg,CD4)) %>%
   dplyr::group_by(usaid_facility, ou5uid, datim_uid, new_ou5_code, period, DSD_TA,
                   Province, District, SubDistrict, Facility,`Test Result/Outcome/Duration`,
-                  Sex, CoarseAgeGroup, Result, indicator, numeratordenom) %>%
+                  Sex, FineAgeGroup, Result, indicator, numeratordenom) %>%
   dplyr::summarise(dplyr::across(tidyselect::starts_with("Total"), sum, na.rm = TRUE), .groups = "drop") %>%
   ndoh_post_processing(kp = FALSE, export_type = "Validation")
 
@@ -184,7 +206,7 @@ tb_sent <- ndoh_clean_tb %>%
   filter(tb_disagg == "Specimen Sent Total") %>%
   dplyr::group_by(usaid_facility, ou5uid, datim_uid, new_ou5_code, period, DSD_TA,
                   Province, District, SubDistrict, Facility,
-                  Sex, CoarseAgeGroup, Result, indicator, numeratordenom) %>%
+                  Sex, FineAgeGroup, Result, indicator, numeratordenom) %>%
   dplyr::summarise(dplyr::across(tidyselect::starts_with("Total"), sum, na.rm = TRUE), .groups = "drop")
 
 #grab column names for NDOH
@@ -192,7 +214,7 @@ col_names <- tb_sent %>%
   names()
 
 col_names <- col_names[col_names %ni% c("Total")]
-group_vars <- c("Sex", "CoarseAgeGroup", "Result", "DSD_TA")
+group_vars <- c("Sex", "FineAgeGroup", "Result", "DSD_TA")
 group_vars <- col_names[col_names %ni% c("usaid_facility", "ou5uid", "datim_uid",
                                          'new_ou5_code', 'period', 'Province', 'District',
                                          'SubDistrict', 'Facility')]
@@ -223,9 +245,24 @@ tb_all_final <- bind_rows(tb_all, tb_sent_map) %>%
 # tb_testtype %>%
 #   janitor::get_dupes("mech_uid","orgUnit_uid","dataElement_uid","categoryOptionCombo_uid","period")
 
+tb_all_final %>%
+  janitor::get_dupes("mech_uid","orgUnit_uid","dataElement_uid","categoryOptionCombo_uid","period")
 
 
 # MAP -------------------------------------------------------------------------------------------
+
+# pre-work before mpaping because the file keeps changing
+
+ndoh_clean <- ndoh_clean %>%
+  mutate(`Test Result/Outcome/Duration` = case_when(indicator == "TB_PREV" & `Test Result/Outcome/Duration` == "Previously on ART" ~ "Previously On ART",
+                                                    str_detect(indicator, "TX_TB") & `Test Result/Outcome/Duration` == "Previously on ART" ~ "Previously On ART",
+                                                    TRUE ~ `Test Result/Outcome/Duration`))
+
+ndoh_clean %>%
+  count(indicator, `Test Result/Outcome/Duration`) %>% filter(str_detect(indicator, "TX_TB"))
+
+#Previously on ART
+
 
 #Map dataelements and mechs
 df_mapped <- ndoh_post_processing(ndoh_clean %>%
