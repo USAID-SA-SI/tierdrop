@@ -27,7 +27,7 @@ get_meta("FY24Q4")
 
 #set folderpaths (@to-do turn this into a get_metadata() function later)
 ndoh_filepath <- ndoh_folderpath %>% glamr::return_latest("joined")
-ndoh_filepath_new <- ndoh_folderpath %>% glamr::return_latest("MER Reporting FY24Q4 05122024 PM")
+ndoh_filepath_new <- ndoh_folderpath %>% glamr::return_latest("MER Reporting FY24Q4 TB STAT Revision_101224")
 
 
 #check to ensure that the most recent ndoh_file is the you want to use
@@ -101,6 +101,8 @@ test_df <- import_ndoh2(filepath = ndoh_filepath_new, qtr = curr_qtr, kp = FALSE
 
 ndoh_all <- test_df
 validate_ndoh(ndoh_all)
+
+write_csv(ndoh_all, "data-raw/FY24Q4c_ndoh_all_input.csv")
 
 
 
