@@ -92,8 +92,7 @@ df_fac <- clean_mfl(mfl_period = "FY24Q4") %>%
 
 
 
-test_df <- import_ndoh2(filepath = ndoh_filepath_new, qtr = curr_qtr, kp = FALSE,
-                        skip_tabs = c("TX_CURR", "TX_NEW", "TX_PVLS_Denom", "TX_PVLS_Numer")) %>%
+test_df <- import_ndoh2(filepath = ndoh_filepath_new, qtr = curr_qtr, kp = FALSE) %>%
   filter(Facility %ni% c("fs Beatrix Clinic",
                          "fs Harmony South Joel Occupational Health Centre",
                          "fs Harmony South Target Occupational Health Centre",
