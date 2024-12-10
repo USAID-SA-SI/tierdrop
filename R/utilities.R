@@ -227,8 +227,8 @@ import_ndoh2 <- function(filepath, qtr, kp = FALSE, skip_tabs = NULL) {
     return(validated_data)
   })
 
-  df <- df %>%
-    dplyr::select(dplyr::all_of(unique(unlist(lapply(indic_list, get_expected_columns)))), tidyselect::everything())
+  # df <- df %>%
+  #   dplyr::select(dplyr::all_of(unique(unlist(lapply(indic_list, get_expected_columns)))), tidyselect::everything())
 
 
   # Final processing
@@ -269,6 +269,64 @@ import_ndoh2 <- function(filepath, qtr, kp = FALSE, skip_tabs = NULL) {
 
 
 
+}
+
+validate_columns <- function(df, sheet_name, expected_cols) {
+  library(dplyr)
+  library(tibble)
+  library(glue)
+  library(stringdist)
+
+  # Identify missing columns
+  missing_cols <- setdiff(expected_cols, names(df))
+
+  # Find possible matches for missing columns
+  summary_tibble <- tibble(
+    tab_name = sheet_name,
+    expected_col = missing_cols,
+    # missing_col = NA_character_,
+    possible_match = sapply(missing_cols, function(missing_col) {
+      matches <- stringdist::stringdistmatrix(missing_col, names(df), method = "jw") %>%
+        as.numeric() %>%
+        setNames(names(df))
+      closest_match <- names(which.min(matches))
+      return(closest_match)
+    })
+  )
+
+  # Display summary
+  if (nrow(summary_tibble) > 0) {
+    cat(glue::glue("Summary of misaligned columns for '{sheet_name}':\n"))
+    print(summary_tibble)
+    cat("\n")
+  }
+
+  # Interactive user prompt for each mismatch
+  for (i in seq_len(nrow(summary_tibble))) {
+    row <- summary_tibble[i, ]
+    expected <- row$expected_col
+    closest <- row$possible_match
+    user_choice <- readline(prompt = glue::glue("Do you want to override '{closest}' to '{expected}'? (1 = Yes, 2 = No): "))
+
+    if (user_choice == "1") {
+      names(df)[names(df) == closest] <- expected
+      cat(glue::glue("Column '{closest}' renamed to '{expected}'.\n"))
+    } else {
+      cat(glue::glue("Skipping override for '{expected}'.\n"))
+    }
+  }
+
+  # Warn about extra columns
+  extra_cols <- setdiff(names(df), expected_cols)
+  if (length(extra_cols) > 0) {
+    warning(glue::glue("Tab '{sheet_name}' has extra columns: {paste(extra_cols, collapse = ', ')}"))
+  }
+
+  # Ensure columns match expected structure
+  df <- df %>%
+    dplyr::select(dplyr::all_of(expected_cols), tidyselect::everything())
+
+  return(df)
 }
 
 # Helper function to get expected columns for a specific tab
