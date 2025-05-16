@@ -16,7 +16,7 @@ clean_mfl <- function(mfl_period = period, type = "main") {
   tab_name <- str_c("MFL_", fy, "_", curr_qtr)
 
   #Read in MFL from google drive (need to parameterize this for the sheet name)
-  mfl_new_df <- googlesheets4::read_sheet(mfl_fy24_id, sheet = tab_name)
+  mfl_new_df <- googlesheets4::read_sheet(mfl_fy25_id, sheet = tab_name)
 
   if (type == "main") {
 

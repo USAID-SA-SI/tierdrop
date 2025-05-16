@@ -31,13 +31,13 @@ list.files(folderpath)
 
 # 1) pull in tier files -----------------------------------------------------------
 
-fy24q4_tier <- dataout %>%
-  return_latest("FY24Q4_TIER_Import_File_v5_FINAL_2024-11-13") %>%
+fy25q1_tier <- dataout %>%
+  return_latest("FY25Q1_TIER_Import_File_v4_2025-04-08") %>%
   read_csv()
 
 
 # first, lets pull non TIER -----------------------------------------------------
-fy24q4_nontier <- folderpath %>%
+fy25q1_nontier <- folderpath %>%
   return_latest("Appended Non-TiER") %>% #change to match the extract filepath
   read_csv() %>%
   select(mech_uid,orgUnit_uid, dataElement_uid, categoryOptionCombo_uid, value, period) %>%
