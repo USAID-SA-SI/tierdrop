@@ -24,6 +24,7 @@ get_meta <- function(period) {
 
   #extract current FY and qtr
   fiscal_quarter <<- period
+  fy <<- glue::glue("FY{stringr::str_sub(period, start = 3, end = 4)}")
   curr_fy <<- glue::glue("20{stringr::str_sub(period, start = 3, end = 4)}")
   curr_qtr <<- glue::glue("{stringr::str_sub(period,start = 5)}")
   today <- lubridate::today()
@@ -74,7 +75,7 @@ get_meta <- function(period) {
   validation_vars <<- c("period","Province", "District","SubDistrict", "Facility",
                        "orgUnit_uid", "mech_code", "mech_uid",
                        "indicator", "numeratordenom", "Sex",
-                       "CoarseAgeGroup", "Result","dataElement", "dataElement_uid", "categoryOptionComboName",
+                       "FineAgeGroup", "Result","dataElement", "dataElement_uid", "categoryOptionComboName",
                        "categoryOptionCombo_uid", "value")
 
   #print

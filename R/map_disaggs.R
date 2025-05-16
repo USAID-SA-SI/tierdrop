@@ -47,11 +47,11 @@ map_disaggs <- function(df, ind_sel = "All", disaggregate = "All", all_indic = T
     if (ind_sel == "PrEP_CT" & disaggregate == "Age/Sex") {
       unselect_vars <- c("Test Result/Outcome/Duration", "Result")
     } else if (ind_sel == "PrEP_CT" & disaggregate == "TestResult") {
-      unselect_vars <- c("Sex", "CoarseAgeGroup")
+      unselect_vars <- c("Sex", "FineAgeGroup")
     } else if (ind_sel == "TX_RTT" & disaggregate == "Age/Sex/CD4/HIVStatus") {
       unselect_vars <- c()
     } else if (ind_sel == "TX_RTT" & disaggregate == "ARTNoContactReasonIIT") {
-      unselect_vars <- c("Sex", "CoarseAgeGroup")
+      unselect_vars <- c("Sex", "FineAgeGroup")
     }
 
     select_vars <- col_names[col_names %ni% c(unselect_vars)]
@@ -118,11 +118,11 @@ df_rtt_nocontact <- df %>%
          stringr::str_detect(`Test Result/Outcome/Duration`, "IIT")) %>%
   map_disaggs(., "TX_RTT", "ARTNoContactReasonIIT", FALSE) %>%
   dplyr::mutate(Sex = NA,
-         CoarseAgeGroup = NA) %>%
-  dplyr::relocate(CoarseAgeGroup, .before = Total) %>%
-  dplyr::relocate(Sex, .before = CoarseAgeGroup) %>%
+         FineAgeGroup = NA) %>%
+  dplyr::relocate(FineAgeGroup, .before = Total) %>%
+  dplyr::relocate(Sex, .before = FineAgeGroup) %>%
   dplyr::mutate(Sex = as.character(Sex),
-         CoarseAgeGroup = as.character(CoarseAgeGroup))
+         FineAgeGroup = as.character(FineAgeGroup))
 
 df_rtt_age <- df %>%
   dplyr::filter(indicator == "TX_RTT",
@@ -155,8 +155,8 @@ if (export_type == "Import") {
 } else if (export_type == "Validation") {
   keep_vars <- c("period","Province", "District","SubDistrict", "Facility", "DSD_TA",
                  "datim_uid", "mech_code", "mech_uid", 'prime_partner_name',
-                 "indicator", "numeratordenom","Test Result/Outcome/Duration", "Sex",
-                 "CoarseAgeGroup","dataElement", "dataElement_uid", "categoryOptionComboName",
+                 "indicator", "numeratordenom","Test Result/Outcome/Duration", "Sex", "Result",
+                 "FineAgeGroup","dataElement", "dataElement_uid", "categoryOptionComboName",
                  "categoryOptionCombo_uid", "Total")
 }
 
